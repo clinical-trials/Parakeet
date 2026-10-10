@@ -285,48 +285,91 @@ function renderReview(){
 }
 function decide(id,status){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.status=status; a.decidedAt=new Date().toISOString(); } }); saveApps(apps); render(); }
 
-/* ---------- chain-of-custody (unique-ID, not RFID) ---------- */
-function loadCustody(){ try{ return JSON.parse(localStorage.getItem('parakeet_custody_v1')||'{"lots":[]}'); }catch(e){ return {lots:[]}; } }
+/* ---------- chain-of-custody (unique-ID, not RFID) · seeded with the first NM producer ---------- */
+var SEED_PRODUCER='Sacred Alto Spores';
+var SEED_STRAINS=['Golden Teacher','Columbian Rust','Inca Stargazer','Tidal Wave'];
+var STRAIN_INFO = {
+  'Golden Teacher':{sp:'Psilocybe cubensis', note:'Classic, beginner-friendly cultivar; reliable, introspective.', pot:'~0.5–0.9% total tryptamines (community data)'},
+  'Columbian Rust':{sp:'Psilocybe cubensis', note:'Colombian-derived cultivar; large fruits, few aborts (vendor-reported); little independent data.', pot:'not well documented'},
+  'Inca Stargazer':{sp:'Psilocybe cubensis', note:'“Stargazer” cultivar; Andes/Machu Picchu origin story is marketing, unverified.', pot:'not well documented'},
+  'Tidal Wave':{sp:'Psilocybe cubensis', note:'Penis Envy × B+ hybrid (2017); high potency — its Enigma offshoot set the ~3.8% Psilocybin Cup record (2021).', pot:'~1.2% typical, up to ~3–4% peak (community data)'}
+};
+function defaultCustody(){
+  return { lots: SEED_STRAINS.map(function(s,i){
+    return {id:'LOT-SAS'+(i+1), strain:s, producer:SEED_PRODUCER, date:'2026-10-09', wt:'500', unit:'capsule', npkg:12, psi:null, pass:'Awaiting COA', status:'awaiting-coa', pkgs:[]};
+  }) };
+}
+function loadCustody(){ try{ var raw=localStorage.getItem('parakeet_custody_v1'); return raw? JSON.parse(raw): defaultCustody(); }catch(e){ return defaultCustody(); } }
 function saveCustody(c){ try{ localStorage.setItem('parakeet_custody_v1', JSON.stringify(c)); }catch(e){} }
+function resetCustody(){ try{ localStorage.removeItem('parakeet_custody_v1'); }catch(e){} render(); }
+function mchip(n,l){ return '<div style="flex:1;min-width:88px;background:#fff;border:1px solid #dbe1e4;border-radius:8px;padding:8px 10px;text-align:center"><div style="font-size:20px;font-weight:800;color:#1f5a54">'+n+'</div><div class="appmeta">'+l+'</div></div>'; }
 function renderCustody(){
   var c=loadCustody();
-  var h='<h1>Chain-of-custody &amp; COA</h1><div class="sub">Software-generated unique IDs (QR/barcode) at <b>lot + package</b> level, tied to COA potency (mg) — <b>no RFID, no tag fees</b>. Works for NM &amp; CO; feeds the §9 mg-per-session metric. Prototype; local data.</div>';
-  h+='<div class="card"><h3 style="margin:0 0 12px;color:var(--pine2);font-size:14px">Register a harvest lot</h3><div class="grid">'+
+  var tested=0, awaiting=0, admin=0;
+  c.lots.forEach(function(l){ if(l.status==='awaiting-coa')awaiting++; else tested++; l.pkgs.forEach(function(p){ if(p.status==='administered')admin++; }); });
+  var h='<h1>Chain-of-custody &amp; COA</h1><div class="sub">Unique IDs at <b>batch → lot → package</b>, tied to COA potency (mg) — no RFID. The chain ends at <b>administration to an enrolled patient</b> (mg dosed → §9), not a retail sale. Seeded with the first NM-permitted producer. Prototype; local data.</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(c.lots.length,'Lots')+mchip(awaiting,'Awaiting COA')+mchip(tested,'Tested &amp; packaged')+mchip(admin,'Administered → §9')+'</div>';
+  h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><b>🍄 Sacred Alto Spores</b> — first NM-permitted producer. <b>4 strains in the system, ready to be lab tested.</b><div class="appmeta" style="margin-top:4px">⚠ No NM testing laboratory is permitted yet — lab-permit applications open <b>10/05/2026</b> (DOH) — so every COA is <b>Pending</b>. &ldquo;Record COA (lab)&rdquo; simulates the lab step for the demo. · <a href="#" onclick="resetCustody();return false;">Reset demo data</a></div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 12px;color:#1f5a54;font-size:14px">Register a harvest lot</h3><div class="grid">'+
      '<div class="field"><label>Strain</label><input id="c_strain" value="Golden Teacher"></div>'+
+     '<div class="field"><label>Producer</label><input id="c_producer" value="Sacred Alto Spores"></div>'+
      '<div class="field"><label>Harvest date</label><input id="c_date" type="date"></div>'+
      '<div class="field"><label>Wet weight (g)</label><input id="c_wt" type="number" value="500"></div>'+
-     '<div class="field"><label>Testing lab</label><input id="c_lab" placeholder="accredited NM lab"></div>'+
-     '<div class="field"><label>Psilocybin (mg per unit)</label><input id="c_psi" type="number" step="0.1" value="25"></div>'+
-     '<div class="field"><label>COA result</label><select id="c_pass"><option>Pass</option><option>Fail</option><option>Pending</option></select></div>'+
      '<div class="field"><label>Unit type</label><input id="c_unit" value="capsule"></div>'+
-     '<div class="field"><label># packages to create</label><input id="c_npkg" type="number" value="10"></div>'+
-     '</div><div class="actions"><span class="note">Lot &amp; each package get a unique ID; packages inherit the COA potency.</span><button class="btn primary" onclick="registerLot()">Create lot + COA + packages</button></div></div>';
-  if(!c.lots.length) h+='<div class="empty">No lots yet — register one above to see the unique-ID custody chain.</div>';
+     '<div class="field"><label># packages (after COA)</label><input id="c_npkg" type="number" value="12"></div>'+
+     '</div><div class="actions"><span class="note">New lots enter <b>Awaiting COA</b> — the lab sets potency, then packages are created.</span><button class="btn primary" onclick="registerLot()">Create lot (awaiting COA)</button></div></div>';
+  if(!c.lots.length) h+='<div class="empty">No lots. Register one above, or reset to reload the Sacred Alto Spores strains.</div>';
   c.lots.forEach(function(l){
-    var sc=l.pass==='Pass'?'s-approved':(l.pass==='Fail'?'s-denied':'s-submitted');
-    h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><span class="status '+sc+'">COA '+esc(l.pass)+'</span></div>';
-    h+='<div class="appmeta">Harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · lab: '+esc(l.lab||'—')+' · <b>'+esc(l.psi)+' mg/'+esc(l.unit)+'</b></div>';
-    h+='<div class="kv" style="margin-top:6px"><b>Packages &amp; custody chain:</b></div>';
-    h+=l.pkgs.map(function(p){
-      var ev=p.events.join(' → ');
-      var act= p.status==='in-inventory' ? '<button class="btn sm" onclick="transferPkg(\''+l.id+'\',\''+p.id+'\')">Transfer</button>' : '<span class="status s-approved">transferred</span>';
-      return '<div class="approw"><div><span class="pill">'+p.id+'</span> <span class="appmeta">'+esc(l.psi)+' mg/'+esc(l.unit)+'</span><div class="appmeta">custody: '+esc(ev)+'</div></div>'+act+'</div>';
-    }).join('');
-    h+='</div>';
+    if(l.status==='awaiting-coa'){
+      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><span class="status s-submitted">Awaiting COA</span></div>';
+      h+='<div class="appmeta">'+esc(l.producer)+' · harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · '+esc(l.npkg)+' '+esc(l.unit)+'(s) planned</div>';
+      var si=STRAIN_INFO[l.strain]; if(si) h+='<div class="appmeta" style="margin-top:2px"><i>'+si.sp+'</i> — '+si.note+' Typical '+si.pot+'; <b>the COA sets the actual mg</b>.</div>';
+      h+='<div class="kv" style="margin-top:6px"><b>Ready to be lab tested</b> — 7.35.2.19 panel: psilocybin/psilocin mg, microbial, heavy metals, pesticides.</div>';
+      h+='<div class="actions" style="margin-top:8px"><span class="note">Potency (mg/unit) is set from the Certificate of Analysis.</span><button class="btn sm" onclick="recordCOA(\''+l.id+'\')">Record COA (lab) → package</button></div>';
+      h+='</div>';
+    } else {
+      var sc=l.pass==='Pass'?'s-approved':(l.pass==='Fail'?'s-denied':'s-submitted');
+      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><span class="status '+sc+'">COA '+esc(l.pass)+'</span></div>';
+      h+='<div class="appmeta">'+esc(l.producer)+' · harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · <b>'+esc(l.psi)+' mg/'+esc(l.unit)+'</b></div>';
+      var si=STRAIN_INFO[l.strain]; if(si) h+='<div class="appmeta" style="margin-top:2px"><i>'+si.sp+'</i> — '+si.note+' Typical '+si.pot+'; <b>the COA set the actual mg</b>.</div>';
+      h+='<div class="kv" style="margin-top:6px"><b>Packages &amp; custody chain:</b></div>';
+      h+=l.pkgs.map(function(p){
+        var ev=p.events.join(' → ');
+        var act;
+        if(p.status==='in-inventory') act='<button class="btn sm" onclick="transferPkg(\''+l.id+'\',\''+p.id+'\')">Transfer</button>';
+        else if(p.status==='transferred') act='<button class="btn sm" onclick="administerPkg(\''+l.id+'\',\''+p.id+'\')">Administer</button>';
+        else act='<span class="status s-approved">administered → §9</span>';
+        return '<div class="approw"><div><span class="pill">'+p.id+'</span> <span class="appmeta">'+esc(l.psi)+' mg/'+esc(l.unit)+'</span><div class="appmeta">custody: '+esc(ev)+'</div></div>'+act+'</div>';
+      }).join('');
+      h+='</div>';
+    }
   });
   return h;
 }
 function registerLot(){
   var g=function(id){return document.getElementById(id).value;};
   var c=loadCustody();
-  var lot={id:'LOT-'+Math.random().toString(36).slice(2,7).toUpperCase(), strain:g('c_strain')||'(strain)', date:g('c_date'), wt:g('c_wt')||'0', lab:g('c_lab'), psi:g('c_psi')||'0', pass:g('c_pass'), unit:g('c_unit')||'unit', pkgs:[]};
-  var n=Math.max(1,Math.min(100, parseInt(g('c_npkg'))||1));
-  for(var i=0;i<n;i++){ lot.pkgs.push({id:'PKG-'+Math.random().toString(36).slice(2,7).toUpperCase(), status:'in-inventory', events:['harvested','homogenized','packaged','COA '+lot.pass]}); }
+  var lot={id:'LOT-'+Math.random().toString(36).slice(2,7).toUpperCase(), strain:g('c_strain')||'(strain)', producer:g('c_producer')||'(producer)', date:g('c_date'), wt:g('c_wt')||'0', unit:g('c_unit')||'unit', npkg:Math.max(1,Math.min(100,parseInt(g('c_npkg'))||12)), psi:null, pass:'Awaiting COA', status:'awaiting-coa', pkgs:[]};
   c.lots.unshift(lot); saveCustody(c); render();
+}
+function recordCOA(lotId){
+  var c=loadCustody();
+  c.lots.forEach(function(l){ if(l.id===lotId && l.status==='awaiting-coa'){
+    l.psi=(24 + Math.round(Math.random()*20)/10).toFixed(1);
+    l.pass='Pass'; l.status='tested';
+    var n=Math.max(1,Math.min(100, parseInt(l.npkg)||12)); l.pkgs=[];
+    for(var i=0;i<n;i++){ l.pkgs.push({id:'PKG-'+Math.random().toString(36).slice(2,7).toUpperCase(), status:'in-inventory', events:['packaged','COA Pass · '+l.psi+' mg/'+l.unit]}); }
+  }});
+  saveCustody(c); render();
 }
 function transferPkg(lotId,pkgId){
   var c=loadCustody();
   c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='transferred'; p.events.push('transferred → verified healing center'); } }); });
+  saveCustody(c); render();
+}
+function administerPkg(lotId,pkgId){
+  var c=loadCustody();
+  c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='administered'; var eid='ENR-'+Math.random().toString(36).slice(2,6).toUpperCase(); p.events.push('administered → '+eid+' · '+l.psi+' mg dosed'); p.events.push('§9 outcome logged (de-identified)'); } }); });
   saveCustody(c); render();
 }
 

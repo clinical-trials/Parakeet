@@ -164,6 +164,16 @@
     .row .k{flex:0 0 44%}
     .skipIntro{top:12px;right:12px;padding:8px 12px}
   }
+  .chainflow{display:flex;gap:0;align-items:stretch;min-width:940px}
+  .stage{flex:1;min-width:116px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 9px;margin-right:18px;position:relative}
+  .stage:last-child{margin-right:0}
+  .stage::after{content:"\2192";position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:#9aa3a8;font-weight:700;font-size:14px}
+  .stage:last-child::after{content:""}
+  .stage.key{border-color:#e8d3a0;background:var(--goldbg)}
+  .stage .sname{font-weight:800;font-size:11.5px;color:var(--pine2);line-height:1.2}
+  .stage .sid{font-family:ui-monospace,Menlo,monospace;font-size:9px;color:#2f5f45;background:var(--greenbg);border:1px solid #bfe3cc;border-radius:4px;padding:1px 5px;display:inline-block;margin:4px 0}
+  .stage .scap{font-size:10px;color:var(--muted);line-height:1.3}
+  .stage .scite{margin-top:5px}
 </style>
 </head>
 <body>
@@ -255,7 +265,7 @@
   <div class="sectlabel">Two products, one engine &mdash; a govtech and a regtech</div>
   <div class="grid">
     <div class="card"><h3>Govtech &mdash; sold to the state</h3>
-      <div class="note" style="color:var(--ink);font-size:13px;line-height:1.5">The department-designated <b>systems of record</b>: licensing &amp; applications, product <b>traceability</b>, <b>patient enrollment</b>, §9 de-identified reporting, and the annual producer/patient audit. <b>Customer:</b> NM DOH (CO: DNM + DORA). <b>Model:</b> state designation + licensee-funded fees (Metrc/BioTrack pattern). <i>In NM: licensing is BioTrack&rsquo;s today; traceability &amp; enrollment are open.</i></div>
+      <div class="note" style="color:var(--ink);font-size:13px;line-height:1.5">The department-designated <b>systems of record</b>: licensing &amp; applications, product <b>traceability</b>, <b>patient enrollment</b>, §9 de-identified reporting, and the annual producer/patient audit. <b>Customer:</b> NM DOH (CO: DNM + DORA). <b>Model:</b> state designation + licensee-funded fees. <i>In NM: licensing runs on the incumbent state vendor&rsquo;s portal today; traceability &amp; enrollment are open.</i></div>
     </div>
     <div class="card"><h3>Regtech &mdash; sold to the licensees</h3>
       <div class="note" style="color:var(--ink);font-size:13px;line-height:1.5">Operator compliance software that <b>integrates with the state rail</b> (API / HIPAA-business-associate upload): producers, labs, certifying clinicians, practitioners, facilitators, healing centers. <b>Customer:</b> the licensees. <b>Model:</b> per-seat SaaS (~$150&ndash;$600/mo <i>est.</i>) + services.</div>
@@ -284,6 +294,15 @@
     <div class="card full" id="systemsCard"><h3>The three department-designated systems &mdash; vendor scope (per the rules)</h3><div id="systemsBlock"></div></div>
   </div>
 
+  <div class="sectlabel" id="chainLabel">Spore-to-session chain of custody &mdash; unbroken, inoculation to end use</div>
+  <div class="card full">
+    <div class="tablescroll"><div id="chainFlow" class="chainflow"></div></div>
+    <div class="note">Each unique ID (<b>batch &rarr; lot &rarr; package</b>) carries its lineage forward; <b>gold</b> stages are the evidence-based differentiators of a medical program. Toggle NM/CO for each stage&rsquo;s legal basis. Batch-level unique IDs &middot; <b>COA mg potency drives the dose</b> &middot; the chain ends at <b>administration to an enrolled patient</b>.</div>
+  </div>
+
+  <div class="sectlabel" id="uniqueLabel">Traceability routes unique to NM&rsquo;s medical psilocybin program</div>
+  <div class="card full" id="uniqueCard"><div id="uniqueBlock"></div></div>
+
   <div class="sectlabel">Law &harr; Software traceability</div>
   <div class="card full">
     <div class="tablescroll">
@@ -293,6 +312,14 @@
     </table>
     </div>
     <div class="note">The active state&rsquo;s column is highlighted. Every capability maps to a specific statute or rule &mdash; toggle above to see how the same feature is governed differently.</div>
+  </div>
+
+  <div class="sectlabel">Tribal &amp; Indigenous engagement &mdash; sovereignty-first</div>
+  <div class="card full"><div id="tribalBlock"></div></div>
+
+  <div class="sectlabel">Security &amp; data-trust posture &mdash; target certification roadmap</div>
+  <div class="card full"><div id="securityBlock"></div>
+    <div class="note"><b>Target posture / roadmap</b> for a state-designated system holding PHI + licensee data &mdash; <b>not yet certified</b>; shown for diligence. For <b>state health data</b>, HITRUST CSF + StateRAMP are the apt bars (StateRAMP = the state-government analog of FedRAMP; HITRUST folds HIPAA + NIST + FedRAMP into one health-specific certification). A <b>New-Mexico-based</b>, health-data-first vendor (HIPAA/HITRUST) is the right fit for NM DOH.</div>
   </div>
 
   <div class="legend">
@@ -307,10 +334,79 @@
 /* ---------- Shared core: modules common to every state (from Oregon TLC) ---------- */
 const CORE_MODULES = [
   "Accounts & roles", "Permit applications & DOH review", "Certification (clinician/practitioner/facilitator/center)",
-  "Patient enrollment & review", "Product tracking (seed-to-session)", "Testing & COA (psilocybin/psilocin mg)",
+  "Patient enrollment & review", "Product tracking (spore-to-session)", "Testing & COA (psilocybin/psilocin mg)",
   "De-identified §9 reporting", "Annual audit & assessment", "Compliance, discipline & appeals", "Messaging & payments"
 ];
 const VPROPS = ["Simple to use","Compliance help — incl. lab health & safety","Minimizes provider & patient burden","Regulator & Secretary dashboard","Advisory-board reporting"];
+
+/* ---------- Spore-to-session chain of custody (inoculation → end use) ---------- */
+const CHAIN = [
+  {s:"Inoculation", id:"BATCH-ID", cap:"Dikaryotic culture or grain spawn (from spore syringe / liquid culture) introduced to sterilized substrate; batch ID created & logged", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
+  {s:"Colonization → pinning → fruiting", id:"carries BATCH-ID", cap:"Mycelium colonizes the substrate (spawn run); environmental cues trigger hyphal knots → primordia (pinning) → fruiting bodies; tracked at the batch level", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
+  {s:"Harvest (flush)", id:"LOT-ID", cap:"Fruiting bodies harvested before sporulation; batched by flush → new lot ID inherits the full inoculation-to-harvest lineage", nm:"7.35.2 NMAC", co:"1 CCR 213-1 (8000-series)"},
+  {s:"Lab test & COA", id:"COA ↔ LOT", cap:"Psilocybin/psilocin mg + microbial, heavy metals, pesticides — mg potency becomes the clinical dosing input", nm:"7.35.2.19 NMAC", co:"1 CCR 213-1 (testing)", key:true},
+  {s:"Packaging", id:"PKG-ID", cap:"Units inherit lot + COA mg/unit; label & unique ID printed", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
+  {s:"Verified transfer", id:"MANIFEST", cap:"Producer → lab → healing center / approved location; origin, contents, handler credentials verified in-system", nm:"7.35.3 (verified transfer)", co:"1 CCR 213-1 (8000-series)"},
+  {s:"Administration (end use)", id:"SESSION ↔ ENROLLEE", cap:"Clinician/facilitator administers in a supervised session; mg analyte dosed recorded to the enrolled patient (the end-use terminus)", nm:"7.35.3 · SB219 §3.D", co:"Prop 122 (facilitated admin)", key:true},
+  {s:"§9 outcome", id:"DE-IDENTIFIED", cap:"Dose + outcome → de-identified §9 assessment + Secretary dashboard (health outcomes, not tax revenue)", nm:"SB219 §9", co:"1 CCR 213-1 (inventory only)", key:true}
+];
+function renderChain(){
+  var el=document.getElementById('chainFlow'); if(!el) return;
+  el.innerHTML = CHAIN.map(function(c){
+    var cite = (ACTIVE==='nm') ? c.nm : c.co;
+    return '<div class="stage'+(c.key?' key':'')+'"><div class="sname">'+c.s+'</div><div class="sid">'+c.id+'</div><div class="scap">'+c.cap+'</div><div class="scite cite '+ACTIVE+'">'+cite+'</div></div>';
+  }).join('');
+}
+
+/* ---------- Traceability routes unique to NM's medical model ---------- */
+const NM_UNIQUE = [
+  {k:"Closed medical loop", v:"Producer → lab → healing center / approved location → supervised administration. Product moves only within the licensed program and is administered in a session — never sold over the counter."},
+  {k:"Batch/flush unique IDs", v:"Mushrooms fruit in batches from colonized substrate, so IDs attach at batch → lot → package — an unbroken lineage without costly per-item physical tags."},
+  {k:"Clinician gate before product reaches a patient", v:"A certifying clinician (NM controlled-substances #) + ≤30-day DOH review (7.35.3) must clear the enrolled patient — a custody checkpoint that gates product movement to any patient."},
+  {k:"COA mg potency is a dosing input", v:"7.35.2.19 potency (psilocybin/psilocin mg) drives the individualized flat-mg dose — clinical, not a package label or a tax basis."},
+  {k:"End use = administration, tracked to the enrollee + mg dosed", v:"The final link is a supervised session recorded against the enrollment ID and the mg analyte administered — the true inoculation-to-end-use terminus (7.35.3 def)."},
+  {k:"Chain feeds health outcomes (§9), not tax revenue", v:"Aggregated data flows to the de-identified §9 assessment + Secretary dashboard for safety & efficacy — a health-outcomes registry, not an excise-tax ledger."}
+];
+function renderUnique(){
+  var card=document.getElementById('uniqueCard'), el=document.getElementById('uniqueBlock'); if(!card||!el) return;
+  if(ACTIVE==='nm'){
+    el.innerHTML = NM_UNIQUE.map(function(u){return row(u.k,u.v);}).join('') +
+      '<div class="note">These routes are unique to a <b>medical</b> psilocybin program — they distinguish it from CO’s non-medical (Prop 122) model.</div>';
+  } else {
+    el.innerHTML = '<div class="note" style="font-size:13px;color:var(--ink)">Colorado is <b>non-medical</b> (Prop 122): no clinician gate, no §9 health-outcome registry, no qualifying condition. Its chain still runs batch → lot → package → verified transfer → facilitated administration, but terminates at a <b>facilitated session</b> (not a medical administration) and reports <b>inventory only</b> (1 CCR 213-1, 8000-series). Toggle to New Mexico for the medical-specific routes.</div>';
+  }
+}
+
+/* ---------- Tribal & Indigenous engagement — sovereignty-first ---------- */
+const TRIBAL = [
+  {k:"Government-to-government consultation", v:"Formal tribal consultation under NM's <b>State-Tribal Collaboration Act (2009)</b> — not a marketing afterthought. Consultation records & notice workflows for NM's <b>23 sovereign nations</b> (19 Pueblos, the Navajo Nation, and three Apache nations)."},
+  {k:"Indigenous Data Sovereignty (CARE + OCAP)", v:"Tribal data governed by the tribe — <b>CARE</b> (Collective benefit, Authority to control, Responsibility, Ethics) + <b>OCAP</b> (Ownership, Control, Access, Possession). Per-tribe tenant with tribe-controlled residency, access & retention."},
+  {k:"Licensing parity for tribal-owned operators", v:"Equal producer / healing-center / provider pathways for tribal-owned businesses; recognition of a tribe's own regulatory body where one exists, and tribal–state coordination where it doesn't."},
+  {k:"Protect sacred & ceremonial practice", v:"Regulated medical psilocybin kept distinct from protected Indigenous ceremonial/religious practice — no commodification of sacred traditions (mirroring the logic that deliberately excludes peyote to protect Native American Church use)."},
+  {k:"Equity, Access & Cultural committee feed", v:"Tribe-authorized, de-identified participation & cultural-safety metrics flow to the MPAB <b>Equity, Access & Cultural</b> committee — turning engagement into reportable, improvable practice."}
+];
+function renderTribal(){
+  var el=document.getElementById('tribalBlock'); if(!el) return;
+  el.innerHTML = TRIBAL.map(function(t){return row(t.k,t.v);}).join('') +
+    '<div class="note">Sovereignty-first by design: Parakeet centers tribal <b>sovereignty</b>, <b>Indigenous Data Sovereignty</b> (CARE + OCAP), formal <b>consultation</b>, and protection of <b>sacred practice</b> — built <i>with</i>, not just sold <i>to</i>, the sovereign nations of New Mexico.</div>';
+}
+
+/* ---------- Security & data-trust posture (target roadmap, honestly labeled) ---------- */
+const SECURITY = [
+  {k:"PHI & patient data", v:"HIPAA Privacy & Security Rules — encryption in transit + at rest, access controls, Business Associate Agreements with every integrator.", tag:"baseline"},
+  {k:"Health-data certification", v:"HITRUST CSF — folds HIPAA + NIST 800-53 + FedRAMP controls into one certifiable health-industry framework (the apt 'better-than-FedRAMP' bar for health data).", tag:"target"},
+  {k:"Service controls", v:"SOC 2 Type II — independent audit of security, availability & confidentiality.", tag:"target"},
+  {k:"Government cloud", v:"StateRAMP (state-government analog of FedRAMP — the customer is a state DOH) + FedRAMP-authorized hosting on AWS GovCloud / Azure Government: isolated US regions for regulated workloads.", tag:"target"},
+  {k:"Access & audit", v:"Role-based least-privilege access, MFA, and immutable audit logs of every record touch (who viewed/changed what, when).", tag:"baseline"},
+  {k:"Data residency & retention", v:"US-only; each state's (and each tribe's) data segregated per tenant; retention configured to §9 / records rules.", tag:"baseline"}
+];
+function renderSecurity(){
+  var el=document.getElementById('securityBlock'); if(!el) return;
+  el.innerHTML = SECURITY.map(function(s){
+    var t='<span class="pill '+(s.tag==='target'?'p-light':'p-core')+'">'+(s.tag==='target'?'roadmap':'baseline')+'</span>';
+    return '<div class="row"><div class="k">'+s.k+' '+t+'</div><div class="v">'+s.v+'</div></div>';
+  }).join('');
+}
 const EVENTS = [
   {d:"2026-10-14",label:"Committee: Dosage, Administration & Clinical Practice",type:"committee",when:"9:00–10:00 AM MT",link:"https://events.gcc.teams.microsoft.com/event/952dbded-fd52-4768-916b-5a2bc7a4ff78@04aa6bf4-d436-426f-bfa4-04b7a70e60ff"},
   {d:"2026-10-15",label:"CO: Natural Medicine Division rules hearing",type:"hearing",when:"per CO Register 9/25"},
@@ -337,11 +433,11 @@ const RULEPACKS = {
     id:"nm", name:"New Mexico", program:"Medical Psilocybin Program",
     sub:"Medical model — a certifying clinician (NM controlled-substances registrant) diagnoses a qualifying condition and judges medical appropriateness; the patient and certifying clinician jointly enroll through the department's electronic system, and DOH decides within 30 days. Certified practitioners and facilitators deliver preparation, administration, and integration sessions at healing centers; producers cultivate and prepare psilocybin and labs test it.",
     access:"medical",
-    regulator:"NM Department of Health — Center for Medical Cannabis & Psilocybin",
+    regulator:"NM Department of Health — Medical Psilocybin Program",
     statute:"SB219 (2025) — Medical Psilocybin Act",
     status:"7.35.2 ADOPTED (producer+lab); 7.35.3 DRAFT (Oct 2 hearing)", statusCite:"7.35.2 & 7.35.3 NMAC",
     regStatusAsOf:"Oct 2026",
-    regStatus:"<b>7.35.2 NMAC (producers + labs) is ADOPTED</b> (promulgated Jun 2026) — producer applications opened mid-July, laboratory applications in August, both via the state portal <b>mpp.nm.btgov.com (BioTrack)</b>. <b>7.35.3 NMAC (patients, certifying clinicians, practitioners, facilitators, healing centers) is still DRAFT</b> — heard Oct 2, 2026 (~30 testified, ~80 comments); the <b>certifying-clinician</b> requirement (controlled-substances registrant) + <b>30-day DOH review</b> are contested as statutory overreach. DOH targets <b>first patients by Dec 2026</b> (statutory deadline Dec 31, 2027).",
+    regStatus:"<b>7.35.2 NMAC (producers + labs) is ADOPTED</b> (promulgated Jun 2026) — producer applications opened mid-July, laboratory applications in August, both via the state portal <b>mpp.nm.btgov.com</b>. <b>7.35.3 NMAC (patients, certifying clinicians, practitioners, facilitators, healing centers) is still DRAFT</b> — heard Oct 2, 2026 (~30 testified, ~80 comments); the <b>certifying-clinician</b> requirement (controlled-substances registrant) + <b>30-day DOH review</b> are contested as statutory overreach. DOH targets <b>first patients by Dec 2026</b> (statutory deadline Dec 31, 2027).",
     licenses:[
       {name:"Producer (permit)", desc:"Cultivate, harvest, prepare, compound, convert, manufacture, package, label — chain-of-custody & transfer", cite:"7.35.2 NMAC · SB219 §3.E"},
       {name:"Testing laboratory (permit)", desc:"Potency (psilocybin/psilocin mg), microbial, heavy metals, pesticides; issues COA per batch", cite:"7.35.2.19 NMAC · ⚠ none permitted yet"},
@@ -374,7 +470,7 @@ const RULEPACKS = {
       labPanelCite:"7.35.2.19 NMAC",
       transferRule:"Transfer only to permitted healing centers, service centers, or certified facilitators; recipient permit verified before an order is finalized.",
       transferCite:"7.35.2 NMAC",
-      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com — a BT Government (BioTrack) domain — so BT Government powers the psilocybin LICENSING portal today. NOT confirmed: that it's the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). NM is also migrating cannabis OFF BioTrack to NMS2S, so the long-term platform is unsettled — verify with DOH. Either way, MycoTrace's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with BioTrack's licensing portal.",
+      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com (a BT Government domain) — so that incumbent vendor powers the psilocybin LICENSING portal today. NOT confirmed: that it is the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). The incumbent's long-term hold is unsettled — verify with DOH. Either way, MycoTrace's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with the state licensing portal.",
       portalCite:"mpp.nm.btgov.com (BT Government) — scope unverified",
       gap:"⚠ Critical path: NM lab-permit applications are now OPEN via the state portal (mpp.nm.btgov.com); a complete application triggers a DOH site visit within 30 business days. Until a lab is certified, the 7.35.2.19 panel can't run → no COAs → potency stays Pending → product can't be transferred. Lab certification + certifying-clinician certification are the two gates before first-patient enrollment.",
       cite:"7.35.2 NMAC",
@@ -383,7 +479,7 @@ const RULEPACKS = {
     audit:{detail:"Govtech scope: DOH monitors producers & clinicians for compliance (§7B) and publishes a de-identified <b>annual assessment</b> (§9). Software runs the <b>annual producer audit</b> (chain-of-custody reconciliation, batch ↔ COA ↔ transfer, waste), the <b>annual de-identified patient/outcome assessment</b>, and disciplinary actions & appeals.", cite:"SB219 §7B · §9 · 7.35.3 NMAC"},
     systems:[
       {n:"1 · Licensing & applications", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for permit/certification applications & renewals — producers & labs (7.35.2) and certifying clinicians, practitioners, facilitators, healing centers, educational programs (7.35.3). Decision clocks: 30-day review; 60/30-day renewal windows. <i>Currently designated: mpp.nm.btgov.com (BT Government).</i>", cite:"7.35.3.7 def · 7.35.2/7.35.3"},
-      {n:"2 · Traceability (seed-to-end-use)", role:"The <b>&ldquo;traceability system&rdquo;</b> — <i>&ldquo;the department-approved system … to track psilocybin mushrooms and products from inoculation to end use.&rdquo;</i> Chain-of-custody forms generated/verified in-system on every transfer (producer → lab → healing center → administration). <i>Vendor unconfirmed.</i>", cite:"7.35.3 def · §(D) · 7.35.2.19"},
+      {n:"2 · Traceability (spore-to-end-use)", role:"The <b>&ldquo;traceability system&rdquo;</b> — <i>&ldquo;the department-approved system … to track psilocybin mushrooms and products from inoculation to end use.&rdquo;</i> Chain-of-custody forms generated/verified in-system on every transfer (producer → lab → healing center → administration). <i>Vendor unconfirmed.</i>", cite:"7.35.3 def · §(D) · 7.35.2.19"},
       {n:"3 · Patient enrollment", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for 7.35.3.8 enrollment — joint patient + certifying-clinician application, documents/attestations, 30-day DOH decision, 2-yr enrollment. A public comment asks DOH to support <b>API / machine-to-machine submission</b> and <b>HIPAA-business-associate upload</b> on a clinician's behalf. <i>Not live yet; vendor unconfirmed.</i>", cite:"7.35.3.8 NMAC"}
     ],
     systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com (BT Government) for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is MycoTrace's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
@@ -479,7 +575,7 @@ const TRACE = [
   {cap:"Lab testing & COA (psilocybin/psilocin mg)", nm:"7.35.2.19 NMAC (⚠ no NM labs permitted yet)", co:"1 CCR 213-1 (testing license)"},
   {cap:"Provider certification", nm:"7.35.3 (certifying clinician · practitioner · facilitator · healing center)", co:"4 CCR 755-1 (facilitator, clinical facilitator)"},
   {cap:"Patient eligibility & enrollment", nm:"7.35.3.8 (patient + certifying clinician → e-system; ≤30-day DOH review)", co:"Prop 122 (none — 21+)"},
-  {cap:"Chain-of-custody (seed-to-session)", nm:"7.35.2 NMAC (custody + verified transfer)", co:"1 CCR 213-1 (8000-series tightening)"},
+  {cap:"Chain-of-custody (spore-to-session)", nm:"7.35.2 NMAC (custody + verified transfer)", co:"1 CCR 213-1 (8000-series tightening)"},
   {cap:"Session model", nm:"7.35.3 / SB219 §3.D (prep/admin/integration)", co:"Prop 122 (facilitated administration)"},
   {cap:"Dosage / clinical (Parakeet)", nm:"7.35.3 — CORE (medical)", co:"4 CCR 755-1 — LIGHT (clinical facilitator)"},
   {cap:"Annual audit & §9 reporting", nm:"SB219 §7B/§9 + 7.35.3 (producer audit + de-identified patient assessment)", co:"1 CCR 213-1 (inventory reporting only)"},
@@ -613,6 +709,8 @@ function render(){
   var showDai=(p.access==='medical');
   ["daiLabel","daiCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
+
+  renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // toggle button states
   document.querySelectorAll(".toggle button").forEach(b=>
