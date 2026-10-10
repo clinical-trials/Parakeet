@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parakeet — NM Medical Psilocybin Program</title>
+<style>
+  :root{
+    --ink:#20262b; --muted:#5c6870; --line:#dbe1e4; --bg:#f6f8f8;
+    --pine:#17423f; --pine2:#1f5a54; --gold:#a8792b; --goldbg:#faf3e3;
+    --green:#1c7a4a; --greenbg:#e8f5ec; --amber:#9a6a00; --amberbg:#fbf1d8;
+    --blue:#2b5f86; --bluebg:#eef3f6; --slate:#eef1f2;
+    --nm:#a8792b; --co:#2b6f6a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
+  a{color:var(--blue)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 60px}
+  header.top{background:var(--pine);color:#fff;padding:16px 0;margin-bottom:22px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-bottom:0}
+  .brand{font-weight:800;letter-spacing:-.01em;font-size:20px}
+  .brand span{color:#d9b25a}
+  .brand small{display:block;font-weight:500;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9fc0bc;margin-top:2px}
+  /* state toggle */
+  .toggle{display:inline-flex;background:rgba(255,255,255,.12);border-radius:10px;padding:4px;gap:4px}
+  .toggle button{appearance:none;border:0;background:transparent;color:#cfe0dd;font-weight:700;font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
+  .toggle button .dot{width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.55}
+  .toggle button[aria-pressed="true"]{background:#fff;color:var(--pine)}
+  .toggle button[aria-pressed="true"] .dot{opacity:1}
+  .toggle button[data-state="nm"][aria-pressed="true"] .dot{background:var(--nm)}
+  .toggle button[data-state="co"][aria-pressed="true"] .dot{background:var(--co)}
+
+  .statehead{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:6px}
+  .statehead h1{margin:0 0 2px;font-size:24px}
+  .statehead .sub{color:var(--muted);font-size:13px;max-width:640px}
+  .accessbadge{font-weight:700;font-size:12px;padding:6px 12px;border-radius:20px;white-space:nowrap}
+  .access-medical{background:var(--goldbg);color:var(--gold);border:1px solid #e8d3a0}
+  .access-nonmedical{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .card h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--pine2);display:flex;align-items:center;gap:8px}
+  .card.full{grid-column:1/-1}
+  .row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px dashed #edf0f1}
+  .row:first-of-type{border-top:0}
+  .row .k{flex:0 0 40%;font-weight:600}
+  .row .v{flex:1}
+  .cite{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;font-weight:600;background:var(--slate);color:#41525a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-top:3px;white-space:nowrap}
+  .cite.nm{background:#faf3e3;color:#8a5f18;border-color:#e8d3a0}
+  .cite.co{background:#e6f2f0;color:#1c5a54;border-color:#bcdcd7}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+  .p-core{background:var(--goldbg);color:var(--gold);border:1px solid #e8d3a0}
+  .p-light{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
+  .p-off{background:#eef1f2;color:#7a868d;border:1px solid var(--line)}
+  ul.tight{margin:6px 0 0;padding-left:18px}ul.tight li{margin:3px 0}
+  .coretag{font-size:10px;font-weight:700;color:var(--pine2);background:var(--greenbg);border:1px solid #bfe3cc;border-radius:5px;padding:1px 6px;text-transform:uppercase;letter-spacing:.04em}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--pine);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  td.cap{font-weight:600;width:26%}
+  .active-col{background:#fffdf5}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:14px 0 0}
+  .legend b{color:var(--ink)}
+  footer{margin-top:26px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+  .sectlabel{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);font-weight:700;margin:26px 0 2px}
+  /* clinical evidence citations */
+  .cites{list-style:none;padding-left:0;margin:2px 0 0}
+  .cites li{margin:5px 0;font-size:12.5px}
+  .cites a{font-weight:600;text-decoration:none;border-bottom:1px solid #bcd4e6}
+  .cites a:hover{border-bottom-color:var(--blue)}
+  .jnl{color:var(--muted);font-size:11px;font-style:italic}
+  .tagnote{font-size:10px;font-weight:700;color:var(--amber);background:var(--amberbg);border:1px solid #e6cf94;border-radius:5px;padding:1px 6px;text-transform:uppercase;letter-spacing:.03em;vertical-align:middle}
+  /* regulatory status + supply chain + audit */
+  .regstatus{margin:6px 0 2px;font-size:12px;line-height:1.5;background:var(--amberbg);border:1px solid #e6cf94;color:#6d4e12;border-radius:7px;padding:9px 12px;max-width:820px}
+  .chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 10px}
+  .chain .step{background:var(--slate);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-weight:600;font-size:11.5px}
+  .chain .arr{color:var(--muted);font-weight:700}
+  .strain{display:inline-flex;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:11.5px;margin:3px 4px 0 0}
+  .strain .pend{color:var(--amber);font-weight:700;text-transform:uppercase;font-size:10px}
+  .gap{background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:7px;padding:9px 12px;font-size:12px;line-height:1.5;margin-top:8px}
+  /* value props */
+  .vprops{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 8px}
+  .vprop{font-size:11.5px;font-weight:700;background:var(--greenbg);color:#1c5a3a;border:1px solid #bfe3cc;border-radius:20px;padding:5px 11px}
+  /* persona portal */
+  .personas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:2px 0 8px}
+  @media(max-width:700px){.personas{grid-template-columns:repeat(2,1fr)}}
+  .ptile{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:.15s;text-align:left}
+  .ptile:hover{border-color:var(--pine2);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .ptile.sel{border-color:var(--pine);box-shadow:0 0 0 2px var(--pine) inset}
+  .ptile .pico{font-size:22px}
+  .ptile .ptitle{font-weight:800;margin-top:4px}
+  .ptile .ptag{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .pdetail{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:2px}
+  .pstep{display:flex;gap:9px;padding:5px 0;border-top:1px dashed #edf0f1;font-size:13px}
+  .pstep:first-child{border-top:0}
+  .pstep .num{flex:0 0 20px;height:20px;border-radius:50%;background:var(--pine);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .pacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+  .pbtn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;text-decoration:none;border-radius:8px;padding:8px 13px;border:1px solid var(--line);background:#fff;color:var(--pine2);cursor:pointer}
+  .pbtn.primary{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .pbtn.primary:hover{background:var(--pine2)}
+  .pbtn .note{font-size:10px;font-weight:500;opacity:.85}
+  /* regulator dashboard */
+  .dtiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media(max-width:700px){.dtiles{grid-template-columns:repeat(2,1fr)}}
+  .dtile{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+  .dtile .dv{font-size:22px;font-weight:800;color:var(--pine);line-height:1.1}
+  .dtile .dk{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--pine2);margin-top:4px}
+  .dtile .ds{font-size:11px;color:var(--muted);margin-top:2px}
+  /* committees */
+  .cmtg{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:7px 0;border-top:1px dashed #edf0f1;font-size:13px}
+  .cmtg:first-child{border-top:0}
+  .cmtg .cwhen{font-weight:700;color:var(--pine2);white-space:nowrap}
+  .cmtg .cchair{font-size:11px;color:var(--muted)}
+  /* events calendar */
+  .ev{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-top:1px dashed #edf0f1}
+  .ev:first-child{border-top:0}
+  .evdate{flex:0 0 52px;text-align:center;background:var(--pine);color:#fff;border-radius:8px;padding:5px 0;line-height:1.1}
+  .evdate .m{font-size:10px;text-transform:uppercase;font-weight:700;opacity:.9}
+  .evdate .d{font-size:18px;font-weight:800}
+  .evbody .evt{font-weight:700;font-size:13px}
+  .evbody .evm{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .evtype{font-size:9px;font-weight:800;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  .t-committee{background:var(--greenbg);color:#1c5a3a;border:1px solid #bfe3cc}
+  .t-hearing{background:var(--amberbg);color:#8a5f18;border:1px solid #e8d3a0}
+  .t-milestone{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
+  /* intro splash */
+  .intro{position:fixed;inset:0;z-index:1000;background:#0e2624;display:flex;align-items:center;justify-content:center;transition:opacity .55s ease}
+  .intro.hide{opacity:0;pointer-events:none}
+  .introVid{width:92vw;max-width:1000px;max-height:82vh;height:auto;border-radius:12px;box-shadow:0 12px 44px rgba(0,0,0,.5);background:#000}
+  .skipIntro{position:absolute;top:18px;right:18px;appearance:none;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font:700 13px/1 -apple-system,Arial,sans-serif;padding:10px 15px;border-radius:9px;cursor:pointer}
+  .skipIntro:hover{background:rgba(255,255,255,.24)}
+  .brand{cursor:pointer}
+  /* wide table scrolls horizontally instead of crushing on mobile */
+  .tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tablescroll table{min-width:560px}
+  /* mobile polish */
+  @media(max-width:560px){
+    .wrap{padding:0 14px 48px}
+    header.top .wrap{gap:10px}
+    .brand{font-size:18px}
+    .statehead h1{font-size:20px}
+    .toggle{width:100%;justify-content:center}
+    .toggle button{flex:1;justify-content:center;padding:9px 10px}
+    .row .k{flex:0 0 44%}
+    .skipIntro{top:12px;right:12px;padding:8px 12px}
+  }
+</style>
+</head>
+<body>
+<div id="intro" class="intro">
+  <video id="introVid" class="introVid" muted playsinline preload="none">
+    <source src="mycotrace-animation.mp4" type="video/mp4">
+  </video>
+  <button id="skipIntro" class="skipIntro">Skip intro &rsaquo;</button>
+</div>
+<header class="top">
+  <div class="wrap">
+    <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET <small>NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
+    <div class="toggle" role="group" aria-label="Active state rule-pack">
+      <button data-state="nm" aria-pressed="true" onclick="setState('nm')"><span class="dot"></span>New Mexico</button>
+      <button data-state="co" aria-pressed="false" onclick="setState('co')"><span class="dot"></span>Colorado</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="statehead">
+    <div>
+      <h1 id="stateName"></h1>
+      <div class="sub" id="stateSub"></div>
+    </div>
+    <div id="accessBadge"></div>
+  </div>
+  <div class="regstatus" id="regStatus"></div>
+  <div class="vprops" id="vprops"></div>
+
+  <div class="sectlabel">Start here &mdash; choose your role</div>
+  <div class="personas" id="personaTiles"></div>
+  <div class="pdetail" id="personaDetail"></div>
+
+  <div class="sectlabel" id="dashLabel">Regulator &amp; Secretary dashboard</div>
+  <div class="card full" id="dashCard"><div class="dtiles" id="dashTiles"></div><div class="note" id="dashNote"></div></div>
+
+  <div class="sectlabel" id="boardLabel">Advisory Board &amp; committees &mdash; key upcoming meetings</div>
+  <div class="card full" id="boardCard"><div id="committees"></div><div class="note" id="boardNote"></div></div>
+
+  <div class="sectlabel">Upcoming events &mdash; calendar</div>
+  <div class="card full"><div id="eventsList"></div><div class="note">Committee meetings (MS Teams), regulatory hearings, and program milestones. Times as posted; confirm with DOH / Colorado NMD.</div></div>
+
+  <div class="sectlabel">Two products, one engine &mdash; a govtech and a regtech</div>
+  <div class="grid">
+    <div class="card"><h3>Govtech &mdash; sold to the state</h3>
+      <div class="note" style="color:var(--ink);font-size:13px;line-height:1.5">The department-designated <b>systems of record</b>: licensing &amp; applications, product <b>traceability</b>, <b>patient enrollment</b>, §9 de-identified reporting, and the annual producer/patient audit. <b>Customer:</b> NM DOH (CO: DNM + DORA). <b>Model:</b> state designation + licensee-funded fees (Metrc/BioTrack pattern). <i>In NM: licensing is BioTrack&rsquo;s today; traceability &amp; enrollment are open.</i></div>
+    </div>
+    <div class="card"><h3>Regtech &mdash; sold to the licensees</h3>
+      <div class="note" style="color:var(--ink);font-size:13px;line-height:1.5">Operator compliance software that <b>integrates with the state rail</b> (API / HIPAA-business-associate upload): producers, labs, certifying clinicians, practitioners, facilitators, healing centers. <b>Customer:</b> the licensees. <b>Model:</b> per-seat SaaS (~$150&ndash;$600/mo <i>est.</i>) + services.</div>
+    </div>
+    <div class="card full"><div class="note" style="font-size:12px">One rule-pack engine powers both: the <b>regtech generates</b> the data the <b>govtech aggregates</b>, and the §9 outcomes registry (Parakeet) feeds both. Regtech = reliable revenue now; a govtech designation = the larger, defensible prize.</div></div>
+  </div>
+
+  <div class="sectlabel">Shared core &mdash; derived from Oregon&rsquo;s live TLC system (state-agnostic)</div>
+  <div class="card full">
+    <div id="coreModules" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <div class="note">These modules are identical across states; the rule-pack below configures how each behaves.</div>
+  </div>
+
+  <div class="sectlabel">Active state rule-pack &mdash; law-linked configuration</div>
+  <div class="grid">
+    <div class="card"><h3>Regulator &amp; statute</h3><div id="regBlock"></div></div>
+    <div class="card"><h3>Clinical EHR (Parakeet) &mdash; related, separate app</h3><div id="parakeetBlock"></div></div>
+    <div class="card full"><h3>License &amp; permit types</h3><div id="licenseBlock"></div></div>
+    <div class="card"><h3>Access &amp; eligibility</h3><div id="accessBlock"></div></div>
+    <div class="card"><h3>Fees</h3><div id="feesBlock"></div></div>
+    <div class="card"><h3>Reporting (§9 / inventory)</h3><div id="reportBlock"></div></div>
+    <div class="card"><h3>Settings &amp; sessions</h3><div id="settingBlock"></div></div>
+    <div class="card full"><h3>Qualifying conditions &amp; clinical evidence</h3><div id="conditionsBlock"></div></div>
+    <div class="card full"><h3>Supply chain &amp; lab testing &mdash; producer &rarr; lab &rarr; COA</h3><div id="supplyBlock"></div></div>
+    <div class="card full"><h3>Annual audit &amp; regulatory oversight</h3><div id="auditBlock"></div></div>
+    <div class="card full" id="systemsCard"><h3>The three department-designated systems &mdash; vendor scope (per the rules)</h3><div id="systemsBlock"></div></div>
+  </div>
+
+  <div class="sectlabel">Law &harr; Software traceability</div>
+  <div class="card full">
+    <div class="tablescroll">
+    <table id="traceTable">
+      <thead><tr><th>Software capability</th><th id="thNM">New Mexico basis</th><th id="thCO">Colorado basis</th></tr></thead>
+      <tbody id="traceBody"></tbody>
+    </table>
+    </div>
+    <div class="note">The active state&rsquo;s column is highlighted. Every capability maps to a specific statute or rule &mdash; toggle above to see how the same feature is governed differently.</div>
+  </div>
+
+  <div class="legend">
+    <span><b>Parakeet:</b> <span class="pill p-core">core</span> medical/EHR &nbsp; <span class="pill p-light">light</span> clinical-facilitator only &nbsp; <span class="pill p-off">off</span> non-medical</span>
+  </div>
+  <footer>
+    MycoTrace rule-pack engine (prototype). NM grounded in <b>SB219 (2025) Medical Psilocybin Act</b>; CO in <b>Prop 122 / SB23-290</b> (rules 1 CCR 213-1, 4 CCR 755-1); shared core reverse-engineered from Oregon OHA <b>TLC</b>. Citations are for traceability, not legal advice; confirm against current rule text.
+  </footer>
+</div>
+
+<script>
+/* ---------- Shared core: modules common to every state (from Oregon TLC) ---------- */
+const CORE_MODULES = [
+  "Accounts & roles", "Permit applications & DOH review", "Certification (clinician/practitioner/facilitator/center)",
+  "Patient enrollment & review", "Product tracking (seed-to-session)", "Testing & COA (psilocybin/psilocin mg)",
+  "De-identified §9 reporting", "Annual audit & assessment", "Compliance, discipline & appeals", "Messaging & payments"
+];
+const VPROPS = ["Simple to use","Compliance help — incl. lab health & safety","Minimizes provider & patient burden","Regulator & Secretary dashboard","Advisory-board reporting"];
+const EVENTS = [
+  {d:"2026-10-14",label:"Committee: Dosage, Administration & Clinical Practice",type:"committee",when:"9:00–10:00 AM MT",link:"https://events.gcc.teams.microsoft.com/event/952dbded-fd52-4768-916b-5a2bc7a4ff78@04aa6bf4-d436-426f-bfa4-04b7a70e60ff"},
+  {d:"2026-10-15",label:"CO: Natural Medicine Division rules hearing",type:"hearing",when:"per CO Register 9/25"},
+  {d:"2026-10-16",label:"Committee: Research & Continuous Improvement",type:"committee",when:"9:00–11:00 AM MT"},
+  {d:"2026-10-29",label:"Committee: End of Life Care",type:"committee",when:"9:00–11:00 AM MT"},
+  {d:"2026-10-30",label:"Committee: Education & Training",type:"committee",when:"9:00–11:00 AM MT"},
+  {d:"2026-11-04",label:"CO: NMD final rulemaking (HB26-1325 / 1 CCR 213-1) — comments due 5pm",type:"hearing",when:"9:30 AM MT · Lakewood + virtual"},
+  {d:"2026-12-07",label:"Committee: Patient Qualification & Safety",type:"committee",when:"9:00–11:00 AM MT"},
+  {d:"2026-12-31",label:"NM target: first patients enrolled (statutory deadline 2027-12-31)",type:"milestone",when:""}
+];
+
+/* ---------- Clinical evidence (peer-reviewed; PMIDs/DOIs verified) ---------- */
+const EV = {
+  trd_pilot:{t:"Meikle 2025 — Psilocybin + psychotherapy for treatment-resistant depression (pilot trial)", j:"Ther Adv Psychopharmacol", id:"PMID 41050149", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12491823/"},
+  trd_episode:{t:"EPISODE — Efficacy & safety of psilocybin in treatment-resistant major depression (RCT)", j:"JAMA Psychiatry 2026", id:"PMID 41848690", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC13000742/"},
+  ptsd:{t:"Clinical conceptualisation of PTSD in psilocybin treatment", j:"Ther Adv Psychopharmacol 2025", id:"PMID 40492108", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12146596/"},
+  eol:{t:"Palliative-care patients' openness to psilocybin-assisted psychotherapy for existential distress", j:"Front Psychiatry 2024", id:"doi 10.3389/fpsyt.2024.1301960", url:"https://doi.org/10.3389/fpsyt.2024.1301960"},
+  field:{t:"Psychedelics: Threshold of a Therapeutic Revolution (review — FDA breakthrough designations; indications incl. SUD)", j:"Neuropharmacology 2023", id:"doi 10.1016/j.neuropharm.2023.109610", url:"https://doi.org/10.1016/j.neuropharm.2023.109610"}
+};
+
+/* ---------- Rule-packs: each field carries a legalBasis citation ---------- */
+const RULEPACKS = {
+  nm: {
+    id:"nm", name:"New Mexico", program:"Medical Psilocybin Program",
+    sub:"Medical model — a certifying clinician (NM controlled-substances registrant) diagnoses a qualifying condition and judges medical appropriateness; the patient and certifying clinician jointly enroll through the department's electronic system, and DOH decides within 30 days. Certified practitioners and facilitators deliver preparation, administration, and integration sessions at healing centers; producers cultivate and prepare psilocybin and labs test it.",
+    access:"medical",
+    regulator:"NM Department of Health — Center for Medical Cannabis & Psilocybin",
+    statute:"SB219 (2025) — Medical Psilocybin Act",
+    status:"7.35.2 ADOPTED (producer+lab); 7.35.3 DRAFT (Oct 2 hearing)", statusCite:"7.35.2 & 7.35.3 NMAC",
+    regStatusAsOf:"Oct 2026",
+    regStatus:"<b>7.35.2 NMAC (producers + labs) is ADOPTED</b> (promulgated Jun 2026) — producer applications opened mid-July, laboratory applications in August, both via the state portal <b>mpp.nm.btgov.com (BioTrack)</b>. <b>7.35.3 NMAC (patients, certifying clinicians, practitioners, facilitators, healing centers) is still DRAFT</b> — heard Oct 2, 2026 (~30 testified, ~80 comments); the <b>certifying-clinician</b> requirement (controlled-substances registrant) + <b>30-day DOH review</b> are contested as statutory overreach. DOH targets <b>first patients by Dec 2026</b> (statutory deadline Dec 31, 2027).",
+    licenses:[
+      {name:"Producer (permit)", desc:"Cultivate, harvest, prepare, compound, convert, manufacture, package, label — chain-of-custody & transfer", cite:"7.35.2 NMAC · SB219 §3.E"},
+      {name:"Testing laboratory (permit)", desc:"Potency (psilocybin/psilocin mg), microbial, heavy metals, pesticides; issues COA per batch", cite:"7.35.2.19 NMAC · ⚠ none permitted yet"},
+      {name:"Certifying clinician (cert)", desc:"NM controlled-substances registrant; diagnoses/confirms qualifying condition & judges medical appropriateness", cite:"7.35.3 NMAC"},
+      {name:"Practitioner (cert)", desc:"Clinician providing integrative therapy (prep/integration) who supervises facilitators", cite:"7.35.3 NMAC"},
+      {name:"Facilitator / guide (cert)", desc:"Trained individual working with patients during sessions", cite:"7.35.3 NMAC"},
+      {name:"Healing center (cert)", desc:"Administration site; possesses & distributes psilocybin to qualified patients", cite:"7.35.3 NMAC"},
+      {name:"Other approved location (temp)", desc:"Non-center administration site, e.g. a patient's home (end-of-life)", cite:"7.35.3 NMAC"},
+      {name:"Educational program (cert)", desc:"Delivers required training for clinicians/practitioners/facilitators", cite:"7.35.3 NMAC"}
+    ],
+    eligibility:{gate:"Qualifying condition + certifying-clinician certification", detail:"Diagnosis by a controlled-substances-registered certifying clinician; patient + clinician file a joint application via the department's electronic system; DOH decides within 30 calendar days; enrollment valid 2 years. The draft has no caregiver/navigator role — an access gap; but stakeholders have asked DOH to let a clinician-authorized HIPAA business associate prepare & upload submissions (the likely delegate path).", cite:"7.35.3.8 NMAC"},
+    conditions:[
+      {name:"Treatment-resistant depression", ev:["trd_pilot","trd_episode"]},
+      {name:"PTSD", ev:["ptsd"]},
+      {name:"Substance-use disorder", note:"emerging", ev:["field"]},
+      {name:"End-of-life care", ev:["eol"]},
+      {name:"Other conditions approved by DOH", ev:[]}
+    ], condCite:"7.35.3 NMAC · SB219 §3.I",
+    services:{list:"Preparation · Administration · Integration (certified practitioner + facilitator)", setting:"Healing center or other approved location (incl. home)", cite:"7.35.3 NMAC · SB219 §3.D"},
+    fees:{summary:"Application, certification & owner-entity fees set by DOH rulemaking (not fixed in statute)", cite:"7.35.2 / 7.35.3 NMAC"},
+    parakeet:{level:"core", detail:"Runs the certifying-clinician certification + joint patient enrollment: diagnosis capture, controlled-substances-number check, exam-pathway attestation (in-person ≤6 mo or telemedicine-anchored), the 30-day DOH review, EHR (SMART on FHIR), dosage calculator + prospective registry.", cite:"7.35.3 NMAC · SB219 §9"},
+    reporting:{kind:"De-identified client + provider data → annual assessment; plus enrollment & certification records and the 30-day review queue", clientData:true, cite:"SB219 §9 · 7.35.3 NMAC"},
+    supply:{
+      chain:["Producer application","DOH review","Permit","Cultivation batch","Strain","Lab test (7.35.2.19)","COA (psilocybin/psilocin mg)","Verify recipient permit","Transfer to healing/service center"],
+      firstProducer:"Sacred Alto Spores — New Mexico's first permitted producer (chain-of-custody & filings per 7.35.2 NMAC)",
+      strains:["Golden Teacher","Columbian Rust","Inca Stargazer","Tidal Wave"],
+      potencyStatus:"Pending",
+      strainNote:"Psilocybe cubensis phenotypes; TOTAL / psilocybin / psilocin potency Pending until an accredited lab issues a COA.",
+      labPanel:"Mandatory third-party panel before transfer: potency (psilocybin + psilocin), microbial, heavy metals, pesticide residue — COA maintained per batch.",
+      labPanelCite:"7.35.2.19 NMAC",
+      transferRule:"Transfer only to permitted healing centers, service centers, or certified facilitators; recipient permit verified before an order is finalized.",
+      transferCite:"7.35.2 NMAC",
+      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com — a BT Government (BioTrack) domain — so BT Government powers the psilocybin LICENSING portal today. NOT confirmed: that it's the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). NM is also migrating cannabis OFF BioTrack to NMS2S, so the long-term platform is unsettled — verify with DOH. Either way, MycoTrace's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with BioTrack's licensing portal.",
+      portalCite:"mpp.nm.btgov.com (BT Government) — scope unverified",
+      gap:"⚠ Critical path: NM lab-permit applications are now OPEN via the state portal (mpp.nm.btgov.com); a complete application triggers a DOH site visit within 30 business days. Until a lab is certified, the 7.35.2.19 panel can't run → no COAs → potency stays Pending → product can't be transferred. Lab certification + certifying-clinician certification are the two gates before first-patient enrollment.",
+      cite:"7.35.2 NMAC",
+      applicantNote:"<b>For applicants:</b> applications are submitted via the state portal mpp.nm.btgov.com — <b>producer applications opened 08/17/2026</b>; <b>laboratory applications opened 10/05/2026</b>. A complete application triggers a DOH site visit within 30 business days. Review the Producer & Laboratory Requirements (7.35.2 NMAC) first — incomplete applications may be rejected. Questions: medical.psilocybin@doh.nm.gov."
+    },
+    audit:{detail:"Govtech scope: DOH monitors producers & clinicians for compliance (§7B) and publishes a de-identified <b>annual assessment</b> (§9). Software runs the <b>annual producer audit</b> (chain-of-custody reconciliation, batch ↔ COA ↔ transfer, waste), the <b>annual de-identified patient/outcome assessment</b>, and disciplinary actions & appeals.", cite:"SB219 §7B · §9 · 7.35.3 NMAC"},
+    systems:[
+      {n:"1 · Licensing & applications", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for permit/certification applications & renewals — producers & labs (7.35.2) and certifying clinicians, practitioners, facilitators, healing centers, educational programs (7.35.3). Decision clocks: 30-day review; 60/30-day renewal windows. <i>Currently designated: mpp.nm.btgov.com (BT Government).</i>", cite:"7.35.3.7 def · 7.35.2/7.35.3"},
+      {n:"2 · Traceability (seed-to-end-use)", role:"The <b>&ldquo;traceability system&rdquo;</b> — <i>&ldquo;the department-approved system … to track psilocybin mushrooms and products from inoculation to end use.&rdquo;</i> Chain-of-custody forms generated/verified in-system on every transfer (producer → lab → healing center → administration). <i>Vendor unconfirmed.</i>", cite:"7.35.3 def · §(D) · 7.35.2.19"},
+      {n:"3 · Patient enrollment", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for 7.35.3.8 enrollment — joint patient + certifying-clinician application, documents/attestations, 30-day DOH decision, 2-yr enrollment. A public comment asks DOH to support <b>API / machine-to-machine submission</b> and <b>HIPAA-business-associate upload</b> on a clinician's behalf. <i>Not live yet; vendor unconfirmed.</i>", cite:"7.35.3.8 NMAC"}
+    ],
+    systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com (BT Government) for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is MycoTrace's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
+    substances:"Psilocybin / psilocin (medical use)", subCite:"SB219 §13 · 7.35.3 NMAC",
+    personas:[
+      {key:"applicant",ico:"📝",title:"Applicant",tag:"Get a permit or certification",
+       steps:["Pick your type — producer or lab (7.35.2), or a provider / educational program (7.35.3)","Read the Producer & Laboratory Requirements; gather your documents","Apply through the state electronic system","Complete application → DOH review / site visit within 30 days"],
+       acts:[{l:"Open application portal",h:"https://mpp.nm.btgov.com/"},{l:"View rules (nmhealth)",h:"https://www.nmhealth.org/about/asd/cmo/rules/"}]},
+      {key:"producer",ico:"🍄",title:"Producer",tag:"Cultivate & transfer safely",
+       steps:["Hold a Producer permit (7.35.2) — Sacred Alto Spores is NM's first","Record cultivation batches, strains & chain-of-custody","Send samples for the 7.35.2.19 lab panel → receive a COA (psilocybin/psilocin mg)","Verify the recipient's permit, then transfer to a healing / service center"],
+       acts:[{l:"Producer portal",h:"https://mpp.nm.btgov.com/"},{l:"Chain-of-custody & COA",h:"#"}]},
+      {key:"provider",ico:"🩺",title:"Provider",tag:"Certify, then care — low burden",
+       steps:["Complete the certifying-clinician / practitioner / facilitator module (7.35.3.18)","Get certified by DOH","Enroll a patient jointly via the e-system — a business associate can prepare uploads you review & sign","Deliver preparation, administration & integration at a healing center"],
+       acts:[{l:"Open my clinical portal",h:"#clinical",primary:true,note:"one-click single sign-on"},{l:"Enroll a patient",h:"#"},{l:"My certifications",h:"https://mpp.nm.btgov.com/"}]},
+      {key:"patient",ico:"🌿",title:"Patient",tag:"Access care — minimal paperwork",
+       steps:["Have a qualifying condition (TRD, PTSD, SUD, end-of-life, or DOH-approved)","See a certifying clinician — they judge medical appropriateness","You + your clinician file your enrollment together; DOH decides within 30 days","Once approved (valid 2 years), schedule sessions at a healing center"],
+       acts:[{l:"Find a certified provider",h:"#"},{l:"Check eligibility",h:"#"}]}
+    ],
+    dashboard:{
+      note:"Pre-launch snapshot (illustrative where the program is not yet live) — the Secretary / regulator view: licensing, compliance, safety, §9 reporting and equity in one place.",
+      tiles:[
+        {k:"Producers permitted",v:"1",s:"Sacred Alto Spores"},
+        {k:"Labs certified",v:"0",s:"applications open 10/05"},
+        {k:"Providers certified",v:"0",s:"7.35.3 pending adoption"},
+        {k:"Patients enrolled",v:"0",s:"target: first by Dec 2026"},
+        {k:"Pending applications",v:"—",s:"producer · lab · provider"},
+        {k:"Adverse events (de-id)",v:"0",s:"safety monitoring"},
+        {k:"§9 annual assessment",v:"Not yet due",s:"de-identified outcomes"},
+        {k:"Equity & Access Fund",v:"~$630K",s:"low-income / rural [verify]"}
+      ]
+    },
+    committees:[
+      {n:"Dosage, Administration & Clinical Practice",c:"TBD",d:"Wed Oct 14 · 9–10 AM",upcoming:true,link:"https://events.gcc.teams.microsoft.com/event/952dbded-fd52-4768-916b-5a2bc7a4ff78@04aa6bf4-d436-426f-bfa4-04b7a70e60ff",purpose:"dosing ranges & administration protocols; prep/integration structure; facilitator standards"},
+      {n:"Research & Continuous Improvement",c:"Dan Jennings",d:"Fri Oct 16 · 9–11 AM",purpose:"core data elements, outcome & adverse-event monitoring, ethical/tribal research, harm-reduction & QI"},
+      {n:"End of Life Care",c:"Larry Leeman",d:"Thu Oct 29 · 9–11 AM",purpose:"clinical/ethical EOL guidance, palliative coordination, informed consent & advance-care planning, dignity-centered care"},
+      {n:"Education & Training",c:"Brenda Burgard",d:"Fri Oct 30 · 9–11 AM",purpose:"practitioner competencies, required training, supervision & scope of practice"},
+      {n:"Patient Qualification & Safety",c:"Ian Dunn",d:"Mon Dec 7 · 9–11 AM",purpose:"qualifying conditions, petitions, safety/exclusion criteria (red flags, interactions, stability)"},
+      {n:"Propagation",c:"Chris Peskuski",d:"TBD",purpose:"cultivation/storage & contamination standards; producer/mfr/lab licensure; purity/potency/labeling; affordable testing"},
+      {n:"Equity, Access & Cultural Considerations",c:"DezBaa'",d:"TBD",purpose:"rural/frontier/underserved access (telehealth), anti-stigma, Indigenous & Hispanic cultural appropriateness, Patient Equity Fund eligibility"}
+    ],
+    boardNote:"Seven committees advise the <b>9-member Medical Psilocybin Advisory Board</b> (Secretary-appointed; NM residents; no producer/clinic financial interest — SB219 §8). Committees <b>recommend to the Board</b>, which reports to DOH (Committee Structure adopted 12/12/25; see publication 9235). Meetings are on MS Teams — register per committee."
+  },
+  co: {
+    id:"co", name:"Colorado", program:"Regulated Natural Medicine (Prop 122)",
+    sub:"Non-medical model — adults 21+ access natural medicine via a licensed facilitator; no diagnosis required. Prop 122 has two layers: personal-use decriminalization (grow/use/share) and the regulated-access program (healing centers/facilitators) — MycoTrace serves the regulated layer.",
+    access:"nonmedical",
+    regulator:"DOR — Natural Medicine Division (businesses) + DORA (facilitators)",
+    statute:"Prop 122 / SB23-290 — Natural Medicine Health Act (passed Nov 8, 2022)",
+    status:"Live (2025); rules tightening Fall 2026", statusCite:"1 CCR 213-1",
+    regStatusAsOf:"Oct 2026",
+    regStatus:"NMD's 2026 agenda revises the <b>8000-series (1 CCR 213-1)</b> to tighten <b>transfers, tracking & reporting</b> for healing centers, with the <b>3000-series</b> tightening transfers — hearings this fall (<b>Oct 15</b>; final <b>Nov 4, 2026</b> 9:30a, written comments due Nov 4 by 5pm). Nov 4 also implements a new 2026 statute, <b>HB26-1325</b>. DORA Rule 5.4 (facilitator CE) heard Oct 8. The added tracking/reporting burden on healing centers still on manual forms is a direct demand tailwind for MycoTrace.",
+    licenses:[
+      {name:"Healing Center (micro / standard)", desc:"Administer natural medicine to participants", cite:"1 CCR 213-1"},
+      {name:"Cultivation", desc:"Cultivate natural medicine", cite:"1 CCR 213-1"},
+      {name:"Manufacturing", desc:"Manufacture natural medicine product", cite:"1 CCR 213-1"},
+      {name:"Testing", desc:"Test natural medicine", cite:"1 CCR 213-1"},
+      {name:"Handler", desc:"Handle/transport/store natural medicine", cite:"1 CCR 213-1"},
+      {name:"Facilitator", desc:"Provide facilitation services", cite:"4 CCR 755-1"},
+      {name:"Clinical Facilitator", desc:"Facilitator who also holds a behavioral/mental/medical license; may work in healthcare settings", cite:"4 CCR 755-1"}
+    ],
+    eligibility:{gate:"None — adults 21+", detail:"No diagnosis or prescription. Note: personal cultivation, use & community sharing are separately decriminalized (21+) — a demand caveat for paid regulated services.", cite:"Prop 122"},
+    conditions:null,
+    services:{list:"Facilitated administration (preparation optional)", setting:"Healing center · approved healthcare facility · participant home", cite:"Prop 122 / 1 CCR 213-1"},
+    fees:{summary:"Micro healing center ~$4,000 → product manufacturing ~$8,000; facilitator training program $10,000 (phased; eff. Oct 2024); new owner-entity fee on the 2026 agenda", cite:"DOR/DORA fee schedule"},
+    parakeet:{level:"light", detail:"No medical gate. Optional Clinical-Facilitator module: track secondary-license scope + capture the referral/clearance record when a participant has a risk-factor diagnosis outside the facilitator's scope.", cite:"4 CCR 755-1"},
+    reporting:{kind:"Self-reported inventory forms to the Division (at least monthly) — tightening under the 8000-series. No mandated client-demographic reporting.", clientData:false, cite:"1 CCR 213-1"},
+    supply:{
+      chain:["License (DOR)","Cultivation","Manufacturing","Testing / COA","Healing center","Facilitated administration"],
+      firstProducer:null, strains:null,
+      transferRule:"Regulated product moves among permitted DOR licensees; sales to participants occur at licensed healing centers.", transferCite:"1 CCR 213-1",
+      gap:"No commercial track-and-trace vendor — healing centers self-report inventory on manual forms today. The 8000-series revision adds tracking/reporting burden → MycoTrace's structured-capture + one-click submission is the wedge.",
+      cite:"1 CCR 213-1 (8000-series)"
+    },
+    audit:{detail:"Division monitors licensees and tightens inventory tracking/reporting under the 8000-series. No mandated patient-outcome assessment (non-medical program).", cite:"1 CCR 213-1"},
+    substances:"Regulated program: psilocybin/psilocin first; DMT, ibogaine, mescaline (all cacti except peyote) added by rule. All five are also decriminalized for personal/community use (21+).", subCite:"Prop 122",
+    personas:[
+      {key:"participant",ico:"🌀",title:"Participant",tag:"Access natural medicine (21+)",
+       steps:["No diagnosis required — adults 21+","Book with a licensed facilitator at a healing center","Prepare · receive administration · integrate"],
+       acts:[{l:"Find a healing center",h:"https://dnm.colorado.gov/"}]},
+      {key:"facilitator",ico:"🧭",title:"Facilitator",tag:"Get licensed & facilitate",
+       steps:["Train via an approved program","License through DORA (4 CCR 755-1)","Facilitate at a healing center, healthcare facility, or participant home"],
+       acts:[{l:"DORA licensing",h:"https://dpo.colorado.gov/NaturalMedicine"}]},
+      {key:"business",ico:"🏢",title:"Healing center / business",tag:"Cultivate · manufacture · administer",
+       steps:["License through DOR Natural Medicine Division (1 CCR 213-1)","Track inventory; report to the Division (tightening under the 8000-series)","Administer to participants at a licensed center"],
+       acts:[{l:"DOR Natural Medicine",h:"https://dnm.colorado.gov/"}]}
+    ]
+  }
+};
+
+/* ---------- Law ↔ software traceability matrix (both states, side by side) ---------- */
+const TRACE = [
+  {cap:"Producer application & DOH review", nm:"7.35.2 NMAC (producer permit + DOH review)", co:"1 CCR 213-1 (DOR business license)"},
+  {cap:"Lab testing & COA (psilocybin/psilocin mg)", nm:"7.35.2.19 NMAC (⚠ no NM labs permitted yet)", co:"1 CCR 213-1 (testing license)"},
+  {cap:"Provider certification", nm:"7.35.3 (certifying clinician · practitioner · facilitator · healing center)", co:"4 CCR 755-1 (facilitator, clinical facilitator)"},
+  {cap:"Patient eligibility & enrollment", nm:"7.35.3.8 (patient + certifying clinician → e-system; ≤30-day DOH review)", co:"Prop 122 (none — 21+)"},
+  {cap:"Chain-of-custody (seed-to-session)", nm:"7.35.2 NMAC (custody + verified transfer)", co:"1 CCR 213-1 (8000-series tightening)"},
+  {cap:"Session model", nm:"7.35.3 / SB219 §3.D (prep/admin/integration)", co:"Prop 122 (facilitated administration)"},
+  {cap:"Dosage / clinical (Parakeet)", nm:"7.35.3 — CORE (medical)", co:"4 CCR 755-1 — LIGHT (clinical facilitator)"},
+  {cap:"Annual audit & §9 reporting", nm:"SB219 §7B/§9 + 7.35.3 (producer audit + de-identified patient assessment)", co:"1 CCR 213-1 (inventory reporting only)"},
+  {cap:"Administration settings", nm:"7.35.3 (healing center / other approved location, incl. home)", co:"Prop 122 (center / healthcare / home)"},
+  {cap:"Program status", nm:"DRAFT 7.35.3 — first patients targeted Dec 2026 (deadline 2027-12-31)", co:"Live (2025); rules tightening Fall 2026"}
+];
+
+/* ---------- Engine ---------- */
+let ACTIVE = "nm";
+function pack(){ return RULEPACKS[ACTIVE]; }
+function citeClass(){ return ACTIVE; }
+function row(k,v,cite){
+  const c = cite ? `<div class="cite ${citeClass()}">${cite}</div>` : "";
+  return `<div class="row"><div class="k">${k}</div><div class="v">${v}${c}</div></div>`;
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const p = pack();
+  document.getElementById("stateName").textContent = p.name + " — " + p.program;
+  document.getElementById("stateSub").textContent = p.sub;
+
+  const ab = document.getElementById("accessBadge");
+  ab.className = p.access==="medical" ? "accessbadge access-medical" : "accessbadge access-nonmedical";
+  ab.textContent = p.access==="medical" ? "MEDICAL MODEL" : "NON-MEDICAL MODEL";
+
+  document.getElementById("coreModules").innerHTML =
+    CORE_MODULES.map(m=>`<span class="coretag">${m}</span>`).join("");
+
+  var rs=document.getElementById("regStatus");
+  if(p.regStatus){ rs.style.display=""; rs.innerHTML='<b>Regulatory status ('+p.regStatusAsOf+'):</b> '+p.regStatus; }
+  else { rs.style.display="none"; }
+
+  document.getElementById("vprops").innerHTML = VPROPS.map(function(v){return '<span class="vprop">'+v+'</span>';}).join("");
+
+  var pt=document.getElementById("personaTiles");
+  if(p.personas){ pt.innerHTML = p.personas.map(function(x,i){return '<div class="ptile" data-i="'+i+'" onclick="selPersona('+i+')"><div class="pico">'+x.ico+'</div><div class="ptitle">'+x.title+'</div><div class="ptag">'+x.tag+'</div></div>';}).join(""); selPersona(0); }
+
+  var showDash=!!p.dashboard;
+  document.getElementById("dashLabel").style.display=showDash?"":"none";
+  document.getElementById("dashCard").style.display=showDash?"":"none";
+  if(showDash){ document.getElementById("dashTiles").innerHTML=p.dashboard.tiles.map(function(t){return '<div class="dtile"><div class="dv">'+t.v+'</div><div class="dk">'+t.k+'</div><div class="ds">'+t.s+'</div></div>';}).join(""); document.getElementById("dashNote").textContent=p.dashboard.note; }
+
+  var showBoard=!!p.committees;
+  document.getElementById("boardLabel").style.display=showBoard?"":"none";
+  document.getElementById("boardCard").style.display=showBoard?"":"none";
+  if(showBoard){ document.getElementById("committees").innerHTML=p.committees.map(function(c){var up=c.upcoming?' <span class="vprop" style="padding:1px 8px;font-size:9.5px">NEXT</span>':'';var reg=c.link?' · <a href="'+c.link+'" target="_blank" rel="noopener">register</a>':'';return '<div class="cmtg"><div><b>'+c.n+'</b>'+up+'<div class="cchair">'+c.c+', Chair — '+c.purpose+'</div></div><div class="cwhen">'+c.d+reg+'</div></div>';}).join(""); document.getElementById("boardNote").innerHTML=p.boardNote; }
+
+  var EVM=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("eventsList").innerHTML = EVENTS.map(function(e){
+    var dt=e.d.split("-"); var reg=e.link?' · <a href="'+e.link+'" target="_blank" rel="noopener">register</a>':'';
+    return '<div class="ev"><div class="evdate"><div class="m">'+EVM[+dt[1]-1]+'</div><div class="d">'+(+dt[2])+'</div></div><div class="evbody"><div class="evt">'+e.label+'<span class="evtype t-'+e.type+'">'+e.type+'</span></div><div class="evm">'+(e.when||"")+reg+'</div></div></div>';
+  }).join("");
+
+  document.getElementById("regBlock").innerHTML =
+    row("Regulator", p.regulator) + row("Statute", p.statute) + row("Status", p.status, p.statusCite);
+
+  const pk = p.parakeet;
+  document.getElementById("parakeetBlock").innerHTML =
+    `<div class="note" style="background:#eef1f2;border:1px solid var(--line);border-radius:6px;padding:7px 9px;margin-bottom:6px">Out of scope for this govtech/regtech build &mdash; the clinical EHR is a <b>separate, related application</b>, shown for context only.</div>` +
+    `<div class="row"><div class="k">Clinical fit (if pursued separately)</div><div class="v"><span class="pill p-${pk.level}">${pk.level}</span></div></div>` +
+    row("What it would run", pk.detail, pk.cite);
+
+  document.getElementById("licenseBlock").innerHTML =
+    p.licenses.map(l=>row(l.name, l.desc, l.cite)).join("");
+
+  const e = p.eligibility;
+  document.getElementById("accessBlock").innerHTML =
+    row("Gate", "<b>"+e.gate+"</b>", e.cite) + row("Detail", e.detail) +
+    row("Substances", p.substances, p.subCite);
+
+  document.getElementById("feesBlock").innerHTML = row("Schedule", p.fees.summary, p.fees.cite);
+
+  const r = p.reporting;
+  document.getElementById("reportBlock").innerHTML =
+    row("Model", r.kind, r.cite) +
+    row("Client-level data", r.clientData ? "Yes — feeds the §9 annual assessment" : "No — inventory only");
+
+  const s = p.services;
+  document.getElementById("settingBlock").innerHTML =
+    row("Sessions", s.list, s.cite) + row("Setting", s.setting);
+
+  // qualifying conditions & clinical evidence
+  function evLink(k){ var e=EV[k]; return '<a href="'+e.url+'" target="_blank" rel="noopener">'+e.t+'</a> <span class="cite">'+e.id+'</span> <span class="jnl">'+e.j+'</span>'; }
+  var cb=document.getElementById("conditionsBlock");
+  if(p.conditions){
+    cb.innerHTML = p.conditions.map(function(c){
+      var links = c.ev.length ? c.ev.map(function(k){return '<li>'+evLink(k)+'</li>';}).join('') : '<li style="color:var(--muted)">Added by DOH rule as evidence develops (§3.I(5))</li>';
+      var note = c.note ? ' <span class="tagnote">'+c.note+'</span>' : '';
+      return '<div class="row"><div class="k">'+c.name+note+'</div><div class="v"><ul class="tight cites">'+links+'</ul></div></div>';
+    }).join('') + '<div class="note">Qualifying conditions per <b>'+p.condCite+'</b>; DOH may approve others. Links are peer-reviewed evidence for traceability &mdash; not endorsements or medical advice.</div>';
+  } else {
+    cb.innerHTML = '<div class="row"><div class="k">No qualifying-condition gate</div><div class="v">Colorado is non-medical (adults 21+); clinical evidence is informational context, not an eligibility requirement.<ul class="tight cites"><li>'+evLink('field')+'</li></ul></div></div>';
+  }
+
+  // supply chain & lab testing (producer → lab → COA)
+  var supEl=document.getElementById("supplyBlock");
+  if(p.supply){
+    var sup=p.supply;
+    var chain='<div class="chain">'+sup.chain.map(function(st){return '<span class="step">'+st+'</span>';}).join('<span class="arr">&rarr;</span>')+'</div>';
+    var fp = sup.firstProducer ? row("First permitted producer", sup.firstProducer, sup.cite) : "";
+    var panel = sup.labPanel ? row("Required lab panel", sup.labPanel, sup.labPanelCite) : "";
+    var xfer = sup.transferRule ? row("Transfer rule", sup.transferRule, sup.transferCite) : "";
+    var portal = sup.statePortal ? row("State system (incumbent)", sup.statePortal, sup.portalCite) : "";
+    var strainHtml="";
+    if(sup.strains){
+      strainHtml = '<div class="row"><div class="k">Strains (live example)</div><div class="v">'+
+        sup.strains.map(function(s){return '<span class="strain">'+s+' <span class="pend">'+sup.potencyStatus+'</span></span>';}).join('')+
+        '<div class="note">'+(sup.strainNote||"")+'</div></div></div>';
+    }
+    supEl.innerHTML = chain + fp + panel + xfer + portal + strainHtml + (sup.gap ? '<div class="gap">'+sup.gap+'</div>' : "") + (sup.applicantNote ? '<div class="note" style="background:#eef3f6;border:1px solid #cfe0eb;border-radius:7px;padding:9px 12px;margin-top:8px;color:#2b4a5e;line-height:1.5">'+sup.applicantNote+'</div>' : "");
+  } else { supEl.innerHTML=""; }
+
+  // annual audit & oversight
+  document.getElementById("auditBlock").innerHTML = p.audit ? row("Oversight", p.audit.detail, p.audit.cite) : "";
+
+  // the three department-designated systems (per the rules)
+  var sysCard=document.getElementById("systemsCard"), sysEl=document.getElementById("systemsBlock");
+  if(p.systems){ sysCard.style.display="";
+    sysEl.innerHTML = p.systems.map(function(x){return row(x.n, x.role, x.cite);}).join("") +
+      (p.systemsNote?'<div class="note">'+p.systemsNote+'</div>':"");
+  } else { sysCard.style.display="none"; }
+
+  // traceability
+  document.getElementById("traceBody").innerHTML = TRACE.map(t=>
+    `<tr><td class="cap">${t.cap}</td>`+
+    `<td class="${ACTIVE==='nm'?'active-col':''}">${t.nm}</td>`+
+    `<td class="${ACTIVE==='co'?'active-col':''}">${t.co}</td></tr>`
+  ).join("");
+
+  // toggle button states
+  document.querySelectorAll(".toggle button").forEach(b=>
+    b.setAttribute("aria-pressed", b.dataset.state===ACTIVE ? "true":"false"));
+}
+function setState(s){ ACTIVE=s; render(); }
+function selPersona(i){
+  var p=pack(); if(!p.personas) return; var x=p.personas[i];
+  document.querySelectorAll('#personaTiles .ptile').forEach(function(t){t.classList.toggle('sel',+t.dataset.i===i);});
+  var steps=x.steps.map(function(s,n){return '<div class="pstep"><div class="num">'+(n+1)+'</div><div>'+s+'</div></div>';}).join("");
+  var acts=x.acts.map(function(a){var tgt=(a.h.indexOf('http')===0)?' target="_blank" rel="noopener"':'';var note=a.note?' <span class="note">· '+a.note+'</span>':'';return '<a class="pbtn'+(a.primary?' primary':'')+'" href="'+a.h+'"'+tgt+'>'+a.l+note+'</a>';}).join("");
+  document.getElementById("personaDetail").innerHTML='<div style="font-weight:800;color:var(--pine2);margin-bottom:8px">'+x.ico+' '+x.title+' — '+x.tag+'</div>'+steps+'<div class="pacts">'+acts+'</div>';
+}
+render();
+
+/* ---------- Intro splash ---------- */
+(function(){
+  var ov=document.getElementById('intro'), vid=document.getElementById('introVid');
+  if(!ov||!vid) return;
+  function dismiss(){ ov.classList.add('hide'); setTimeout(function(){ ov.style.display='none'; },600); }
+  function play(){ ov.style.display='flex'; ov.classList.remove('hide'); try{vid.currentTime=0;}catch(e){} vid.muted=true; var pr=vid.play(); if(pr&&pr.catch)pr.catch(function(){}); }
+  vid.addEventListener('ended', dismiss);
+  document.getElementById('skipIntro').addEventListener('click', dismiss);
+  ov.addEventListener('click', function(e){ if(e.target===ov) dismiss(); });
+  var brand=document.getElementById('brand'); if(brand) brand.addEventListener('click', play);
+  ov.style.display='none';
+})();
+</script>
+</body>
+</html>
