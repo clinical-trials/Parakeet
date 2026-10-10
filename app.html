@@ -72,6 +72,21 @@
   .kv{font-size:12px;color:var(--muted);margin:2px 0}
   .kv b{color:var(--ink)}
   footer{margin-top:26px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+  /* dashboard / coach */
+  .pchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .pchip{appearance:none;border:1px solid var(--line);background:#fff;color:var(--pine2);font-weight:700;font-size:13px;padding:8px 14px;border-radius:20px;cursor:pointer}
+  .pchip.on{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .dh{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--pine2)}
+  .nstep{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-top:1px dashed #eef0f1}
+  .nstep:first-of-type{border-top:0}
+  .nnum{flex:0 0 26px;height:26px;border-radius:50%;background:var(--pine);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .nnum.done{background:var(--green)}
+  .slink{font-weight:700;white-space:nowrap}
+  .creq{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px dashed #eef0f1;font-size:13.5px}
+  .creq:first-of-type{border-top:0}
+  .cdot{color:var(--green);font-weight:800}
+  .cmini{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#41525a;background:var(--slate);border:1px solid var(--line);border-radius:5px;padding:1px 6px;white-space:nowrap}
+  .ctip{font-size:13px;padding:5px 0;color:#6d4e12}
 </style>
 </head>
 <body>
@@ -79,6 +94,7 @@
   <div class="wrap">
     <div class="brand">PARA<span>·</span>KEET <small>Application &amp; Review — NM Medical Psilocybin</small></div>
     <nav class="app" id="nav">
+      <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
       <button data-view="chooser" onclick="go('chooser')">Apply</button>
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
@@ -186,7 +202,7 @@ var FORMS = {
 };
 
 /* ---------- state ---------- */
-var VIEW="chooser", TYPE=null, STEP=0, DRAFT={};
+var VIEW="dashboard", TYPE=null, STEP=0, DRAFT={};
 
 function go(v){ VIEW=v; if(v!=='wizard'){TYPE=null;} render(); window.scrollTo(0,0); }
 function startApp(t){ TYPE=t; STEP=0; DRAFT=loadDraft(t); VIEW='wizard'; render(); window.scrollTo(0,0); }
@@ -195,7 +211,8 @@ function startApp(t){ TYPE=t; STEP=0; DRAFT=loadDraft(t); VIEW='wizard'; render(
 function render(){
   document.querySelectorAll('#nav button').forEach(function(b){ b.setAttribute('aria-current', b.dataset.view===VIEW?'true':'false'); });
   var r=document.getElementById('root');
-  if(VIEW==='chooser') r.innerHTML=renderChooser();
+  if(VIEW==='dashboard') r.innerHTML=renderDashboard();
+  else if(VIEW==='chooser') r.innerHTML=renderChooser();
   else if(VIEW==='wizard') r.innerHTML=renderWizard();
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
   else if(VIEW==='review') r.innerHTML=renderReview();
@@ -371,6 +388,95 @@ function administerPkg(lotId,pkgId){
   var c=loadCustody();
   c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='administered'; var eid='ENR-'+Math.random().toString(36).slice(2,6).toUpperCase(); p.events.push('administered → '+eid+' · '+l.psi+' mg dosed'); p.events.push('§9 outcome logged (de-identified)'); } }); });
   saveCustody(c); render();
+}
+
+/* ---------- dashboard & plain-language compliance coach ---------- */
+var SRCA="https://www.srca.nm.gov/nmac-home/nmac-titles/title-7-health/";
+var DASH="producer";
+function setDash(p){ DASH=p; render(); window.scrollTo(0,0); }
+var COACH={
+  producer:{ico:"🍄",name:"Producer",goal:"Grow and prepare psilocybin, then move it safely to a healing center.",
+    reqs:[
+      {t:"Get a producer permit before you grow anything for the program.",c:"7.35.2"},
+      {t:"Keep an unbroken record of every batch from inoculation to transfer.",c:"7.35.2"},
+      {t:"Only send product onward after a lab tests and passes it.",c:"7.35.2.19"},
+      {t:"Have a written plan for security, waste, and transport.",c:"7.35.2"},
+      {t:"Label every package with its lab-verified milligrams.",c:"7.35.2.19"}
+    ],
+    tips:["Register each lot the day you inoculate — don't save paperwork for later.","Pick your testing lab early; nothing can move until a COA passes.","Keep package sizes standard so dosing math stays simple for clinicians."],
+    ev:[]},
+  lab:{ico:"🧪",name:"Testing lab",goal:"Test each batch for strength and safety, and issue a Certificate of Analysis.",
+    reqs:[
+      {t:"Get a lab permit before you test program product.",c:"7.35.2"},
+      {t:"Measure psilocybin and psilocin in milligrams, plus microbes, heavy metals, and pesticides.",c:"7.35.2.19"},
+      {t:"Be accredited (for example ISO/IEC 17025) for the methods you run.",c:"7.35.2"},
+      {t:"Put results on a COA the producer keeps on file.",c:"7.35.2.19"}
+    ],
+    tips:["Report potency per unit (mg per capsule), not just a percentage — that's what dosing uses.","Turn COAs around quickly; a producer's whole batch is waiting on you.","Flag unusual potency so clinicians can adjust the dose."],
+    ev:[]},
+  provider:{ico:"🩺",name:"Provider",goal:"Get certified, then guide patients through preparation, administration, and integration.",
+    reqs:[
+      {t:"Choose your role: certifying clinician, practitioner, facilitator, or healing center.",c:"7.35.3"},
+      {t:"If you certify patients, hold an active NM controlled-substances registration.",c:"7.35.3"},
+      {t:"Finish the required training before you see patients.",c:"7.35.3.18"},
+      {t:"Confirm the patient qualifies before any dosing session.",c:"7.35.3.8"}
+    ],
+    tips:["Set the starting dose from the batch's milligrams, not the strain name.","Screen medications early — serotonergic drugs and heart risks change the plan.","Book the integration session up front so patients don't skip it."],
+    ev:[{t:"25 mg dose-finding RCT (COMPASS, NEJM 2022)",id:"36322843"},{t:"25 mg single dose (Raison, JAMA 2023)",id:"37651119"},{t:"First-experience harm-reduction (Kruger 2025)",id:"41291774"}]},
+  patient:{ico:"🌿",name:"Patient",goal:"Enroll with a certifying clinician and access care with as little paperwork as possible.",
+    reqs:[
+      {t:"You need a qualifying condition and a certifying clinician to enroll.",c:"7.35.3.8"},
+      {t:"You and your clinician submit the enrollment together.",c:"7.35.3.8"},
+      {t:"The department decides within 30 days; enrollment lasts two years.",c:"7.35.3.8"},
+      {t:"Tell your clinician every medication and supplement you take.",c:"7.35.3"}
+    ],
+    tips:["Ask about the Equity & Access Fund if cost is a barrier.","Prepare for three parts: getting ready, the session, and making sense of it afterward.","Avoid alcohol, stimulants, and antidepressants around your session."],
+    ev:[{t:"What to expect — first-experience guide (Kruger 2025)",id:"41291774"}]}
+};
+var NEXT3={
+  producer:[null,{t:"Register each harvest lot as you inoculate it.",a:"go('custody')",al:"Open chain-of-custody"},{t:"Line up a testing lab — product can't move until a COA passes (lab permits open 10/05/2026).",a:null}],
+  lab:[null,{t:"Validate the 7.35.2.19 panel: psilocybin/psilocin mg + microbial, heavy metals, pesticides.",a:null},{t:"Publish your COA format so producers can attach it to each batch.",a:"go('custody')",al:"See COA flow"}],
+  provider:[null,{t:"If you'll certify patients, confirm your NM controlled-substances registration is active.",a:null},{t:"Finish the required training module before seeing patients.",a:null}],
+  patient:[null,{t:"Find a certifying clinician for your qualifying condition.",a:null},{t:"Prepare for three parts: getting ready, the session, and integration afterward.",a:null}]
+};
+var RESOURCES=[
+  {t:"NM DOH — Medical Psilocybin Program",u:"https://www.nmhealth.org/about/mcpp/mpp/"},
+  {t:"Program rules — NMAC Title 7 (7.35.2 & 7.35.3)",u:SRCA},
+  {t:"Producer & lab permit portal",u:"https://mpp.nm.btgov.com/"},
+  {t:"Ask a regulator — medical.psilocybin@doh.nm.gov",u:"mailto:medical.psilocybin@doh.nm.gov"},
+  {t:"Program guide (DOH publication)",u:"https://www.nmhealth.org/publication/view/guide/9603/"},
+  {t:"Advisory Board (MPAB)",u:"https://www.nmhealth.org/publication/view/guide/9235/"},
+  {t:"Colorado — Natural Medicine (DORA)",u:"https://dpo.colorado.gov/NaturalMedicine"}
+];
+function appStep(p){
+  var mine=loadApps().filter(function(a){return a.type===p;}), l=mine[0];
+  if(!l) return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
+  if(l.status==='submitted'||l.status==='sitevisit') return {t:"Application <b>"+l.id+"</b> is in DOH review — a decision comes within 30 days.",a:"go('myapps')",al:"Track status"};
+  if(l.status==='approved') return {t:"Your "+FORMS[p].name.toLowerCase()+" is approved (<b>"+l.id+"</b>).",done:true};
+  if(l.status==='denied') return {t:"Application "+l.id+" was denied — review and reapply.",a:"go('chooser')",al:"Reapply"};
+  return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
+}
+function renderDashboard(){
+  var p=DASH, cfg=COACH[p];
+  var chips=Object.keys(COACH).map(function(k){var c=COACH[k];return '<button class="pchip'+(k===p?' on':'')+'" onclick="setDash(\''+k+'\')">'+c.ico+' '+c.name+'</button>';}).join('');
+  var h='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for each role — no rule-book jargon. Pick who you are:</div>';
+  h+='<div class="pchips">'+chips+'</div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
+  var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
+  h+='<div class="card"><h3 class="dh">Your next 3 steps</h3>'+steps.map(function(st,i){
+    var num=st.done?'✓':(i+1);
+    var btn=st.a?' <a href="#" class="slink" onclick="'+st.a+';return false;">'+(st.al||'Go')+' →</a>':'';
+    return '<div class="nstep"><div class="nnum'+(st.done?' done':'')+'">'+num+'</div><div>'+st.t+btn+'</div></div>';
+  }).join('')+'</div>';
+  h+='<div class="card"><h3 class="dh">What you have to do — in plain language</h3>'+cfg.reqs.map(function(r){
+    return '<div class="creq"><span class="cdot">✓</span><div>'+r.t+' <a class="cmini" href="'+SRCA+'" target="_blank" rel="noopener">'+r.c+'</a></div></div>';
+  }).join('')+'</div>';
+  if(cfg.ev&&cfg.ev.length){ h+='<div class="card"><h3 class="dh">Evidence behind this</h3>'+cfg.ev.map(function(e){
+    return '<div class="ctip" style="color:var(--ink)">📄 '+e.t+' <a class="cmini" href="https://pubmed.ncbi.nlm.nih.gov/'+e.id+'/" target="_blank" rel="noopener">PMID '+e.id+'</a></div>';
+  }).join('')+'<div class="note">Peer-reviewed citations — educational, not medical advice.</div></div>'; }
+  h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 class="dh" style="color:var(--gold)">Ideas to do it better</h3>'+cfg.tips.map(function(t){return '<div class="ctip">💡 '+t+'</div>';}).join('')+'</div>';
+  h+='<div class="card"><h3 class="dh">Help &amp; state resources</h3>'+RESOURCES.map(function(r){return '<div class="ctip" style="color:var(--ink)">🔗 <a href="'+r.u+'" target="_blank" rel="noopener">'+r.t+'</a></div>';}).join('')+'</div>';
+  return h;
 }
 
 render();
