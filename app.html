@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parakeet — Application & Review</title>
+<style>
+  :root{--ink:#20262b;--muted:#5c6870;--line:#dbe1e4;--bg:#f6f8f8;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
+  a{color:var(--blue)}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 70px}
+  header.top{background:var(--pine);color:#fff;padding:14px 0;margin-bottom:20px}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:0;max-width:900px}
+  .brand{font-weight:800;font-size:19px;letter-spacing:-.01em}
+  .brand span{color:#d9b25a}
+  .brand small{display:block;font-weight:500;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9fc0bc;margin-top:2px}
+  nav.app{display:inline-flex;background:rgba(255,255,255,.12);border-radius:10px;padding:4px;gap:4px}
+  nav.app button{appearance:none;border:0;background:transparent;color:#cfe0dd;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer}
+  nav.app button[aria-current="true"]{background:#fff;color:var(--pine)}
+  h1{font-size:22px;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;transition:.15s}
+  .tile:hover{border-color:var(--pine2);box-shadow:0 3px 10px rgba(0,0,0,.06)}
+  .tile .ico{font-size:24px}
+  .tile h3{margin:6px 0 3px;font-size:15px;color:var(--pine)}
+  .tile p{margin:0;font-size:12px;color:var(--muted)}
+  .tile .cite{font-size:10.5px;font-family:ui-monospace,Menlo,monospace;color:#41525a;background:var(--slate);border:1px solid var(--line);border-radius:5px;padding:1px 6px;display:inline-block;margin-top:7px}
+  /* wizard */
+  .steps{display:flex;gap:6px;margin:4px 0 16px;flex-wrap:wrap}
+  .stepchip{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--slate);color:var(--muted);border:1px solid var(--line)}
+  .stepchip.active{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .stepchip.done{background:var(--greenbg);color:var(--green);border-color:#bfe3cc}
+  .field{margin:0 0 12px}
+  .field label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+  .field .req{color:var(--red)}
+  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .field textarea{min-height:64px;resize:vertical}
+  .field.err input,.field.err select,.field.err textarea{border-color:var(--red);background:#fff7f6}
+  .field .errmsg{color:var(--red);font-size:11.5px;margin-top:3px;display:none}
+  .field.err .errmsg{display:block}
+  .cbline{display:flex;gap:9px;align-items:flex-start}
+  .cbline input{width:auto;margin-top:3px}
+  .actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--pine2);font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:9px;cursor:pointer}
+  .btn.primary{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .btn.primary:hover{background:var(--pine2)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px}
+  .draftnote{font-size:11px;color:var(--green);margin-top:6px}
+  /* list / status */
+  .approw{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-top:1px solid #eef0f1}
+  .approw:first-child{border-top:0}
+  .apptitle{font-weight:700}
+  .appmeta{font-size:11.5px;color:var(--muted)}
+  .status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;border-radius:20px;padding:3px 10px;white-space:nowrap}
+  .s-submitted{background:var(--amberbg);color:var(--amber);border:1px solid #e6cf94}
+  .s-approved{background:var(--greenbg);color:var(--green);border:1px solid #bfe3cc}
+  .s-denied{background:var(--redbg);color:var(--red);border:1px solid #f1c3bd}
+  .s-review{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
+  .empty{color:var(--muted);font-size:13px;padding:14px 0}
+  .pill{display:inline-block;font-size:11px;font-weight:700;background:var(--slate);border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:#41525a}
+  .okbanner{background:var(--greenbg);border:1px solid #bfe3cc;color:var(--green);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-weight:600}
+  .rev{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 10px}
+  .revbtns{display:flex;gap:8px;margin-top:9px}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn.ok{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn.no{background:#fff;color:var(--red);border-color:#f1c3bd}
+  .kv{font-size:12px;color:var(--muted);margin:2px 0}
+  .kv b{color:var(--ink)}
+  footer{margin-top:26px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">PARA<span>·</span>KEET <small>Application &amp; Review — NM Medical Psilocybin</small></div>
+    <nav class="app" id="nav">
+      <button data-view="chooser" onclick="go('chooser')">Apply</button>
+      <button data-view="myapps" onclick="go('myapps')">My applications</button>
+      <button data-view="review" onclick="go('review')">DOH review</button>
+    </nav>
+  </div>
+</header>
+<div class="wrap" id="root"></div>
+<script>
+/* ---------- storage (per-viewer; graceful) ---------- */
+var MEM=[];
+function loadApps(){ try{ return JSON.parse(localStorage.getItem('parakeet_apps_v1')||'[]'); }catch(e){ return MEM.slice(); } }
+function saveApps(a){ MEM=a; try{ localStorage.setItem('parakeet_apps_v1', JSON.stringify(a)); }catch(e){} }
+function loadDraft(t){ try{ return JSON.parse(localStorage.getItem('parakeet_draft_'+t)||'{}'); }catch(e){ return {}; } }
+function saveDraft(t,d){ try{ localStorage.setItem('parakeet_draft_'+t, JSON.stringify(d)); }catch(e){} }
+function clearDraft(t){ try{ localStorage.removeItem('parakeet_draft_'+t); }catch(e){} }
+function uid(){ return 'APP-'+Math.random().toString(36).slice(2,7).toUpperCase(); }
+function esc(s){ return (''+s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ---------- application types & forms (grounded in NMAC) ---------- */
+var FORMS = {
+  producer:{ ico:"🍄", name:"Producer permit", blurb:"Cultivate, prepare & transfer psilocybin.", cite:"7.35.2 NMAC", sitevisit:true, steps:[
+    {name:"Applicant & ownership", fields:[
+      {id:"legalName",label:"Legal business name",t:"text",req:true},
+      {id:"entityType",label:"Entity type",t:"select",opts:["LLC","Corporation","Partnership","Sole proprietor"],req:true},
+      {id:"owners",label:"Owner(s) & % interest (one per line)",t:"textarea",req:true},
+      {id:"email",label:"Contact email",t:"email",req:true},
+      {id:"phone",label:"Contact phone",t:"text",req:true}
+    ]},
+    {name:"Premises & cultivation", fields:[
+      {id:"premises",label:"Permitted premises address",t:"text",req:true},
+      {id:"county",label:"County",t:"text",req:true},
+      {id:"area",label:"Cultivation area (sq ft)",t:"number",req:true},
+      {id:"method",label:"Cultivation method / controlled environment",t:"textarea",req:true}
+    ]},
+    {name:"Chain-of-custody & safety", fields:[
+      {id:"custody",label:"Chain-of-custody plan (summary)",t:"textarea",req:true,hint:"How product is tracked from inoculation to transfer."},
+      {id:"waste",label:"Waste disposal plan",t:"textarea",req:true},
+      {id:"security",label:"Security plan",t:"textarea",req:true},
+      {id:"transport",label:"Transport plan",t:"textarea",req:false}
+    ]},
+    {name:"Strains & product", fields:[
+      {id:"strains",label:"Strains to cultivate (one per line)",t:"textarea",req:true},
+      {id:"forms",label:"Product forms (dried, capsules, …)",t:"text",req:true},
+      {id:"lab",label:"Intended testing laboratory (if known)",t:"text",req:false,hint:"Required panel per 7.35.2.19 before transfer."}
+    ]},
+    {name:"Documents & attestation", fields:[
+      {id:"doc_sop",label:"SOPs — file name attached",t:"text",req:true},
+      {id:"doc_id",label:"Owner photo ID — file name attached",t:"text",req:true},
+      {id:"attest",label:"I attest the information is true & complete and I will comply with 7.35.2 NMAC.",t:"checkbox",req:true}
+    ]}
+  ]},
+  lab:{ ico:"🧪", name:"Testing laboratory permit", blurb:"Potency + contaminant testing; issue COAs.", cite:"7.35.2 / 7.35.2.19 NMAC", sitevisit:true, steps:[
+    {name:"Laboratory & ownership", fields:[
+      {id:"legalName",label:"Laboratory legal name",t:"text",req:true},
+      {id:"owners",label:"Owner(s) & % interest",t:"textarea",req:true},
+      {id:"email",label:"Contact email",t:"email",req:true},
+      {id:"premises",label:"Laboratory address",t:"text",req:true}
+    ]},
+    {name:"Methods & accreditation", fields:[
+      {id:"accred",label:"Accreditation (e.g., ISO/IEC 17025) — body & number",t:"text",req:true},
+      {id:"panel",label:"Validated panel: potency (psilocybin/psilocin mg), microbial, heavy metals, pesticides",t:"textarea",req:true},
+      {id:"instruments",label:"Key instrumentation (HPLC/LC-MS, etc.)",t:"text",req:true}
+    ]},
+    {name:"QA & attestation", fields:[
+      {id:"qa",label:"QA / QC program (summary)",t:"textarea",req:true},
+      {id:"coa",label:"COA format & retention plan",t:"textarea",req:true},
+      {id:"attest",label:"I attest compliance with 7.35.2.19 NMAC testing requirements.",t:"checkbox",req:true}
+    ]}
+  ]},
+  provider:{ ico:"🩺", name:"Provider certification", blurb:"Certifying clinician · practitioner · facilitator.", cite:"7.35.3 NMAC", sitevisit:false, steps:[
+    {name:"Role & identity", fields:[
+      {id:"role",label:"Certification type",t:"select",opts:["Certifying clinician","Practitioner","Facilitator","Healing center"],req:true},
+      {id:"fullName",label:"Full legal name",t:"text",req:true},
+      {id:"email",label:"Email",t:"email",req:true},
+      {id:"nmLicense",label:"NM professional license # (if clinician/practitioner)",t:"text",req:false}
+    ]},
+    {name:"Licensure & scope", fields:[
+      {id:"csNumber",label:"NM controlled-substances registration # (certifying clinician)",t:"text",req:false,hint:"Required for certifying clinicians per 7.35.3."},
+      {id:"scope",label:"Clinical scope / credentials",t:"textarea",req:true}
+    ]},
+    {name:"Training & attestation", fields:[
+      {id:"module",label:"Completed NM / certifying-clinician module (provider & date)",t:"text",req:true,hint:"7.35.3.18 educational requirement."},
+      {id:"attest",label:"I attest the information is true & complete and I will comply with 7.35.3 NMAC.",t:"checkbox",req:true}
+    ]}
+  ]},
+  patient:{ ico:"🌿", name:"Patient enrollment", blurb:"Joint patient + certifying-clinician application.", cite:"7.35.3.8 NMAC", sitevisit:false, steps:[
+    {name:"Patient", fields:[
+      {id:"ptName",label:"Patient legal name",t:"text",req:true},
+      {id:"dob",label:"Date of birth",t:"date",req:true},
+      {id:"email",label:"Patient email",t:"email",req:true},
+      {id:"consent",label:"I consent to release of medical information for my qualifying condition.",t:"checkbox",req:true}
+    ]},
+    {name:"Qualifying condition & clinician", fields:[
+      {id:"condition",label:"Qualifying condition",t:"select",opts:["Treatment-resistant depression","PTSD","Substance-use disorder","End-of-life care","Other DOH-approved"],req:true},
+      {id:"clinName",label:"Certifying clinician name",t:"text",req:true},
+      {id:"clinCS",label:"Certifying clinician controlled-substances #",t:"text",req:true}
+    ]},
+    {name:"Exam pathway & attestation", fields:[
+      {id:"exam",label:"Exam pathway",t:"select",opts:["In-person exam within 6 months","Telemedicine + reviewed records (in-person ≤6 mo)","Telemedicine + formal consult w/ in-person clinician"],req:true},
+      {id:"equity",label:"Apply to the Equity & Access Fund?",t:"select",opts:["No","Yes — request eligibility review"],req:false},
+      {id:"attest",label:"Clinician attests medical appropriateness; patient understands risks & benefits.",t:"checkbox",req:true}
+    ]}
+  ]}
+};
+
+/* ---------- state ---------- */
+var VIEW="chooser", TYPE=null, STEP=0, DRAFT={};
+
+function go(v){ VIEW=v; if(v!=='wizard'){TYPE=null;} render(); window.scrollTo(0,0); }
+function startApp(t){ TYPE=t; STEP=0; DRAFT=loadDraft(t); VIEW='wizard'; render(); window.scrollTo(0,0); }
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('#nav button').forEach(function(b){ b.setAttribute('aria-current', b.dataset.view===VIEW?'true':'false'); });
+  var r=document.getElementById('root');
+  if(VIEW==='chooser') r.innerHTML=renderChooser();
+  else if(VIEW==='wizard') r.innerHTML=renderWizard();
+  else if(VIEW==='myapps') r.innerHTML=renderMyApps();
+  else if(VIEW==='review') r.innerHTML=renderReview();
+}
+
+function renderChooser(){
+  var tiles=Object.keys(FORMS).map(function(k){var f=FORMS[k];
+    return '<div class="tile" onclick="startApp(\''+k+'\')"><div class="ico">'+f.ico+'</div><h3>'+f.name+'</h3><p>'+f.blurb+'</p><span class="cite">'+f.cite+'</span></div>';
+  }).join('');
+  return '<h1>Start an application</h1><div class="sub">Simple, guided intake — your progress is saved automatically on this device. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>';
+}
+
+function renderWizard(){
+  var f=FORMS[TYPE], steps=f.steps, s=steps[STEP];
+  var chips=steps.map(function(st,i){var cls=i===STEP?'active':(i<STEP?'done':'');return '<span class="stepchip '+cls+'">'+(i+1)+'. '+st.name+'</span>';}).join('');
+  var fields=s.fields.map(function(fl){ return fieldHTML(fl, DRAFT[fl.id]); }).join('');
+  var last=STEP===steps.length-1;
+  var h='<h1>'+f.ico+' '+f.name+'</h1><div class="sub">'+f.cite+' · step '+(STEP+1)+' of '+steps.length+'</div>';
+  h+='<div class="steps">'+chips+'</div>';
+  h+='<div class="card"><h3 style="margin:0 0 12px;color:var(--pine2);font-size:14px">'+s.name+'</h3>'+fields+'</div>';
+  h+='<div class="draftnote" id="draftnote">✓ Draft saved on this device</div>';
+  h+='<div class="actions"><button class="btn" onclick="'+(STEP===0?'go(\'chooser\')':'prevStep()')+'">'+(STEP===0?'Cancel':'← Back')+'</button>';
+  h+='<button class="btn primary" onclick="'+(last?'submitApp()':'nextStep()')+'">'+(last?'Submit application':'Save & continue →')+'</button></div>';
+  return h;
+}
+function fieldHTML(fl,val){
+  val=val==null?'':val;
+  var req=fl.req?' <span class="req">*</span>':'';
+  var hint=fl.hint?'<div class="note">'+fl.hint+'</div>':'';
+  var inner;
+  if(fl.t==='textarea') inner='<textarea id="f_'+fl.id+'" oninput="onField()">'+esc(val)+'</textarea>';
+  else if(fl.t==='select'){ inner='<select id="f_'+fl.id+'" onchange="onField()"><option value="">— select —</option>'+fl.opts.map(function(o){return '<option'+(val===o?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>'; }
+  else if(fl.t==='checkbox') return '<div class="field" id="fld_'+fl.id+'"><div class="cbline"><input type="checkbox" id="f_'+fl.id+'" '+(val?'checked':'')+' onchange="onField()"><label for="f_'+fl.id+'" style="font-weight:500">'+fl.label+req+'</label></div><div class="errmsg">Required.</div></div>';
+  else inner='<input type="'+(fl.t==='number'?'number':fl.t==='date'?'date':fl.t==='email'?'email':'text')+'" id="f_'+fl.id+'" value="'+esc(val)+'" oninput="onField()">';
+  return '<div class="field" id="fld_'+fl.id+'"><label for="f_'+fl.id+'">'+fl.label+req+'</label>'+inner+'<div class="errmsg">Required.</div>'+hint+'</div>';
+}
+function readStep(){ var f=FORMS[TYPE], s=f.steps[STEP]; s.fields.forEach(function(fl){ var el=document.getElementById('f_'+fl.id); if(!el) return; DRAFT[fl.id]= fl.t==='checkbox'? el.checked : el.value; }); }
+function onField(){ readStep(); saveDraft(TYPE,DRAFT); }
+function validStep(){ var f=FORMS[TYPE], s=f.steps[STEP], ok=true; s.fields.forEach(function(fl){ var fld=document.getElementById('fld_'+fl.id); var v=DRAFT[fl.id]; var bad=fl.req && (fl.t==='checkbox'? !v : (v==null||(''+v).trim()==='')); if(fld) fld.classList.toggle('err',bad); if(bad) ok=false; }); return ok; }
+function nextStep(){ readStep(); saveDraft(TYPE,DRAFT); if(!validStep()) return; STEP++; render(); window.scrollTo(0,0); }
+function prevStep(){ readStep(); saveDraft(TYPE,DRAFT); STEP--; render(); window.scrollTo(0,0); }
+function submitApp(){ readStep(); if(!validStep()) return;
+  var f=FORMS[TYPE];
+  var apps=loadApps();
+  var rec={id:uid(), type:TYPE, typeName:f.name, title:DRAFT.legalName||DRAFT.fullName||DRAFT.ptName||f.name, data:JSON.parse(JSON.stringify(DRAFT)), status:'submitted', sitevisit:!!f.sitevisit, submittedAt:new Date().toISOString()};
+  apps.unshift(rec); saveApps(apps); clearDraft(TYPE);
+  VIEW='submitted'; window._lastId=rec.id; renderSubmitted(rec); window.scrollTo(0,0);
+}
+function renderSubmitted(rec){
+  var r=document.getElementById('root');
+  var sv= rec.sitevisit? ' A DOH site visit will be scheduled within <b>30 business days</b> of a complete application.' : ' The department will render a decision within <b>30 calendar days</b>.';
+  r.innerHTML='<div class="okbanner">✓ Application submitted — <b>'+rec.id+'</b></div>'+
+    '<div class="card"><div class="apptitle">'+esc(rec.title)+' <span class="pill">'+esc(rec.typeName)+'</span></div>'+
+    '<div class="note" style="margin-top:6px">Status: <span class="status s-submitted">Submitted — in DOH review</span>.'+sv+'</div>'+
+    '<div class="actions"><button class="btn" onclick="go(\'myapps\')">View my applications</button><button class="btn primary" onclick="go(\'chooser\')">Start another</button></div></div>'+
+    '<div class="note">This is a prototype — submissions are stored only in your browser on this device, not sent to the state. It demonstrates the intake→review flow.</div>';
+}
+
+function statusChip(s){ var m={submitted:'s-submitted',approved:'s-approved',denied:'s-denied',sitevisit:'s-review'}; var t={submitted:'Submitted — in review',approved:'Approved',denied:'Denied',sitevisit:'Site visit scheduled'}; return '<span class="status '+(m[s]||'s-submitted')+'">'+(t[s]||s)+'</span>'; }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString(); }catch(e){ return iso; } }
+
+function renderMyApps(){
+  var apps=loadApps();
+  var h='<h1>My applications</h1><div class="sub">Every application you\'ve submitted on this device, with live status.</div><div class="card">';
+  if(!apps.length) h+='<div class="empty">No applications yet. <a href="#" onclick="go(\'chooser\');return false;">Start one →</a></div>';
+  else h+=apps.map(function(a){ return '<div class="approw"><div><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div><div class="appmeta">'+a.id+' · submitted '+fmtDate(a.submittedAt)+'</div></div>'+statusChip(a.status)+'</div>'; }).join('');
+  h+='</div>';
+  return h;
+}
+
+function renderReview(){
+  var apps=loadApps();
+  var pending=apps.filter(function(a){return a.status==='submitted'||a.status==='sitevisit';});
+  var decided=apps.filter(function(a){return a.status==='approved'||a.status==='denied';});
+  var h='<h1>DOH review queue</h1><div class="sub">Regulator view — review complete applications, schedule site visits, approve or deny. (Prototype; local data.)</div>';
+  h+='<div class="card" style="margin-bottom:14px"><div style="display:flex;gap:18px;flex-wrap:wrap"><div><b style="font-size:22px;color:var(--pine)">'+pending.length+'</b><div class="appmeta">pending</div></div><div><b style="font-size:22px;color:var(--green)">'+decided.filter(function(a){return a.status==='approved';}).length+'</b><div class="appmeta">approved</div></div><div><b style="font-size:22px;color:var(--red)">'+decided.filter(function(a){return a.status==='denied';}).length+'</b><div class="appmeta">denied</div></div></div></div>';
+  if(!pending.length) h+='<div class="empty">No applications awaiting review.</div>';
+  pending.forEach(function(a){
+    h+='<div class="rev"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div>'+statusChip(a.status)+'</div>';
+    h+='<div class="appmeta">'+a.id+' · '+esc(a.data.email||'')+' · submitted '+fmtDate(a.submittedAt)+'</div>';
+    h+=Object.keys(a.data).slice(0,4).map(function(k){ if(k==='attest'||k==='consent') return ''; return '<div class="kv"><b>'+esc(k)+':</b> '+esc((''+a.data[k]).slice(0,80))+'</div>'; }).join('');
+    h+='<div class="revbtns">'+(a.sitevisit&&a.status==='submitted'?'<button class="btn sm" onclick="decide(\''+a.id+'\',\'sitevisit\')">Schedule site visit</button>':'')+'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\')">Approve</button><button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\')">Deny</button></div></div>';
+  });
+  if(decided.length){ h+='<h3 style="font-size:13px;color:var(--pine2);margin:18px 0 6px;text-transform:uppercase;letter-spacing:.04em">Decided</h3><div class="card">'+decided.map(function(a){return '<div class="approw"><div><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div><div class="appmeta">'+a.id+'</div></div>'+statusChip(a.status)+'</div>';}).join('')+'</div>'; }
+  return h;
+}
+function decide(id,status){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.status=status; a.decidedAt=new Date().toISOString(); } }); saveApps(apps); render(); }
+
+render();
+</script>
+<div class="wrap"><footer>Parakeet — Application &amp; Review (prototype). NM Medical Psilocybin Program; grounded in 7.35.2 &amp; 7.35.3 NMAC. Data is stored only in your browser on this device and is not transmitted to the state. Not legal advice.</footer></div>
+</body>
+</html>

@@ -391,13 +391,13 @@ const RULEPACKS = {
     personas:[
       {key:"applicant",ico:"📝",title:"Applicant",tag:"Get a permit or certification",
        steps:["Pick your type — producer or lab (7.35.2), or a provider / educational program (7.35.3)","Read the Producer & Laboratory Requirements; gather your documents","Apply through the state electronic system","Complete application → DOH review / site visit within 30 days"],
-       acts:[{l:"Open application portal",h:"https://mpp.nm.btgov.com/"},{l:"View rules (nmhealth)",h:"https://www.nmhealth.org/about/asd/cmo/rules/"}]},
+       acts:[{l:"Open application portal",h:"app.html",primary:true,note:"working intake demo"},{l:"View rules (nmhealth)",h:"https://www.nmhealth.org/about/asd/cmo/rules/"}]},
       {key:"producer",ico:"🍄",title:"Producer",tag:"Cultivate & transfer safely",
        steps:["Hold a Producer permit (7.35.2) — Sacred Alto Spores is NM's first","Record cultivation batches, strains & chain-of-custody","Send samples for the 7.35.2.19 lab panel → receive a COA (psilocybin/psilocin mg)","Verify the recipient's permit, then transfer to a healing / service center"],
-       acts:[{l:"Producer portal",h:"https://mpp.nm.btgov.com/"},{l:"Chain-of-custody & COA",h:"#"}]},
+       acts:[{l:"Producer portal",h:"app.html",primary:true,note:"working intake demo"},{l:"Chain-of-custody & COA",h:"#"}]},
       {key:"provider",ico:"🩺",title:"Provider",tag:"Certify, then care — low burden",
        steps:["Complete the certifying-clinician / practitioner / facilitator module (7.35.3.18)","Get certified by DOH","Enroll a patient jointly via the e-system — a business associate can prepare uploads you review & sign","Deliver preparation, administration & integration at a healing center"],
-       acts:[{l:"Open my clinical portal",h:"#clinical",primary:true,note:"one-click single sign-on"},{l:"Enroll a patient",h:"#"},{l:"My certifications",h:"https://mpp.nm.btgov.com/"}]},
+       acts:[{l:"Open my clinical portal",h:"#clinical",primary:true,note:"one-click single sign-on"},{l:"Enroll a patient",h:"app.html"},{l:"My certifications",h:"app.html"}]},
       {key:"patient",ico:"🌿",title:"Patient",tag:"Access care — minimal paperwork",
        steps:["Have a qualifying condition (TRD, PTSD, SUD, end-of-life, or DOH-approved)","See a certifying clinician — they judge medical appropriateness","You + your clinician file your enrollment together; DOH decides within 30 days","Once approved (valid 2 years), schedule sessions at a healing center"],
        acts:[{l:"Find a certified provider",h:"#"},{l:"Read the patient guide",h:"#faqCard"},{l:"Check eligibility",h:"#"}]}
