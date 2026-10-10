@@ -125,6 +125,24 @@
   .t-committee{background:var(--greenbg);color:#1c5a3a;border:1px solid #bfe3cc}
   .t-hearing{background:var(--amberbg);color:#8a5f18;border:1px solid #e8d3a0}
   .t-milestone{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
+  /* dose-individualization decision aid */
+  .dai{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:700px){.dai{grid-template-columns:1fr}}
+  .daiform label{display:block;font-size:12.5px;margin:3px 0;cursor:pointer}
+  .daiform input[type=checkbox],.daiform input[type=radio]{margin-right:6px}
+  .daih{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--gold);margin:9px 0 3px}
+  .daiout{background:#f6faf8;border:1px solid var(--line);border-radius:8px;padding:12px 14px;align-self:start}
+  .daidose{font-size:30px;font-weight:800;color:var(--pine);line-height:1}
+  .daidoselbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .daiflag{font-size:11.5px;border-radius:6px;padding:7px 9px;margin-top:7px;line-height:1.4}
+  .daiflag.red{background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;font-weight:600}
+  .daiflag.amber{background:var(--amberbg);border:1px solid #e6cf94;color:#6d4e12}
+  .daiflag.info{background:var(--bluebg);border:1px solid #bcd4e6;color:#2b5f86}
+  /* patient FAQ */
+  .faq{padding:7px 0;border-top:1px dashed #edf0f1}
+  .faq:first-child{border-top:0}
+  .faqq{font-weight:700;color:var(--pine2);font-size:13px}
+  .faqa{font-size:12.5px;color:var(--ink);margin-top:2px}
   /* intro splash */
   .intro{position:fixed;inset:0;z-index:1000;background:#0e2624;display:flex;align-items:center;justify-content:center;transition:opacity .55s ease}
   .intro.hide{opacity:0;pointer-events:none}
@@ -188,6 +206,51 @@
 
   <div class="sectlabel">Upcoming events &mdash; calendar</div>
   <div class="card full"><div id="eventsList"></div><div class="note">Committee meetings (MS Teams), regulatory hearings, and program milestones. Times as posted; confirm with DOH / Colorado NMD.</div></div>
+
+  <div class="sectlabel" id="daiLabel">Dose-individualization decision aid &mdash; clinical decision support</div>
+  <div class="card full" id="daiCard">
+    <div class="dai">
+      <div class="daiform">
+        <div class="daih">Session</div>
+        <label><input type="radio" name="daiSession" value="first" checked onchange="dai()"> First session</label>
+        <label><input type="radio" name="daiSession" value="booster" onchange="dai()"> Booster (partial responder)</label>
+        <div class="daih">Patient factors</div>
+        <label><input type="checkbox" id="dai_frail" onchange="dai()"> Medically fragile / end-of-life / advanced age</label>
+        <label><input type="checkbox" id="dai_anx" onchange="dai()"> High baseline anxiety</label>
+        <label><input type="checkbox" id="dai_ad" onchange="dai()"> Continuing serotonergic antidepressant (SSRI/SNRI)</label>
+        <label><input type="checkbox" id="dai_tol" onchange="dai()"> Prior exposure / tolerance / prior non-response</label>
+        <div class="daih">Screening flags</div>
+        <label><input type="checkbox" id="dai_card" onchange="dai()"> Cardiac risk / QTc concern</label>
+        <label><input type="checkbox" id="dai_inter" onchange="dai()"> Interacting meds (MAOI, lithium, tramadol, triptans, St. John's Wort)</label>
+        <label><input type="checkbox" id="dai_psy" onchange="dai()"> Psychosis / bipolar I history</label>
+        <div class="daih">Product potency (from COA)</div>
+        <label>mg psilocybin per unit: <input type="number" id="dai_pot" value="25" min="0" step="0.1" oninput="dai()" style="width:64px"> mg/unit</label>
+      </div>
+      <div class="daiout" id="daiOut"></div>
+    </div>
+    <div class="note">Decision <b>support</b> only &mdash; clinician judgment and DOH dosage standards (7.35.3) govern. Logic: <b>flat 25 mg anchor</b>, individualized by start-dose band + titration + screening (<b>not mg/kg</b>). Not medical advice.</div>
+  </div>
+
+  <div class="sectlabel" id="eduLabel">Clinician education &mdash; mechanism of action, weight-agnostic dosing &amp; CME</div>
+  <div class="card full" id="eduCard">
+    <div class="dai">
+      <div>
+        <div class="daih">Mechanism of action</div>
+        <p style="font-size:12.5px;margin:2px 0 8px">Psilocybin is a prodrug, rapidly dephosphorylated to <b>psilocin</b> (the active metabolite). Psilocin is a <b>5-HT2A receptor agonist</b>; the therapeutic/subjective effect is driven by <b>5-HT2A receptor occupancy in the brain</b>, which is <b>saturable</b> &mdash; it does <b>not</b> scale linearly with body mass.</p>
+        <div class="daih">Why weight-agnostic (not mg/kg)</div>
+        <p style="font-size:12.5px;margin:2px 0 8px">PK/PBPK data show psilocin exposure varies widely between individuals in ways <b>body weight doesn't predict</b> (Dahmane <a href="https://pubmed.ncbi.nlm.nih.gov/32250059/" target="_blank" rel="noopener">PMID 32250059</a>; Thaoboonruang <a href="https://pubmed.ncbi.nlm.nih.gov/40258947/" target="_blank" rel="noopener">40258947</a>). The field moved from mg/kg to a <b>fixed 25 mg</b> (COMPASS COMP360) because weight-based dosing didn't improve outcomes and flat dosing is reproducible (Goodwin <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">36322843</a>). Only von Rotz (0.215 mg/kg) &amp; Sloshower (0.3 mg/kg) used mg/kg.</p>
+        <div class="daiflag info" style="margin-top:0"><b>Regulatory implication:</b> flat dosing &rarr; standardized product units, clean COA labeling (7.35.2.19), simpler dispensing, and §9 mg/session reporting. With <b>no per-patient compounding, diversion risk is substantially reduced</b> and chain-of-custody stays clean.</div>
+      </div>
+      <div>
+        <div class="daih">CME &amp; continuing education</div>
+        <div id="cmeList"></div>
+        <div class="note">Representative options &mdash; verify current ACCME accreditation, credit hours, cohort dates, and acceptance toward NM's certifying-clinician module (7.35.3.18) before enrolling.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sectlabel" id="faqLabel">Patient guide &amp; FAQ &mdash; evidence-based</div>
+  <div class="card full" id="faqCard"><div id="faqList"></div><div class="note">Plain-language information drawn from published literature (Kruger 2025, <a href="https://pubmed.ncbi.nlm.nih.gov/41291774/" target="_blank" rel="noopener">PMID 41291774</a>) and the NM program rules &mdash; <b>educational, not medical advice</b>; your clinician guides your care.</div></div>
 
   <div class="sectlabel">Two products, one engine &mdash; a govtech and a regtech</div>
   <div class="grid">
@@ -337,7 +400,7 @@ const RULEPACKS = {
        acts:[{l:"Open my clinical portal",h:"#clinical",primary:true,note:"one-click single sign-on"},{l:"Enroll a patient",h:"#"},{l:"My certifications",h:"https://mpp.nm.btgov.com/"}]},
       {key:"patient",ico:"🌿",title:"Patient",tag:"Access care — minimal paperwork",
        steps:["Have a qualifying condition (TRD, PTSD, SUD, end-of-life, or DOH-approved)","See a certifying clinician — they judge medical appropriateness","You + your clinician file your enrollment together; DOH decides within 30 days","Once approved (valid 2 years), schedule sessions at a healing center"],
-       acts:[{l:"Find a certified provider",h:"#"},{l:"Check eligibility",h:"#"}]}
+       acts:[{l:"Find a certified provider",h:"#"},{l:"Read the patient guide",h:"#faqCard"},{l:"Check eligibility",h:"#"}]}
     ],
     dashboard:{
       note:"Pre-launch snapshot (illustrative where the program is not yet live) — the Secretary / regulator view: licensing, compliance, safety, §9 reporting and equity in one place.",
@@ -547,6 +610,10 @@ function render(){
     `<td class="${ACTIVE==='co'?'active-col':''}">${t.co}</td></tr>`
   ).join("");
 
+  var showDai=(p.access==='medical');
+  ["daiLabel","daiCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
+  if(showDai){ dai(); renderEdu(); renderFaq(); }
+
   // toggle button states
   document.querySelectorAll(".toggle button").forEach(b=>
     b.setAttribute("aria-pressed", b.dataset.state===ACTIVE ? "true":"false"));
@@ -558,6 +625,60 @@ function selPersona(i){
   var steps=x.steps.map(function(s,n){return '<div class="pstep"><div class="num">'+(n+1)+'</div><div>'+s+'</div></div>';}).join("");
   var acts=x.acts.map(function(a){var tgt=(a.h.indexOf('http')===0)?' target="_blank" rel="noopener"':'';var note=a.note?' <span class="note">· '+a.note+'</span>':'';return '<a class="pbtn'+(a.primary?' primary':'')+'" href="'+a.h+'"'+tgt+'>'+a.l+note+'</a>';}).join("");
   document.getElementById("personaDetail").innerHTML='<div style="font-weight:800;color:var(--pine2);margin-bottom:8px">'+x.ico+' '+x.title+' — '+x.tag+'</div>'+steps+'<div class="pacts">'+acts+'</div>';
+}
+function dai(){
+  var g=function(id){return document.getElementById(id);};
+  var session=document.querySelector('input[name=daiSession]:checked').value;
+  var frail=g('dai_frail').checked, anx=g('dai_anx').checked, ad=g('dai_ad').checked,
+      tol=g('dai_tol').checked, card=g('dai_card').checked, inter=g('dai_inter').checked,
+      psy=g('dai_psy').checked, pot=parseFloat(g('dai_pot').value)||0;
+  var lo=25, hi=25, why=[];
+  if(frail||anx||ad){ lo=10; hi=15;
+    if(frail) why.push('fragile/EOL/age → lower start');
+    if(anx) why.push('high anxiety → lower start');
+    if(ad) why.push('antidepressant-continuation → lower start'); }
+  if(tol){ if(lo===25){ hi=30; why.push('prior tolerance/non-response → consider up to 30 mg (PMID 41677823)'); }
+           else { why.push('prior tolerance noted — balance vs lowering factors'); } }
+  if(!why.length) why.push('no modifiers → standard 25 mg (PMID 36322843)');
+  var band=(lo===hi)?lo+' mg':lo+'–'+hi+' mg';
+  var flags=[];
+  if(psy) flags.push({c:'red',t:'EXCLUSION: psychosis / bipolar I history — not appropriate per safety screening; defer to Patient Qualification &amp; Safety criteria.'});
+  if(card) flags.push({c:'amber',t:'Cardiac/QTc screening required before dosing — concentration–QTc risk (PMID 32250059).'});
+  if(inter) flags.push({c:'amber',t:'Drug-interaction review: serotonergic agents (MAOI, lithium, tramadol, triptans, St. John’s Wort) → serotonin-syndrome / effect-alteration risk — reconcile meds first.'});
+  if(ad) flags.push({c:'amber',t:'Serotonergic antidepressant (SSRI/SNRI): may blunt response + interaction risk — assess taper plan (PMID 41291774).'});
+  if(session==='booster') flags.push({c:'info',t:'Booster: a second dose can improve durability in partial responders — re-screen (PMID 39199520).'});
+  var qty = pot>0 ? '<div class="row"><div class="k">Product (from COA)</div><div class="v"><b>'+(lo/pot).toFixed(1)+(lo!==hi?'–'+(hi/pot).toFixed(1):'')+'</b> unit(s) at '+pot+' mg/unit</div></div>' : '<div class="note">Enter COA potency to compute product quantity.</div>';
+  var html='<div class="daidose">'+(psy?'—':band)+'</div><div class="daidoselbl">suggested starting dose'+(psy?' (hold — see exclusion)':'')+'</div>';
+  html+='<div class="note" style="margin-top:6px"><b>Why:</b> '+why.join('; ')+'.</div>'+qty;
+  html+=flags.map(function(f){return '<div class="daiflag '+f.c+'">'+f.t+'</div>';}).join('');
+  html+='<div class="note"><b>Log total mg analyte / session</b> (incl. secondary doses) → §9 reporting + Secretary dashboard.</div>';
+  html+='<div class="note" style="font-size:10px">Evidence: 25 mg flat anchor (COMPASS, PMID 36322843); dose-response (He, 41677823); single vs two-dose (Salvetti, 39199520); QTc (Dahmane, 32250059); harm-reduction / no serotonergic mixing (Kruger, 41291774). Flat mg, <b>not mg/kg</b>.</div>';
+  g('daiOut').innerHTML=html;
+}
+const CME_RESOURCES = [
+  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", d:"Accredited CME (~6.5 CME/CE credits); for physicians, APPs, psychologists. Confirm next date.", u:"https://www.hopkinspsychedelic.org/"},
+  {n:"CIIS — Certificate in Psychedelic-Assisted Therapies & Research", d:"12-month hybrid/online certificate (~$8,300); psilocybin & MDMA; incl. Oregon facilitator subcohort.", u:"https://www.ciis.edu/continuing-education/center-for-psychedelic-therapies-and-research"},
+  {n:"Fluence — Intro to Psilocybin-Assisted Therapy", d:"~$395 live course; also building the COMP360 provider certification (pending FDA).", u:"https://www.fluencetraining.com/"},
+  {n:"Psychedelic Support — Understanding Psilocybin", d:"Free self-paced: effects, neurobiology & therapeutic approaches.", u:"https://psychedelic.support/"},
+  {n:"ADAA — Psychedelic Therapies (CE/CME webinar)", d:"Recorded webinar: clinical benefits, risks & training needs.", u:"https://adaa.org/"}
+];
+function renderEdu(){
+  var el=document.getElementById('cmeList'); if(!el) return;
+  el.innerHTML = CME_RESOURCES.map(function(c){return '<div class="cmtg"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+c.n+'</b></a><div class="cchair">'+c.d+'</div></div></div>';}).join("");
+}
+const PATIENT_FAQ = [
+  {q:"Is psilocybin a reasonable choice for me?", a:"Among experienced users surveyed, psilocybin is the <b>most-recommended</b> substance for a first experience (73.7%) — valued for its moderate intensity, precise dosing, short duration, and very low overdose risk (Kruger 2025). Your certifying clinician decides whether it is medically appropriate for your condition."},
+  {q:"How should I prepare? (set & setting)", a:"A calm, comfortable <b>setting</b> and a clear personal <b>intention</b> matter as much as the dose. Learn about the substance and its effects beforehand, and go in with trusted supervision. Preparation and integration sessions are part of the program."},
+  {q:"What should I avoid?", a:"Do <b>NOT</b> combine psilocybin with <b>alcohol, stimulants, antidepressants, or opioids/narcotics</b> — these raise interaction and serotonin-syndrome risk. Tell your clinician about ALL medications and supplements (including St. John's Wort)."},
+  {q:"What does it feel like, and how long?", a:"Effects typically last about <b>2–6 hours</b>. You may notice changes in perception, emotion, and thought. Common short-term effects include nausea, headache, and transient anxiety. Your care team monitors and supports you throughout."},
+  {q:"How is my dose decided?", a:"A standard therapeutic dose is about <b>25 mg</b>, individualized by your clinician based on your health, medications, and any prior experience — <b>not your body weight</b>. The product is lab-tested (Certificate of Analysis), so the exact milligrams are known."},
+  {q:"Who will be with me?", a:"A <b>certifying clinician</b> confirms you qualify; a <b>practitioner/facilitator</b> guides your preparation, administration, and integration sessions at a licensed <b>healing center</b>."},
+  {q:"What happens afterward? (integration)", a:"An <b>integration session</b> helps you make sense of the experience and sustain benefits — a key part of the therapeutic model."},
+  {q:"Is it safe? Can I change my mind?", a:"You go through medical and psychological <b>screening</b> first and give <b>informed consent</b>; you may withdraw at any time. Some conditions (e.g., a personal/family history of psychosis or bipolar I) may make psilocybin unsafe."}
+];
+function renderFaq(){
+  var el=document.getElementById('faqList'); if(!el) return;
+  el.innerHTML = PATIENT_FAQ.map(function(f){return '<div class="faq"><div class="faqq">'+f.q+'</div><div class="faqa">'+f.a+'</div></div>';}).join("");
 }
 render();
 
