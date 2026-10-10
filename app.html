@@ -81,6 +81,7 @@
     <nav class="app" id="nav">
       <button data-view="chooser" onclick="go('chooser')">Apply</button>
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
+      <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
   </div>
@@ -198,6 +199,7 @@ function render(){
   else if(VIEW==='wizard') r.innerHTML=renderWizard();
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
   else if(VIEW==='review') r.innerHTML=renderReview();
+  else if(VIEW==='custody') r.innerHTML=renderCustody();
 }
 
 function renderChooser(){
@@ -282,6 +284,51 @@ function renderReview(){
   return h;
 }
 function decide(id,status){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.status=status; a.decidedAt=new Date().toISOString(); } }); saveApps(apps); render(); }
+
+/* ---------- chain-of-custody (unique-ID, not RFID) ---------- */
+function loadCustody(){ try{ return JSON.parse(localStorage.getItem('parakeet_custody_v1')||'{"lots":[]}'); }catch(e){ return {lots:[]}; } }
+function saveCustody(c){ try{ localStorage.setItem('parakeet_custody_v1', JSON.stringify(c)); }catch(e){} }
+function renderCustody(){
+  var c=loadCustody();
+  var h='<h1>Chain-of-custody &amp; COA</h1><div class="sub">Software-generated unique IDs (QR/barcode) at <b>lot + package</b> level, tied to COA potency (mg) — <b>no RFID, no tag fees</b>. Works for NM &amp; CO; feeds the §9 mg-per-session metric. Prototype; local data.</div>';
+  h+='<div class="card"><h3 style="margin:0 0 12px;color:var(--pine2);font-size:14px">Register a harvest lot</h3><div class="grid">'+
+     '<div class="field"><label>Strain</label><input id="c_strain" value="Golden Teacher"></div>'+
+     '<div class="field"><label>Harvest date</label><input id="c_date" type="date"></div>'+
+     '<div class="field"><label>Wet weight (g)</label><input id="c_wt" type="number" value="500"></div>'+
+     '<div class="field"><label>Testing lab</label><input id="c_lab" placeholder="accredited NM lab"></div>'+
+     '<div class="field"><label>Psilocybin (mg per unit)</label><input id="c_psi" type="number" step="0.1" value="25"></div>'+
+     '<div class="field"><label>COA result</label><select id="c_pass"><option>Pass</option><option>Fail</option><option>Pending</option></select></div>'+
+     '<div class="field"><label>Unit type</label><input id="c_unit" value="capsule"></div>'+
+     '<div class="field"><label># packages to create</label><input id="c_npkg" type="number" value="10"></div>'+
+     '</div><div class="actions"><span class="note">Lot &amp; each package get a unique ID; packages inherit the COA potency.</span><button class="btn primary" onclick="registerLot()">Create lot + COA + packages</button></div></div>';
+  if(!c.lots.length) h+='<div class="empty">No lots yet — register one above to see the unique-ID custody chain.</div>';
+  c.lots.forEach(function(l){
+    var sc=l.pass==='Pass'?'s-approved':(l.pass==='Fail'?'s-denied':'s-submitted');
+    h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><span class="status '+sc+'">COA '+esc(l.pass)+'</span></div>';
+    h+='<div class="appmeta">Harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · lab: '+esc(l.lab||'—')+' · <b>'+esc(l.psi)+' mg/'+esc(l.unit)+'</b></div>';
+    h+='<div class="kv" style="margin-top:6px"><b>Packages &amp; custody chain:</b></div>';
+    h+=l.pkgs.map(function(p){
+      var ev=p.events.join(' → ');
+      var act= p.status==='in-inventory' ? '<button class="btn sm" onclick="transferPkg(\''+l.id+'\',\''+p.id+'\')">Transfer</button>' : '<span class="status s-approved">transferred</span>';
+      return '<div class="approw"><div><span class="pill">'+p.id+'</span> <span class="appmeta">'+esc(l.psi)+' mg/'+esc(l.unit)+'</span><div class="appmeta">custody: '+esc(ev)+'</div></div>'+act+'</div>';
+    }).join('');
+    h+='</div>';
+  });
+  return h;
+}
+function registerLot(){
+  var g=function(id){return document.getElementById(id).value;};
+  var c=loadCustody();
+  var lot={id:'LOT-'+Math.random().toString(36).slice(2,7).toUpperCase(), strain:g('c_strain')||'(strain)', date:g('c_date'), wt:g('c_wt')||'0', lab:g('c_lab'), psi:g('c_psi')||'0', pass:g('c_pass'), unit:g('c_unit')||'unit', pkgs:[]};
+  var n=Math.max(1,Math.min(100, parseInt(g('c_npkg'))||1));
+  for(var i=0;i<n;i++){ lot.pkgs.push({id:'PKG-'+Math.random().toString(36).slice(2,7).toUpperCase(), status:'in-inventory', events:['harvested','homogenized','packaged','COA '+lot.pass]}); }
+  c.lots.unshift(lot); saveCustody(c); render();
+}
+function transferPkg(lotId,pkgId){
+  var c=loadCustody();
+  c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='transferred'; p.events.push('transferred → verified healing center'); } }); });
+  saveCustody(c); render();
+}
 
 render();
 </script>
