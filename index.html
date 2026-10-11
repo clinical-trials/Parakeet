@@ -174,6 +174,20 @@
   .stage .sid{font-family:ui-monospace,Menlo,monospace;font-size:9px;color:#2f5f45;background:var(--greenbg);border:1px solid #bfe3cc;border-radius:4px;padding:1px 5px;display:inline-block;margin:4px 0}
   .stage .scap{font-size:10px;color:var(--muted);line-height:1.3}
   .stage .scite{margin-top:5px}
+  .evigrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.evigrid{grid-template-columns:1fr}}
+  .evigrid svg{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fbfdfd;padding:4px}
+  .prog{display:flex;align-items:flex-start;min-width:620px}
+  .pstepw{flex:1;min-width:104px;text-align:center;position:relative;padding:0 2px}
+  .pstepw::before{content:"";position:absolute;top:12px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0}
+  .pstepw:first-child::before{display:none}
+  .pstepw.done::before{background:var(--green)}
+  .pstepw.active::before{background:#e6cf94}
+  .pdot{width:26px;height:26px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;position:relative;z-index:1;border:2px solid var(--line);background:#fff;color:var(--muted)}
+  .pstepw.done .pdot{background:var(--green);border-color:var(--green);color:#fff}
+  .pstepw.active .pdot{background:var(--amberbg);border-color:#e6cf94;color:var(--amber)}
+  .plabel{font-size:10.5px;font-weight:700;color:var(--ink);line-height:1.2}
+  .pstat{font-size:9.5px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -203,6 +217,9 @@
   </div>
   <div class="regstatus" id="regStatus"></div>
   <div class="vprops" id="vprops"></div>
+
+  <div class="sectlabel" id="readyLabel">Program readiness &mdash; path to first patients</div>
+  <div class="card full" id="readyCard"><div class="tablescroll"><div class="prog" id="progSteps"></div></div><div class="note">Where the program stands today &mdash; <b style="color:var(--green)">green</b> done, <b style="color:var(--amber)">amber</b> in progress, grey pending. Toggle NM/CO above.</div></div>
 
   <div class="sectlabel">Start here &mdash; choose your role</div>
   <div class="personas" id="personaTiles"></div>
@@ -239,6 +256,39 @@
       <div class="daiout" id="daiOut"></div>
     </div>
     <div class="note">Decision <b>support</b> only &mdash; clinician judgment and DOH dosage standards (7.35.3) govern. Logic: <b>flat 25 mg anchor</b>, individualized by start-dose band + titration + screening (<b>not mg/kg</b>). Not medical advice.</div>
+  </div>
+
+  <div class="sectlabel" id="eviLabel">Dosage evidence at a glance</div>
+  <div class="card full" id="eviCard">
+    <div class="evigrid">
+      <div>
+        <div class="daih" style="margin-bottom:4px">Dose&ndash;response &mdash; higher dose, bigger effect</div>
+        <svg viewBox="0 0 320 142" xmlns="http://www.w3.org/2000/svg" font-family="Arial">
+          <text x="10" y="13" font-size="9" font-weight="700" fill="#17423f">MADRS &darr; at 3 wks by single dose (COMPASS, n=233)</text>
+          <rect x="26" y="94" width="52" height="24" fill="#c9d0d4"/><text x="52" y="110" font-size="10" font-weight="700" text-anchor="middle" fill="#41525a">5.4</text><text x="52" y="132" font-size="9" text-anchor="middle" fill="#5c6870">1 mg</text>
+          <rect x="94" y="74" width="52" height="44" fill="#e6c877"/><text x="120" y="90" font-size="10" font-weight="700" text-anchor="middle" fill="#6d4e12">7.9</text><text x="120" y="132" font-size="9" text-anchor="middle" fill="#5c6870">10 mg</text>
+          <rect x="162" y="46" width="52" height="72" fill="#1c7a4a"/><text x="188" y="62" font-size="10" font-weight="700" text-anchor="middle" fill="#fff">12</text><text x="188" y="132" font-size="9" text-anchor="middle" fill="#5c6870">25 mg</text>
+          <line x1="26" y1="118" x2="300" y2="118" stroke="#9aa3a8" stroke-width="1"/>
+          <text x="228" y="66" font-size="8.5" font-weight="700" fill="#1c5a3a">25 vs 1 mg: p&lt;0.001</text>
+          <text x="228" y="80" font-size="8.5" fill="#9a6a00">10 vs 1 mg: n.s.</text>
+        </svg>
+        <div class="note">25 mg is the effective single dose; benefit sustained to 43 days. Goodwin/COMPASS <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a> &middot; Raison <a href="https://pubmed.ncbi.nlm.nih.gov/37651119/" target="_blank" rel="noopener">37651119</a>.</div>
+      </div>
+      <div>
+        <div class="daih" style="margin-bottom:4px">Potency varies &mdash; dose from the COA, not the strain</div>
+        <svg viewBox="0 0 320 142" xmlns="http://www.w3.org/2000/svg" font-family="Arial">
+          <text x="10" y="13" font-size="9" font-weight="700" fill="#17423f">Total tryptamines across 14 cubensis strains (mg/g)</text>
+          <rect x="24" y="46" width="276" height="16" rx="3" fill="#e6c877" stroke="#c9a24a"/>
+          <text x="24" y="80" font-size="10" font-weight="700" fill="#8a5f18">2.62</text>
+          <text x="300" y="80" font-size="10" font-weight="700" text-anchor="end" fill="#8a5f18">20.65</text>
+          <text x="162" y="58" font-size="10" font-weight="800" text-anchor="middle" fill="#6d4e12">&gt; 7.8&times; range</text>
+          <text x="10" y="104" font-size="8.5" fill="#5c6870">Even one strain varies 13&ndash;23% between fruits.</text>
+          <text x="10" y="120" font-size="8.5" font-weight="700" fill="#1c5a3a">&rarr; the COA (7.35.2.19) sets the delivered mg.</text>
+        </svg>
+        <div class="note">Strain name &ne; dose (<a href="https://doi.org/10.3390/jof12070486" target="_blank" rel="noopener">J Fungi 2026</a>). Baeocystin &rarr; norpsilocin can add activity &mdash; a COA-panel question (Sherwood 2020, <a href="https://doi.org/10.1021/acs.jnatprod.9b01061" target="_blank" rel="noopener">J Nat Prod</a>).</div>
+      </div>
+    </div>
+    <div class="note"><b>Flat 25 mg anchor</b>, individualized on clinical factors &mdash; <b>not mg/kg</b> (saturable 5-HT2A, weight-agnostic). Evidence-labeled; not medical advice.</div>
   </div>
 
   <div class="sectlabel" id="eduLabel">Clinician education &mdash; mechanism of action, weight-agnostic dosing &amp; CME</div>
@@ -417,6 +467,27 @@ const EVENTS = [
   {d:"2026-12-07",label:"Committee: Patient Qualification & Safety",type:"committee",when:"9:00–11:00 AM MT"},
   {d:"2026-12-31",label:"NM target: first patients enrolled (statutory deadline 2027-12-31)",type:"milestone",when:""}
 ];
+const READINESS = {
+  nm:[
+    {l:"Producer & lab rules adopted",n:"7.35.2 · Jun 2026",st:"done"},
+    {l:"First producer permitted",n:"Sacred Alto Spores",st:"done"},
+    {l:"Testing labs permitted",n:"apps opened 10/05/2026",st:"active"},
+    {l:"Patient/clinician rules final",n:"7.35.3 · draft, heard Oct 2",st:"active"},
+    {l:"Enrollment e-system live",n:"not yet",st:"pending"},
+    {l:"First patients enrolled",n:"target Dec 2026",st:"pending"}
+  ],
+  co:[
+    {l:"Prop 122 program live",n:"rules since 2025",st:"done"},
+    {l:"Healing centers & facilitators",n:"licensing open",st:"done"},
+    {l:"Tracking/reporting rules",n:"8000-series · Nov 4 hearing",st:"active"},
+    {l:"Reporting vendor",n:"manual forms today — open",st:"pending"}
+  ]
+};
+function renderReadiness(){
+  var el=document.getElementById('progSteps'); if(!el) return;
+  var steps=READINESS[ACTIVE]||[];
+  el.innerHTML=steps.map(function(s,i){var mark=s.st==='done'?'&#10003;':(s.st==='active'?'&#9679;':(i+1));return '<div class="pstepw '+s.st+'"><div class="pdot">'+mark+'</div><div class="plabel">'+s.l+'</div><div class="pstat">'+s.n+'</div></div>';}).join('');
+}
 
 /* ---------- Clinical evidence (peer-reviewed; PMIDs/DOIs verified) ---------- */
 const EV = {
@@ -707,10 +778,10 @@ function render(){
   ).join("");
 
   var showDai=(p.access==='medical');
-  ["daiLabel","daiCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
+  ["daiLabel","daiCard","eviLabel","eviCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
 
-  renderChain(); renderUnique(); renderTribal(); renderSecurity();
+  renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // toggle button states
   document.querySelectorAll(".toggle button").forEach(b=>
@@ -750,7 +821,7 @@ function dai(){
   html+='<div class="note" style="margin-top:6px"><b>Why:</b> '+why.join('; ')+'.</div>'+qty;
   html+=flags.map(function(f){return '<div class="daiflag '+f.c+'">'+f.t+'</div>';}).join('');
   html+='<div class="note"><b>Log total mg analyte / session</b> (incl. secondary doses) → §9 reporting + Secretary dashboard.</div>';
-  html+='<div class="note" style="font-size:10px">Evidence: 25 mg flat anchor (COMPASS, PMID 36322843); dose-response (He, 41677823); single vs two-dose (Salvetti, 39199520); QTc (Dahmane, 32250059); harm-reduction / no serotonergic mixing (Kruger, 41291774). Flat mg, <b>not mg/kg</b>.</div>';
+  html+='<div class="note" style="font-size:10px">Evidence: 25 mg flat anchor (COMPASS, <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a>); dose-response (He, <a href="https://pubmed.ncbi.nlm.nih.gov/41677823/" target="_blank" rel="noopener">41677823</a>); single vs two-dose (Salvetti, <a href="https://pubmed.ncbi.nlm.nih.gov/39199520/" target="_blank" rel="noopener">39199520</a>); QTc (Dahmane, <a href="https://pubmed.ncbi.nlm.nih.gov/32250059/" target="_blank" rel="noopener">32250059</a>); harm-reduction (Kruger, <a href="https://pubmed.ncbi.nlm.nih.gov/41291774/" target="_blank" rel="noopener">41291774</a>). Flat mg, <b>not mg/kg</b>.</div>';
   g('daiOut').innerHTML=html;
 }
 const CME_RESOURCES = [
