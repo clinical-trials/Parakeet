@@ -188,6 +188,16 @@
   .pstepw.active .pdot{background:var(--amberbg);border-color:#e6cf94;color:var(--amber)}
   .plabel{font-size:10.5px;font-weight:700;color:var(--ink);line-height:1.2}
   .pstat{font-size:9.5px;color:var(--muted);margin-top:2px}
+  .flow4{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .fstep{flex:1;min-width:140px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+  .fstep .fi{font-size:20px}
+  .fstep .ft{font-weight:700;font-size:12px;color:var(--pine2);margin-top:3px;line-height:1.25}
+  .fstep .fn{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .cmp{border-collapse:collapse;width:100%;font-size:12px;margin-top:4px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  .cmp th{background:var(--pine);color:#fff;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+  .cmp td.r{font-weight:700;width:17%;background:#fbfdfd}
+  .cmp .or{color:#2b5f86}
 </style>
 </head>
 <body>
@@ -217,6 +227,9 @@
   </div>
   <div class="regstatus" id="regStatus"></div>
   <div class="vprops" id="vprops"></div>
+
+  <div class="sectlabel" id="explLabel">How the program works &mdash; in plain language</div>
+  <div class="card full" id="explCard"><div id="explBody"></div><div class="note">A quick, plain-language overview for the public (modeled on Oregon&rsquo;s program explainers). Toggle NM/CO above to see each model.</div></div>
 
   <div class="sectlabel" id="readyLabel">Program readiness &mdash; path to first patients</div>
   <div class="card full" id="readyCard"><div class="tablescroll"><div class="prog" id="progSteps"></div></div><div class="note">Where the program stands today &mdash; <b style="color:var(--green)">green</b> done, <b style="color:var(--amber)">amber</b> in progress, grey pending. Toggle NM/CO above.</div></div>
@@ -364,6 +377,22 @@
     <div class="note">The active state&rsquo;s column is highlighted. Every capability maps to a specific statute or rule &mdash; toggle above to see how the same feature is governed differently.</div>
   </div>
 
+  <div class="sectlabel">License types &amp; fees &mdash; Oregon · New Mexico · Colorado</div>
+  <div class="card full"><div class="tablescroll"><table class="cmp">
+    <thead><tr><th>Role / license</th><th class="or">Oregon (live model)</th><th>New Mexico (medical)</th><th>Colorado (non-medical)</th></tr></thead>
+    <tbody>
+    <tr><td class="r">Access</td><td>Any adult 21+, no Rx or diagnosis</td><td><b>Qualifying condition</b> + certifying clinician; 2-yr enrollment</td><td>Any adult 21+, no diagnosis</td></tr>
+    <tr><td class="r">Facilitator / guide</td><td>21+, HS diploma, OPS-approved training + exam (75%), non-directive · <b>$150 app / $2,000 yr</b> (4 CE hrs/yr)</td><td>Practitioner / facilitator (7.35.3); works with the certifying clinician</td><td>Facilitator (4 CCR 755-1, DORA); training ~$10,000</td></tr>
+    <tr><td class="r">Clinician</td><td><i>none — non-medical</i></td><td><b>Certifying clinician</b> — NM controlled-substances # (the medical gate), 7.35.3</td><td>Clinical Facilitator (facilitator + behavioral/medical license), 4 CCR 755-1</td></tr>
+    <tr><td class="r">Producer / manufacturer</td><td>P. cubensis only (no synthetic/wild); endorsements cultivation / extraction / edible; LUCS + site inspection · <b>$500 / $10,000 yr</b></td><td>Producer — cultivate, prepare, transfer (7.35.2); first permit: Sacred Alto Spores</td><td>Cultivation / Manufacturing (1 CCR 213-1) ~$8,000</td></tr>
+    <tr><td class="r">Service / healing center</td><td>Administration site; ≥1,000 ft from a school; premises + emergency plan · <b>$500 / $10,000 yr</b></td><td>Healing center / approved location incl. home (7.35.3)</td><td>Healing center (micro ~$4,000 → standard), 1 CCR 213-1</td></tr>
+    <tr><td class="r">Testing lab</td><td>ORELAP-accredited (TNI 2016); confirm species + potency + solvents · <b>$500 / $10,000 yr</b></td><td>Potency (psilocybin/psilocin mg), microbial, heavy metals, pesticides (7.35.2.19); <b>none permitted yet</b></td><td>Testing (1 CCR 213-1)</td></tr>
+    <tr><td class="r">Data / tracking</td><td>Product tracking system; ORELAP results entered; OPS complaint process</td><td>Traceability + §9 de-identified outcomes + annual audit (SB219 §9)</td><td>Inventory reporting (8000-series tightening, Nov 4 2026)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">Oregon figures verified from OHA license fact sheets (Dec 2024&ndash;Jul 2026); Oregon halves annual fees (~50%) for veterans/SSI/SNAP/OHP. NM fees set by DOH rule (7.35.2 / 7.35.3); CO per DOR/DORA schedule. Oregon is the <b>non-medical</b> template; NM adds the medical layer. Verify current fees before relying.</div>
+  </div>
+
   <div class="sectlabel">Tribal &amp; Indigenous engagement &mdash; sovereignty-first</div>
   <div class="card full"><div id="tribalBlock"></div></div>
 
@@ -467,6 +496,26 @@ const EVENTS = [
   {d:"2026-12-07",label:"Committee: Patient Qualification & Safety",type:"committee",when:"9:00–11:00 AM MT"},
   {d:"2026-12-31",label:"NM target: first patients enrolled (statutory deadline 2027-12-31)",type:"milestone",when:""}
 ];
+const EXPLAINER = {
+  nm:{ model:"Medical", lead:"New Mexico's Medical Psilocybin Program lets a patient with a qualifying condition receive psilocybin care from licensed professionals — a medical program, not a store.",
+    steps:[
+      {i:"🩺",t:"A certifying clinician confirms you qualify",n:"qualifying condition → enrollment"},
+      {i:"🌿",t:"A practitioner / facilitator guides you",n:"preparation · administration · integration"},
+      {i:"🏛️",t:"Care happens at a healing center or approved location",n:"supervised, not take-home"},
+      {i:"🔬",t:"Product is grown by a licensed producer & lab-tested",n:"your dose is set by the COA"}
+    ]},
+  co:{ model:"Non-medical", lead:"Colorado's Regulated Natural Medicine program (Prop 122) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, or qualifying condition.",
+    steps:[
+      {i:"🧭",t:"You choose a licensed facilitator & healing center",n:"no referral needed"},
+      {i:"🤝",t:"A preparation session comes first",n:"informed consent & safety plan"},
+      {i:"🏛️",t:"You take psilocybin at a licensed healing center",n:"the facilitator stays with you"},
+      {i:"🔄",t:"An optional integration session follows",n:"72-hour check-in"}
+    ]}
+};
+function renderExplainer(){
+  var p=EXPLAINER[ACTIVE]; var el=document.getElementById('explBody'); if(!el||!p) return;
+  el.innerHTML='<div style="font-size:13.5px;color:var(--ink);line-height:1.5"><b>'+p.model+' model.</b> '+p.lead+'</div><div class="flow4">'+p.steps.map(function(s){return '<div class="fstep"><div class="fi">'+s.i+'</div><div class="ft">'+s.t+'</div><div class="fn">'+s.n+'</div></div>';}).join('')+'</div>';
+}
 const READINESS = {
   nm:[
     {l:"Producer & lab rules adopted",n:"7.35.2 · Jun 2026",st:"done"},
@@ -781,7 +830,7 @@ function render(){
   ["daiLabel","daiCard","eviLabel","eviCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
 
-  renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
+  renderExplainer(); renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // toggle button states
   document.querySelectorAll(".toggle button").forEach(b=>
