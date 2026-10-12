@@ -212,7 +212,7 @@
 </div>
 <header class="top">
   <div class="wrap">
-    <div class="brand" id="brand" title="Replay intro">Psilocybin&nbsp;PARA<span>·</span>KEET <small>NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
+    <div class="brand" id="brand" title="Replay intro">Psilocybin&nbsp;PARA<span>·</span>KEET <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
     <div class="toggle" role="group" aria-label="Active state rule-pack">
       <button data-state="nm" aria-pressed="true" onclick="setState('nm')"><span class="dot"></span>New Mexico</button>
       <button data-state="co" aria-pressed="false" onclick="setState('co')"><span class="dot"></span>Colorado</button>
@@ -397,8 +397,8 @@
     <div class="review"><span class="rtag">⚑ Policymaker review</span><b>New Mexico has not set its program fees</b> &mdash; they are established &ldquo;by DOH rule&rdquo; (7.35.2 / 7.35.3), which is <b>not yet finalized</b>. Oregon&rsquo;s structure above is the working <b>benchmark</b>, so there is a <b>window to shape New Mexico&rsquo;s fee schedule deliberately</b> &mdash; alongside the system design &mdash; before it is locked in.</div>
   </div>
 
-  <div class="sectlabel">Tribal &amp; Indigenous engagement &mdash; sovereignty-first</div>
-  <div class="card full"><div id="tribalBlock"></div></div>
+  <div class="sectlabel" id="tribalLabel">Tribal &amp; Indigenous engagement &mdash; sovereignty-first</div>
+  <div class="card full" id="tribalCard"><div id="tribalBlock"></div></div>
 
   <div class="sectlabel">Security &amp; data-trust posture &mdash; target certification roadmap</div>
   <div class="card full"><div id="securityBlock"></div>
@@ -452,6 +452,7 @@ const NM_UNIQUE = [
 ];
 function renderUnique(){
   var card=document.getElementById('uniqueCard'), el=document.getElementById('uniqueBlock'); if(!card||!el) return;
+  var ul=document.getElementById('uniqueLabel'); if(ul) ul.textContent=(ACTIVE==='nm'?'Traceability routes unique to NM’s medical psilocybin program':'Traceability — Colorado (non-medical) model');
   if(ACTIVE==='nm'){
     el.innerHTML = NM_UNIQUE.map(function(u){return row(u.k,u.v);}).join('') +
       '<div class="note">These routes are unique to a <b>medical</b> psilocybin program — they distinguish it from CO’s non-medical (Prop 122) model.</div>';
@@ -469,7 +470,9 @@ const TRIBAL = [
   {k:"Equity, Access & Cultural committee feed", v:"Tribe-authorized, de-identified participation & cultural-safety metrics flow to the MPAB <b>Equity, Access & Cultural</b> committee — turning engagement into reportable, improvable practice."}
 ];
 function renderTribal(){
-  var el=document.getElementById('tribalBlock'); if(!el) return;
+  var lab=document.getElementById('tribalLabel'), card=document.getElementById('tribalCard'), el=document.getElementById('tribalBlock'); if(!el) return;
+  if(ACTIVE!=='nm'){ if(lab)lab.style.display='none'; if(card)card.style.display='none'; return; }
+  if(lab)lab.style.display=''; if(card)card.style.display='';
   el.innerHTML = TRIBAL.map(function(t){return row(t.k,t.v);}).join('') +
     '<div class="note">Sovereignty-first by design: Parakeet centers tribal <b>sovereignty</b>, <b>Indigenous Data Sovereignty</b> (CARE + OCAP), formal <b>consultation</b>, and protection of <b>sacred practice</b> — built <i>with</i>, not just sold <i>to</i>, the sovereign nations of New Mexico.</div>';
 }
@@ -538,6 +541,7 @@ const READINESS = {
 };
 function renderReadiness(){
   var el=document.getElementById('progSteps'); if(!el) return;
+  var rl=document.getElementById('readyLabel'); if(rl) rl.textContent=(ACTIVE==='nm'?'Program readiness — path to first patients':'Program readiness — program status');
   var steps=READINESS[ACTIVE]||[];
   el.innerHTML=steps.map(function(s,i){var mark=s.st==='done'?'&#10003;':(s.st==='active'?'&#9679;':(i+1));return '<div class="pstepw '+s.st+'"><div class="pdot">'+mark+'</div><div class="plabel">'+s.l+'</div><div class="pstat">'+s.n+'</div></div>';}).join('');
 }
@@ -834,6 +838,7 @@ function render(){
   ["daiLabel","daiCard","eviLabel","eviCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
 
+  var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':'CO Regulated Natural Medicine (Prop 122)')+' · govtech with regtech awareness';
   renderExplainer(); renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // toggle button states
