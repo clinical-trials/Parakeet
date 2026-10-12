@@ -13,7 +13,7 @@
     --nm:#a8792b; --co:#2b6f6a; --or:#2b5f86;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;overflow-x:hidden}
   a{color:var(--blue)}
   .wrap{max-width:1120px;margin:0 auto;padding:0 20px 60px}
   header.top{background:var(--pine);color:#fff;padding:16px 0;margin-bottom:22px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
@@ -40,14 +40,14 @@
 
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
-  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0;overflow-wrap:anywhere}
   .card h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--pine2);display:flex;align-items:center;gap:8px}
   .card.full{grid-column:1/-1}
   .row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px dashed #edf0f1}
   .row:first-of-type{border-top:0}
   .row .k{flex:0 0 40%;font-weight:600}
-  .row .v{flex:1}
-  .cite{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;font-weight:600;background:var(--slate);color:#41525a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-top:3px;white-space:nowrap}
+  .row .v{flex:1;min-width:0;overflow-wrap:anywhere}
+  .cite{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;font-weight:600;background:var(--slate);color:#41525a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-top:3px;white-space:normal;overflow-wrap:anywhere}
   .cite.nm{background:#faf3e3;color:#8a5f18;border-color:#e8d3a0}
   .cite.co{background:#e6f2f0;color:#1c5a54;border-color:#bcdcd7}
   .cite.or{background:#eef3f6;color:#2b5f86;border-color:#bcd4e6}
