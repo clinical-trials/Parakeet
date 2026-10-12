@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Psilocybin Parakeet — NM Medical Psilocybin Program</title>
+<title>Parakeet Software — NM &amp; Colorado Psilocybin Programs</title>
 <style>
   :root{
     --ink:#20262b; --muted:#5c6870; --line:#dbe1e4; --bg:#f6f8f8;
@@ -212,7 +212,7 @@
 </div>
 <header class="top">
   <div class="wrap">
-    <div class="brand" id="brand" title="Replay intro">Psilocybin&nbsp;PARA<span>·</span>KEET <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
+    <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET Software <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
     <div class="toggle" role="group" aria-label="Active state rule-pack">
       <button data-state="nm" aria-pressed="true" onclick="setState('nm')"><span class="dot"></span>New Mexico</button>
       <button data-state="co" aria-pressed="false" onclick="setState('co')"><span class="dot"></span>Colorado</button>
@@ -409,7 +409,7 @@
     <span><b>Parakeet:</b> <span class="pill p-core">core</span> medical/EHR &nbsp; <span class="pill p-light">light</span> clinical-facilitator only &nbsp; <span class="pill p-off">off</span> non-medical</span>
   </div>
   <footer>
-    Psilocybin Parakeet rule-pack engine (prototype). NM grounded in <b>SB219 (2025) Medical Psilocybin Act</b>; CO in <b>Prop 122 / SB23-290</b> (rules 1 CCR 213-1, 4 CCR 755-1); shared core reverse-engineered from Oregon OHA <b>TLC</b>. Citations are for traceability, not legal advice; confirm against current rule text.
+    Parakeet Software rule-pack engine (prototype). NM grounded in <b>SB219 (2025) Medical Psilocybin Act</b>; CO in <b>Prop 122 / SB23-290</b> (rules 1 CCR 213-1, 4 CCR 755-1); shared core reverse-engineered from Oregon OHA <b>TLC</b>. Citations are for traceability, not legal advice; confirm against current rule text.
   </footer>
 </div>
 
@@ -598,7 +598,7 @@ const RULEPACKS = {
       labPanelCite:"7.35.2.19 NMAC",
       transferRule:"Transfer only to permitted healing centers, service centers, or certified facilitators; recipient permit verified before an order is finalized.",
       transferCite:"7.35.2 NMAC",
-      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com (a BT Government domain) — so that incumbent vendor powers the psilocybin LICENSING portal today. NOT confirmed: that it is the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). The incumbent's long-term hold is unsettled — verify with DOH. Either way, Psilocybin Parakeet's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with the state licensing portal.",
+      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com (a BT Government domain) — so that incumbent vendor powers the psilocybin LICENSING portal today. NOT confirmed: that it is the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). The incumbent's long-term hold is unsettled — verify with DOH. Either way, Parakeet Software's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with the state licensing portal.",
       portalCite:"mpp.nm.btgov.com (BT Government) — scope unverified",
       gap:"⚠ Critical path: NM lab-permit applications are now OPEN via the state portal (mpp.nm.btgov.com); a complete application triggers a DOH site visit within 30 business days. Until a lab is certified, the 7.35.2.19 panel can't run → no COAs → potency stays Pending → product can't be transferred. Lab certification + certifying-clinician certification are the two gates before first-patient enrollment.",
       cite:"7.35.2 NMAC",
@@ -610,7 +610,7 @@ const RULEPACKS = {
       {n:"2 · Traceability (spore-to-end-use)", role:"The <b>&ldquo;traceability system&rdquo;</b> — <i>&ldquo;the department-approved system … to track psilocybin mushrooms and products from inoculation to end use.&rdquo;</i> Chain-of-custody forms generated/verified in-system on every transfer (producer → lab → healing center → administration). <i>Vendor unconfirmed.</i>", cite:"7.35.3 def · §(D) · 7.35.2.19"},
       {n:"3 · Patient enrollment", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for 7.35.3.8 enrollment — joint patient + certifying-clinician application, documents/attestations, 30-day DOH decision, 2-yr enrollment. A public comment asks DOH to support <b>API / machine-to-machine submission</b> and <b>HIPAA-business-associate upload</b> on a clinician's behalf. <i>Not live yet; vendor unconfirmed.</i>", cite:"7.35.3.8 NMAC"}
     ],
-    systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com (BT Government) for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is Psilocybin Parakeet's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
+    systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com (BT Government) for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is Parakeet Software's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
     substances:"Psilocybin / psilocin (medical use)", subCite:"SB219 §13 · 7.35.3 NMAC",
     personas:[
       {key:"applicant",ico:"📝",title:"Applicant",tag:"Get a permit or certification",
@@ -652,13 +652,13 @@ const RULEPACKS = {
   },
   co: {
     id:"co", name:"Colorado", program:"Regulated Natural Medicine (Prop 122)",
-    sub:"Non-medical model — adults 21+ access natural medicine via a licensed facilitator; no diagnosis required. Prop 122 has two layers: personal-use decriminalization (grow/use/share) and the regulated-access program (healing centers/facilitators) — Psilocybin Parakeet serves the regulated layer.",
+    sub:"Non-medical model — adults 21+ access natural medicine via a licensed facilitator; no diagnosis required. Prop 122 has two layers: personal-use decriminalization (grow/use/share) and the regulated-access program (healing centers/facilitators) — Parakeet Software serves the regulated layer.",
     access:"nonmedical",
     regulator:"DOR — Natural Medicine Division (businesses) + DORA (facilitators)",
     statute:"Prop 122 / SB23-290 — Natural Medicine Health Act (passed Nov 8, 2022)",
     status:"Live (2025); rules tightening Fall 2026", statusCite:"1 CCR 213-1",
     regStatusAsOf:"Oct 2026",
-    regStatus:"NMD's 2026 agenda revises the <b>8000-series (1 CCR 213-1)</b> to tighten <b>transfers, tracking & reporting</b> for healing centers, with the <b>3000-series</b> tightening transfers — hearings this fall (<b>Oct 15</b>; final <b>Nov 4, 2026</b> 9:30a, written comments due Nov 4 by 5pm). Nov 4 also implements a new 2026 statute, <b>HB26-1325</b>. DORA Rule 5.4 (facilitator CE) heard Oct 8. The added tracking/reporting burden on healing centers still on manual forms is a direct demand tailwind for Psilocybin Parakeet.",
+    regStatus:"NMD's 2026 agenda revises the <b>8000-series (1 CCR 213-1)</b> to tighten <b>transfers, tracking & reporting</b> for healing centers, with the <b>3000-series</b> tightening transfers — hearings this fall (<b>Oct 15</b>; final <b>Nov 4, 2026</b> 9:30a, written comments due Nov 4 by 5pm). Nov 4 also implements a new 2026 statute, <b>HB26-1325</b>. DORA Rule 5.4 (facilitator CE) heard Oct 8. The added tracking/reporting burden on healing centers still on manual forms is a direct demand tailwind for Parakeet Software.",
     licenses:[
       {name:"Healing Center (micro / standard)", desc:"Administer natural medicine to participants", cite:"1 CCR 213-1"},
       {name:"Cultivation", desc:"Cultivate natural medicine", cite:"1 CCR 213-1"},
@@ -678,7 +678,7 @@ const RULEPACKS = {
       chain:["License (DOR)","Cultivation","Manufacturing","Testing / COA","Healing center","Facilitated administration"],
       firstProducer:null, strains:null,
       transferRule:"Regulated product moves among permitted DOR licensees; sales to participants occur at licensed healing centers.", transferCite:"1 CCR 213-1",
-      gap:"No commercial track-and-trace vendor — healing centers self-report inventory on manual forms today. The 8000-series revision adds tracking/reporting burden → Psilocybin Parakeet's structured-capture + one-click submission is the wedge.",
+      gap:"No commercial track-and-trace vendor — healing centers self-report inventory on manual forms today. The 8000-series revision adds tracking/reporting burden → Parakeet Software's structured-capture + one-click submission is the wedge.",
       cite:"1 CCR 213-1 (8000-series)"
     },
     audit:{detail:"Division monitors licensees and tightens inventory tracking/reporting under the 8000-series. No mandated patient-outcome assessment (non-medical program).", cite:"1 CCR 213-1"},
