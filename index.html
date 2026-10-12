@@ -10,7 +10,7 @@
     --pine:#17423f; --pine2:#1f5a54; --gold:#a8792b; --goldbg:#faf3e3;
     --green:#1c7a4a; --greenbg:#e8f5ec; --amber:#9a6a00; --amberbg:#fbf1d8;
     --blue:#2b5f86; --bluebg:#eef3f6; --slate:#eef1f2;
-    --nm:#a8792b; --co:#2b6f6a;
+    --nm:#a8792b; --co:#2b6f6a; --or:#2b5f86;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
@@ -29,6 +29,7 @@
   .toggle button[aria-pressed="true"] .dot{opacity:1}
   .toggle button[data-state="nm"][aria-pressed="true"] .dot{background:var(--nm)}
   .toggle button[data-state="co"][aria-pressed="true"] .dot{background:var(--co)}
+  .toggle button[data-state="or"][aria-pressed="true"] .dot{background:var(--or)}
 
   .statehead{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:6px}
   .statehead h1{margin:0 0 2px;font-size:24px}
@@ -216,6 +217,7 @@
     <div class="toggle" role="group" aria-label="Active state rule-pack">
       <button data-state="nm" aria-pressed="true" onclick="setState('nm')"><span class="dot"></span>New Mexico</button>
       <button data-state="co" aria-pressed="false" onclick="setState('co')"><span class="dot"></span>Colorado</button>
+      <button data-state="or" aria-pressed="false" onclick="setState('or')"><span class="dot"></span>Oregon</button>
     </div>
   </div>
 </header>
@@ -424,19 +426,19 @@ const VPROPS = ["Simple to use","Compliance help — incl. lab health & safety",
 
 /* ---------- Spore-to-session chain of custody (inoculation → end use) ---------- */
 const CHAIN = [
-  {s:"Inoculation", id:"BATCH-ID", cap:"Dikaryotic culture or grain spawn (from spore syringe / liquid culture) introduced to sterilized substrate; batch ID created & logged", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
-  {s:"Colonization → pinning → fruiting", id:"carries BATCH-ID", cap:"Mycelium colonizes the substrate (spawn run); environmental cues trigger hyphal knots → primordia (pinning) → fruiting bodies; tracked at the batch level", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
-  {s:"Harvest (flush)", id:"LOT-ID", cap:"Fruiting bodies harvested before sporulation; batched by flush → new lot ID inherits the full inoculation-to-harvest lineage", nm:"7.35.2 NMAC", co:"1 CCR 213-1 (8000-series)"},
-  {s:"Lab test & COA", id:"COA ↔ LOT", cap:"Psilocybin/psilocin mg + microbial, heavy metals, pesticides — mg potency becomes the clinical dosing input", nm:"7.35.2.19 NMAC", co:"1 CCR 213-1 (testing)", key:true},
-  {s:"Packaging", id:"PKG-ID", cap:"Units inherit lot + COA mg/unit; label & unique ID printed", nm:"7.35.2 NMAC", co:"1 CCR 213-1"},
-  {s:"Verified transfer", id:"MANIFEST", cap:"Producer → lab → healing center / approved location; origin, contents, handler credentials verified in-system", nm:"7.35.3 (verified transfer)", co:"1 CCR 213-1 (8000-series)"},
-  {s:"Administration (end use)", id:"SESSION ↔ ENROLLEE", cap:"Clinician/facilitator administers in a supervised session; mg analyte dosed recorded to the enrolled patient (the end-use terminus)", nm:"7.35.3 · SB219 §3.D", co:"Prop 122 (facilitated admin)", key:true},
-  {s:"§9 outcome", id:"DE-IDENTIFIED", cap:"Dose + outcome → de-identified §9 assessment + Secretary dashboard (health outcomes, not tax revenue)", nm:"SB219 §9", co:"1 CCR 213-1 (inventory only)", key:true}
+  {s:"Inoculation", id:"BATCH-ID", cap:"Dikaryotic culture or grain spawn (from spore syringe / liquid culture) introduced to sterilized substrate; batch ID created & logged", nm:"7.35.2 NMAC", co:"1 CCR 213-1", or:"OAR 333-333"},
+  {s:"Colonization → pinning → fruiting", id:"carries BATCH-ID", cap:"Mycelium colonizes the substrate (spawn run); environmental cues trigger hyphal knots → primordia (pinning) → fruiting bodies; tracked at the batch level", nm:"7.35.2 NMAC", co:"1 CCR 213-1", or:"OAR 333-333"},
+  {s:"Harvest (flush)", id:"LOT-ID", cap:"Fruiting bodies harvested before sporulation; batched by flush → new lot ID inherits the full inoculation-to-harvest lineage", nm:"7.35.2 NMAC", co:"1 CCR 213-1 (8000-series)", or:"OAR 333-333"},
+  {s:"Lab test & COA", id:"COA ↔ LOT", cap:"Psilocybin/psilocin mg + microbial, heavy metals, pesticides — mg potency becomes the clinical dosing input", nm:"7.35.2.19 NMAC", co:"1 CCR 213-1 (testing)", or:"OAR 333-333 (ORELAP)", key:true},
+  {s:"Packaging", id:"PKG-ID", cap:"Units inherit lot + COA mg/unit; label & unique ID printed", nm:"7.35.2 NMAC", co:"1 CCR 213-1", or:"OAR 333-333"},
+  {s:"Verified transfer", id:"MANIFEST", cap:"Producer → lab → healing center / approved location; origin, contents, handler credentials verified in-system", nm:"7.35.3 (verified transfer)", co:"1 CCR 213-1 (8000-series)", or:"OAR 333-333 (product tracking)"},
+  {s:"Administration (end use)", id:"SESSION ↔ ENROLLEE", cap:"Clinician/facilitator administers in a supervised session; mg analyte dosed recorded to the enrolled patient (the end-use terminus)", nm:"7.35.3 · SB219 §3.D", co:"Prop 122 (facilitated admin)", or:"ORS 475A (service center)", key:true},
+  {s:"§9 outcome", id:"DE-IDENTIFIED", cap:"Dose + outcome → de-identified §9 assessment + Secretary dashboard (health outcomes, not tax revenue)", nm:"SB219 §9", co:"1 CCR 213-1 (inventory only)", or:"OAR 333-333 (tracking only)", key:true}
 ];
 function renderChain(){
   var el=document.getElementById('chainFlow'); if(!el) return;
   el.innerHTML = CHAIN.map(function(c){
-    var cite = (ACTIVE==='nm') ? c.nm : c.co;
+    var cite = c[ACTIVE] || c.co;
     return '<div class="stage'+(c.key?' key':'')+'"><div class="sname">'+c.s+'</div><div class="sid">'+c.id+'</div><div class="scap">'+c.cap+'</div><div class="scite cite '+ACTIVE+'">'+cite+'</div></div>';
   }).join('');
 }
@@ -452,12 +454,13 @@ const NM_UNIQUE = [
 ];
 function renderUnique(){
   var card=document.getElementById('uniqueCard'), el=document.getElementById('uniqueBlock'); if(!card||!el) return;
-  var ul=document.getElementById('uniqueLabel'); if(ul) ul.textContent=(ACTIVE==='nm'?'Traceability routes unique to NM’s medical psilocybin program':'Traceability — Colorado (non-medical) model');
+  var pn=pack().name, law=(ACTIVE==='co')?'Prop 122':(ACTIVE==='or'?'Measure 109 / ORS 475A':'non-medical'), rep=(ACTIVE==='co')?'inventory only (1 CCR 213-1, 8000-series)':'product-tracking only (OAR 333-333)';
+  if(ul) ul.textContent=(ACTIVE==='nm'?'Traceability routes unique to NM’s medical psilocybin program':'Traceability — '+pn+' (non-medical) model');
   if(ACTIVE==='nm'){
     el.innerHTML = NM_UNIQUE.map(function(u){return row(u.k,u.v);}).join('') +
-      '<div class="note">These routes are unique to a <b>medical</b> psilocybin program — they distinguish it from CO’s non-medical (Prop 122) model.</div>';
+      '<div class="note">These routes are unique to a <b>medical</b> psilocybin program — they distinguish it from the non-medical models in Colorado and Oregon.</div>';
   } else {
-    el.innerHTML = '<div class="note" style="font-size:13px;color:var(--ink)">Colorado is <b>non-medical</b> (Prop 122): no clinician gate, no §9 health-outcome registry, no qualifying condition. Its chain still runs batch → lot → package → verified transfer → facilitated administration, but terminates at a <b>facilitated session</b> (not a medical administration) and reports <b>inventory only</b> (1 CCR 213-1, 8000-series). Toggle to New Mexico for the medical-specific routes.</div>';
+    el.innerHTML = '<div class="note" style="font-size:13px;color:var(--ink)">'+pn+' is <b>non-medical</b> ('+law+'): no clinician gate, no §9 health-outcome registry, no qualifying condition. Its chain still runs batch → lot → package → verified transfer → facilitated administration, but terminates at a <b>facilitated session</b> (not a medical administration) and reports <b>'+rep+'</b>. Toggle to New Mexico for the medical-specific routes.</div>';
   }
 }
 
@@ -517,6 +520,13 @@ const EXPLAINER = {
       {i:"🤝",t:"A preparation session comes first",n:"informed consent & safety plan"},
       {i:"🏛️",t:"You take psilocybin at a licensed healing center",n:"the facilitator stays with you"},
       {i:"🔄",t:"An optional integration session follows",n:"72-hour check-in"}
+    ]},
+  or:{ model:"Non-medical", lead:"Oregon's Psilocybin Services program (Measure 109, live since 2023) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, or referral.",
+    steps:[
+      {i:"🧭",t:"Choose a licensed service center & facilitator",n:"verify the license first"},
+      {i:"🤝",t:"Complete a preparation session",n:"informed consent & safety plan"},
+      {i:"🏛️",t:"Attend the administration session on-site",n:"the facilitator stays with you"},
+      {i:"🔄",t:"Optional integration + 72-hour check-in",n:"referrals & support"}
     ]}
 };
 function renderExplainer(){
@@ -537,6 +547,13 @@ const READINESS = {
     {l:"Healing centers & facilitators",n:"licensing open",st:"done"},
     {l:"Tracking/reporting rules",n:"8000-series · Nov 4 hearing",st:"active"},
     {l:"Reporting vendor",n:"manual forms today — open",st:"pending"}
+  ],
+  or:[
+    {l:"Measure 109 passed",n:"2020",st:"done"},
+    {l:"Rules adopted (OAR 333-333)",n:"2022",st:"done"},
+    {l:"Licensing opened",n:"2023",st:"done"},
+    {l:"Service centers operating",n:"2023–present",st:"done"},
+    {l:"Mature program",n:"ongoing",st:"active"}
   ]
 };
 function renderReadiness(){
@@ -602,7 +619,7 @@ const RULEPACKS = {
       portalCite:"mpp.nm.btgov.com (BT Government) — scope unverified",
       gap:"⚠ Critical path: NM lab-permit applications are now OPEN via the state portal (mpp.nm.btgov.com); a complete application triggers a DOH site visit within 30 business days. Until a lab is certified, the 7.35.2.19 panel can't run → no COAs → potency stays Pending → product can't be transferred. Lab certification + certifying-clinician certification are the two gates before first-patient enrollment.",
       cite:"7.35.2 NMAC",
-      applicantNote:"<b>For applicants:</b> applications are submitted via the state portal mpp.nm.btgov.com — <b>producer applications opened 08/17/2026</b>; <b>laboratory applications opened 10/05/2026</b>. A complete application triggers a DOH site visit within 30 business days. Review the Producer & Laboratory Requirements (7.35.2 NMAC) first — incomplete applications may be rejected. Questions: medical.psilocybin@doh.nm.gov."
+      applicantNote:"<b>For applicants:</b> applications are submitted via the state portal mpp.nm.btgov.com — <b>producer applications opened 08/17/2026</b>; <b>laboratory applications opened 10/05/2026</b>. A complete application triggers a DOH site visit within 30 business days. Review the Producer & Laboratory Requirements (7.35.2 NMAC) first — incomplete applications may be rejected. Questions: medical.psilocybin@doh.nm.gov · 505-827-2321 (DOH Medical Psilocybin Program, Harold Runnels Bldg, Santa Fe). The Act took effect Jun 20, 2025; DOH targets implementation by Dec 31, 2026 (statutory backstop Dec 31, 2027)."
     },
     audit:{detail:"Govtech scope: DOH monitors producers & clinicians for compliance (§7B) and publishes a de-identified <b>annual assessment</b> (§9). Software runs the <b>annual producer audit</b> (chain-of-custody reconciliation, batch ↔ COA ↔ transfer, waste), the <b>annual de-identified patient/outcome assessment</b>, and disciplinary actions & appeals.", cite:"SB219 §7B · §9 · 7.35.3 NMAC"},
     systems:[
@@ -693,6 +710,49 @@ const RULEPACKS = {
       {key:"business",ico:"🏢",title:"Healing center / business",tag:"Cultivate · manufacture · administer",
        steps:["License through DOR Natural Medicine Division (1 CCR 213-1)","Track inventory; report to the Division (tightening under the 8000-series)","Administer to participants at a licensed center"],
        acts:[{l:"DOR Natural Medicine",h:"https://dnm.colorado.gov/"}]}
+    ]
+  },
+  or: {
+    id:"or", name:"Oregon", program:"Psilocybin Services (Measure 109)",
+    sub:"Non-medical model, live since 2023 — any adult 21+ may access psilocybin services through a licensed facilitator; no diagnosis, prescription, or referral. A non-directive facilitator supports the client through preparation, administration, and integration at a licensed service center, run by the Oregon Health Authority (Oregon Psilocybin Services). This is the mature template New Mexico & Colorado are modeled on.",
+    access:"nonmedical",
+    regulator:"Oregon Health Authority — Oregon Psilocybin Services (OPS)",
+    statute:"Measure 109 (2020) / ORS 475A; rules OAR 333-333",
+    status:"Live — licensing since 2023", statusCite:"ORS 475A",
+    regStatusAsOf:"Oct 2026",
+    regStatus:"Oregon is the <b>first live U.S. psilocybin-services program</b> (Measure 109, 2020; licensing since 2023). Everything runs through OPS's <b>Training, Licensing &amp; Compliance (TLC)</b> platform (psilocybin.oregon.gov), with a statewide <b>product tracking system</b> and <b>ORELAP-accredited</b> lab testing. Fees are set and published by OHA (Service Center fact sheet updated Jul 2026). Oregon is the shared-core template reverse-engineered for NM &amp; CO.",
+    licenses:[
+      {name:"Facilitator (license)", desc:"21+, HS diploma, OPS-approved + HECC training, OPS exam (75%); non-directive; 4 CE hrs/yr to renew", cite:"ORS 475A · $150 app / $2,000 yr"},
+      {name:"Manufacturer (license)", desc:"Cultivate/process Psilocybe cubensis only (no synthetic/wild); endorsements: cultivation / extraction / edible; LUCS + premises plan + site inspection", cite:"OAR 333-333 · $500 / $10,000 yr"},
+      {name:"Service center (license)", desc:"Administration site; ≥1,000 ft from a school; premises + emergency plan", cite:"OAR 333-333 · $500 / $10,000 yr"},
+      {name:"Laboratory (license)", desc:"ORELAP-accredited (TNI 2016); confirm species + potency + solvents", cite:"OAR 333-333 · $500 / $10,000 yr"},
+      {name:"Worker permit", desc:"Any employee at a licensed premises handling product or clients; 21+ & background check", cite:"OAR 333-333"}
+    ],
+    eligibility:{gate:"None — adults 21+", detail:"No diagnosis, prescription, or referral. Clients complete at least one preparation session with a licensed facilitator before an administration session at a licensed service center. ~50% fee reductions for veterans, SSI, SNAP, or the Oregon Health Plan.", cite:"ORS 475A / OAR 333-333"},
+    conditions:null,
+    services:{list:"Preparation · Administration · Integration (optional) · 72-hour check-in", setting:"Licensed service center (indoor or outdoor administration areas)", cite:"OAR 333-333"},
+    fees:{summary:"Facilitator $150 app / $2,000 yr; Manufacturer, Service Center, Lab each $500 / $10,000 yr; ~50% reductions for veterans/SSI/SNAP/OHP", cite:"OHA license fee fact sheets (2024–2026)"},
+    parakeet:{level:"off", detail:"Oregon is the <b>shared-core template</b> (reverse-engineered from OHA's TLC). The clinical/EHR layer is <b>off</b> here — Oregon is non-directive and non-medical, so there is no dosage calculator or §9 medical-outcome registry.", cite:"ORS 475A"},
+    reporting:{kind:"Statewide product tracking system (manufacturer → ORELAP lab → service center); OPS compliance, complaints & administrative sanctions. No mandated client-demographic reporting.", clientData:false, cite:"OAR 333-333"},
+    supply:{
+      chain:["Manufacturer (P. cubensis)","Product tracking system","ORELAP lab (potency + solvents)","Results → tracking system","Transfer to service center","Client purchase at administration"],
+      labPanel:"ORELAP-accredited testing confirms the product is Psilocybe cubensis, plus potency and (if applicable) residual solvents — results entered into the product tracking system.",
+      labPanelCite:"OAR 333-333",
+      transferRule:"Licensed manufacturers → licensed service centers only; all movement tracked in the product tracking system. Clients consume on-site at the service center.",
+      transferCite:"ORS 475A / OAR 333-333"
+    },
+    audit:{detail:"OPS investigates complaints/incidents on licensed premises; violations → notice of proposed action, 20–30 days to request an ALJ hearing → OHA final order; sanctions from license restriction to revocation plus civil penalties.", cite:"OAR 333-333-6200"},
+    substances:"Psilocybin (Psilocybe cubensis only; no synthetic, no wild harvest)", subCite:"OAR 333-333",
+    personas:[
+      {key:"client",ico:"🌀",title:"Client",tag:"Access services (21+)",
+       steps:["Any adult 21+ — no diagnosis, prescription, or referral","Contact a licensed service center and verify its license","Complete a preparation session with a licensed facilitator","Attend an administration session on-site; optional integration + 72-hr check-in"],
+       acts:[{l:"OPS program site",h:"https://www.oregon.gov/oha/ph/preventionwellness/pages/oregon-psilocybin-services.aspx",primary:true},{l:"How services work",h:"#explCard"}]},
+      {key:"facilitator",ico:"🧭",title:"Facilitator",tag:"Get licensed & facilitate",
+       steps:["21+ with a high-school diploma; pass a background check","Complete an OPS-approved (HECC-licensed) training program + practicum","Pass the OPS facilitator exam (75%)","Apply via TLC ($150) → license ($2,000/yr; 4 CE hrs/yr to renew)"],
+       acts:[{l:"TLC platform",h:"https://psilocybin.oregon.gov",primary:true},{l:"Facilitator fact sheet",h:"https://www.oregon.gov/oha/PH/PREVENTIONWELLNESS/Pages/Psilocybin-License-Facilitator.aspx"}]},
+      {key:"business",ico:"🏢",title:"Manufacturer / center / lab",tag:"Get licensed",
+       steps:["Choose your license: manufacturer, service center, or laboratory","Complete LUCS + premises plan; service centers ≥1,000 ft from a school","Pass a site inspection; labs must be ORELAP-accredited","Apply via TLC ($500 app / $10,000 yr)"],
+       acts:[{l:"TLC platform",h:"https://psilocybin.oregon.gov",primary:true},{l:"License fact sheets",h:"https://www.oregon.gov/oha/ph/preventionwellness/pages/oregon-psilocybin-services.aspx"}]}
     ]
   }
 };
@@ -796,7 +856,7 @@ function render(){
       return '<div class="row"><div class="k">'+c.name+note+'</div><div class="v"><ul class="tight cites">'+links+'</ul></div></div>';
     }).join('') + '<div class="note">Qualifying conditions per <b>'+p.condCite+'</b>; DOH may approve others. Links are peer-reviewed evidence for traceability &mdash; not endorsements or medical advice.</div>';
   } else {
-    cb.innerHTML = '<div class="row"><div class="k">No qualifying-condition gate</div><div class="v">Colorado is non-medical (adults 21+); clinical evidence is informational context, not an eligibility requirement.<ul class="tight cites"><li>'+evLink('field')+'</li></ul></div></div>';
+    cb.innerHTML = '<div class="row"><div class="k">No qualifying-condition gate</div><div class="v">'+p.name+' is non-medical (adults 21+); clinical evidence is informational context, not an eligibility requirement.<ul class="tight cites"><li>'+evLink('field')+'</li></ul></div></div>';
   }
 
   // supply chain & lab testing (producer → lab → COA)
