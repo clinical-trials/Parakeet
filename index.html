@@ -454,7 +454,7 @@ const NM_UNIQUE = [
 ];
 function renderUnique(){
   var card=document.getElementById('uniqueCard'), el=document.getElementById('uniqueBlock'); if(!card||!el) return;
-  var pn=pack().name, law=(ACTIVE==='co')?'Prop 122':(ACTIVE==='or'?'Measure 109 / ORS 475A':'non-medical'), rep=(ACTIVE==='co')?'inventory only (1 CCR 213-1, 8000-series)':'product-tracking only (OAR 333-333)';
+  var ul=document.getElementById('uniqueLabel'), pn=pack().name, law=(ACTIVE==='co')?'Prop 122':(ACTIVE==='or'?'Measure 109 / ORS 475A':'non-medical'), rep=(ACTIVE==='co')?'inventory only (1 CCR 213-1, 8000-series)':'product-tracking only (OAR 333-333)';
   if(ul) ul.textContent=(ACTIVE==='nm'?'Traceability routes unique to NM’s medical psilocybin program':'Traceability — '+pn+' (non-medical) model');
   if(ACTIVE==='nm'){
     el.innerHTML = NM_UNIQUE.map(function(u){return row(u.k,u.v);}).join('') +
