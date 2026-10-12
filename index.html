@@ -51,6 +51,18 @@
   .cite.nm{background:#faf3e3;color:#8a5f18;border-color:#e8d3a0}
   .cite.co{background:#e6f2f0;color:#1c5a54;border-color:#bcdcd7}
   .cite.or{background:#eef3f6;color:#2b5f86;border-color:#bcd4e6}
+  /* gear-shift state selector */
+  .shifter{display:flex;flex-direction:column;gap:5px;min-width:240px}
+  .gate{position:relative;height:20px;background:linear-gradient(#0b1b19,#16403b);border:1px solid #08120f;border-radius:12px;box-shadow:inset 0 2px 5px rgba(0,0,0,.55)}
+  .gate .detent{position:absolute;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .knob{position:absolute;top:50%;left:16.667%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff5df,#e3c074 42%,#a9821f 100%);box-shadow:0 4px 7px rgba(0,0,0,.5),inset 0 -2px 3px rgba(120,80,0,.55),inset 0 2px 3px rgba(255,255,255,.7);transition:left .3s cubic-bezier(.34,1.56,.5,1);z-index:2}
+  .knob::after{content:"";position:absolute;inset:9px;border-radius:50%;border:1.5px solid rgba(120,85,10,.4)}
+  .gears{display:flex;gap:4px}
+  .gear{flex:1;appearance:none;border:0;background:transparent;color:#a9c3bf;font-weight:700;font-size:10.5px;line-height:1.1;padding:1px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .gear b{font-size:11px;background:rgba(255,255,255,.12);border-radius:4px;padding:0 6px;color:#cfe0dd}
+  .gear[aria-pressed="true"]{color:#fff}
+  .gear[aria-pressed="true"] b{background:#e3c074;color:#17423f}
+  .gear:hover b{background:rgba(255,255,255,.22)}
   .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
   .p-core{background:var(--goldbg);color:var(--gold);border:1px solid #e8d3a0}
   .p-light{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
@@ -161,8 +173,7 @@
     header.top .wrap{gap:10px}
     .brand{font-size:18px}
     .statehead h1{font-size:20px}
-    .toggle{width:100%;justify-content:center}
-    .toggle button{flex:1;justify-content:center;padding:9px 10px}
+    .shifter{width:100%;min-width:0}
     .row .k{flex:0 0 44%}
     .skipIntro{top:12px;right:12px;padding:8px 12px}
   }
@@ -215,10 +226,16 @@
 <header class="top">
   <div class="wrap">
     <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET Software <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
-    <div class="toggle" role="group" aria-label="Active state rule-pack">
-      <button data-state="nm" aria-pressed="true" onclick="setState('nm')"><span class="dot"></span>New Mexico</button>
-      <button data-state="co" aria-pressed="false" onclick="setState('co')"><span class="dot"></span>Colorado</button>
-      <button data-state="or" aria-pressed="false" onclick="setState('or')"><span class="dot"></span>Oregon</button>
+    <div class="shifter" role="group" aria-label="Shift between state programs" title="Shift the gear to switch states">
+      <div class="gate">
+        <i class="detent" style="left:16.667%"></i><i class="detent" style="left:50%"></i><i class="detent" style="left:83.333%"></i>
+        <div class="knob" id="gearKnob"></div>
+      </div>
+      <div class="gears">
+        <button class="gear" data-state="nm" aria-pressed="true" onclick="setState('nm')"><b>1</b><span>New&nbsp;Mexico</span></button>
+        <button class="gear" data-state="co" aria-pressed="false" onclick="setState('co')"><b>2</b><span>Colorado</span></button>
+        <button class="gear" data-state="or" aria-pressed="false" onclick="setState('or')"><b>3</b><span>Oregon</span></button>
+      </div>
     </div>
   </div>
 </header>
@@ -902,9 +919,9 @@ function render(){
   var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':ACTIVE==='or'?'OR Psilocybin Services (Measure 109)':'CO Regulated Natural Medicine (Prop 122)')+' · govtech with regtech awareness';
   renderExplainer(); renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
-  // toggle button states
-  document.querySelectorAll(".toggle button").forEach(b=>
-    b.setAttribute("aria-pressed", b.dataset.state===ACTIVE ? "true":"false"));
+  // gear shifter
+  var knob=document.getElementById('gearKnob'); if(knob) knob.style.left=({nm:'16.667%',co:'50%',or:'83.333%'}[ACTIVE]||'16.667%');
+  document.querySelectorAll(".gears .gear").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.state===ACTIVE?"true":"false"); });
 }
 function setState(s){ ACTIVE=s; render(); }
 function selPersona(i){
