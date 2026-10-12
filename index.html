@@ -50,6 +50,7 @@
   .cite{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;font-weight:600;background:var(--slate);color:#41525a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-top:3px;white-space:nowrap}
   .cite.nm{background:#faf3e3;color:#8a5f18;border-color:#e8d3a0}
   .cite.co{background:#e6f2f0;color:#1c5a54;border-color:#bcdcd7}
+  .cite.or{background:#eef3f6;color:#2b5f86;border-color:#bcd4e6}
   .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
   .p-core{background:var(--goldbg);color:var(--gold);border:1px solid #e8d3a0}
   .p-light{background:var(--bluebg);color:var(--blue);border:1px solid #bcd4e6}
@@ -898,7 +899,7 @@ function render(){
   ["daiLabel","daiCard","eviLabel","eviCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
 
-  var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':'CO Regulated Natural Medicine (Prop 122)')+' · govtech with regtech awareness';
+  var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':ACTIVE==='or'?'OR Psilocybin Services (Measure 109)':'CO Regulated Natural Medicine (Prop 122)')+' · govtech with regtech awareness';
   renderExplainer(); renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // toggle button states
