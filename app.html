@@ -858,6 +858,33 @@ function renderResearch(){
   h+='<div class="kv" style="color:var(--ink)"><b>Pre/post by design:</b> every participant is measured at <b>baseline (pre)</b> and <b>follow-up (post)</b> on a validated instrument at set timepoints (1 / 3 / 6 / 12 mo) — the change score is the study&rsquo;s primary endpoint.</div>';
   h+='<div class="kv" style="color:var(--ink)"><b>Works with the tools universities already use:</b> the de-identified dataset exports as a <b>REDCap</b>-ready data dictionary and a <b>Qualtrics</b>-importable CSV; a direct <b>REDCap / Qualtrics API</b> is on the roadmap.</div>';
   h+='<div class="actions" style="margin-top:4px"><span class="note">Opt-in only · de-identified · IRB-gated — the study never sees identifiers.</span><button class="btn primary sm" onclick="exportSchema()">Export recruitment + pre/post dataset (CSV)</button></div></div>';
+  h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">Follow-up adherence &amp; durability — ensure 1 / 3 / 6 / 12-month data</h3>';
+  var SSf=loadSessions(), adminF=SSf.filter(function(s){return s.session_type==='Administration' && s.at;});
+  if(!adminF.length){
+    h+='<div class="kv" style="color:var(--ink)"><b>Durability is the field&rsquo;s single biggest open question</b> — does the benefit <b>last</b>? NM&rsquo;s §9 can answer it only if follow-ups actually happen. Capture <b>Administration</b> sessions in <a href="#" onclick="go(\'reporting\');return false;">§9 Reporting</a>, and this tracker schedules &amp; chases the <b>1 / 3 / 6 / 12-month</b> follow-ups.</div>';
+  } else {
+    var TPf=[{m:1,k:'1 month',l:'1 mo'},{m:3,k:'3 months',l:'3 mo'},{m:6,k:'6 months',l:'6 mo'},{m:12,k:'12 months',l:'12 mo'}];
+    var nowF=new Date(), am=function(d,m){var x=new Date(d);x.setMonth(x.getMonth()+m);return x;};
+    var doneF={}; SSf.forEach(function(s){ if(s.enrollment_id && s.timepoint) doneF[s.enrollment_id+'|'+s.timepoint]=1; });
+    var byEnrF={}; adminF.forEach(function(s){var e=s.enrollment_id||'(unknown)'; if(!byEnrF[e]||new Date(s.at)<new Date(byEnrF[e].at)) byEnrF[e]=s;});
+    var dueF=0, doneCountF=0, overdueF=0, rowsF='';
+    Object.keys(byEnrF).forEach(function(e){
+      var base=new Date(byEnrF[e].at);
+      var cells=TPf.map(function(t){
+        var dd=am(base,t.m), isDone=doneF[e+'|'+t.k], st,col;
+        if(isDone){ st='✓'; col='#1c7a4a'; doneCountF++; dueF++; }
+        else if(nowF>=dd){ st='overdue'; col='#9a2a1c'; overdueF++; dueF++; }
+        else { st='—'; col='#9aa4a9'; }
+        return '<td style="border:1px solid #e8d3a0;padding:4px 7px;text-align:center;color:'+col+';font-weight:700">'+t.l+' '+st+'</td>';
+      }).join('');
+      rowsF+='<tr><td style="border:1px solid #e8d3a0;padding:4px 7px"><b>'+esc(e)+'</b></td>'+cells+'</tr>';
+    });
+    var adhF=dueF?Math.round(doneCountF/dueF*100):100;
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px">'+mchip(Object.keys(byEnrF).length,'Patients in follow-up')+mchip(doneCountF,'Follow-ups done')+mchip(overdueF,'Overdue')+mchip(adhF+'%','Adherence (of due)')+'</div>';
+    if(overdueF>0) h+='<div style="background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:6px;padding:7px 10px;margin-bottom:8px;font-weight:600">⚠ '+overdueF+' follow-up(s) OVERDUE — chase before the durability data is lost.</div>';
+    h+='<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11px;min-width:430px"><thead><tr><th style="background:#8a5f18;color:#fff;padding:5px 7px;text-align:left">Enrollment</th><th style="background:#8a5f18;color:#fff;padding:5px 7px" colspan="4">Follow-up windows (from administration date)</th></tr></thead><tbody>'+rowsF+'</tbody></table></div>';
+  }
+  h+='<div class="note">Durability = <b>sustained response &amp; time-to-relapse at 6&ndash;12 months</b> — the biggest open question (Oregon&rsquo;s JAMA data stop at 3 months). Low-burden <b>telehealth follow-ups + automated reminders</b> keep adherence high so the long-term signal isn&rsquo;t lost.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Cross-state program comparison</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px">'+
      '<thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left;font-size:10.5px;text-transform:uppercase">Dimension</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">New Mexico</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Oregon</th><th style="background:#2b6f6a;color:#fff;padding:6px 8px;text-align:left">Colorado</th></tr></thead><tbody>';
   h+=XSTATE.map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:16%">'+esc(r.k)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.nm+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.or+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.co+'</td></tr>';}).join('');
