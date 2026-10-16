@@ -602,7 +602,8 @@ function renderClinician(){
   h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta"><b>'+c.cr+'</b> credits · '+esc(c.acc||'')+'</div></div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
   if(cme.length) h+='<div class="appmeta" style="margin-top:6px">Logged: '+cme.map(function(c){return esc(c.n.split(' — ')[0])+' ('+(c.cr||0)+')';}).join(' · ')+' · <a href="#" onclick="resetCME();return false;">reset</a></div>';
   h+='</div>';
-  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose planner — flat mg from the COA (evidence-based)</h3>'+
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose-individualization decision aid — clinical decision support</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">Enter the condition + COA potency and check clinical modifiers → a starting-dose band in <b>mg from the COA</b>, a monitoring plan, and contraindication flags. Decision <b>support</b> only — the certifying clinician decides.</div>'+
      '<div class="grid">'+
      '<div class="field"><label>Qualifying condition</label><select id="cp_cond" onchange="cplan()"><option>Treatment-resistant depression</option><option>PTSD</option><option>Substance-use disorder</option><option>End-of-life care</option></select></div>'+
      '<div class="field"><label>Product potency — mg psilocybin / unit (from COA)</label><input id="cp_pot" type="number" value="25" step="0.1" oninput="cplan()"></div>'+
@@ -632,20 +633,25 @@ function renderClinician(){
 function cplan(){
   var g=function(id){return document.getElementById(id);};
   if(!g('cp_pot')) return;
+  var cond=g('cp_cond')?g('cp_cond').value:'';
   var frail=g('cp_frail').checked, ad=g('cp_ad').checked, card=g('cp_card').checked, inter=g('cp_inter').checked, psy=g('cp_psy').checked, pot=parseFloat(g('cp_pot').value)||0;
   var lo=25,hi=25,why=[];
-  if(frail||ad){ lo=10; hi=15; if(frail)why.push('fragile / EOL / age → lower start'); if(ad)why.push('antidepressant-continuation → lower start'); }
-  if(!why.length) why.push('no modifiers → standard 25 mg');
+  if(frail){ lo=15; hi=20; why.push('fragile / EOL / advanced age → consider a lower start + extended monitoring'); }
+  if(ad){ if(lo>15) lo=15; why.push('continuing serotonergic antidepressant → response may be blunted; agree a plan, do not stop abruptly'); }
+  if(!frail && !ad) why.push('no dose-lowering modifiers → standard flat 25 mg anchor');
+  if(cond==='End-of-life care' && !frail) why.push('EOL patients are often medically fragile — reassess for a lower start');
   var band=(lo===hi)?(lo+' mg'):(lo+'–'+hi+' mg');
-  var qty = pot>0 ? ('<b>'+(lo/pot).toFixed(1)+(lo!==hi?'–'+(hi/pot).toFixed(1):'')+'</b> unit(s) at '+pot+' mg/unit') : 'enter COA potency to compute units';
-  var out='<div style="font-size:22px;font-weight:800;color:'+(psy?'#9a2a1c':'#1c7a4a')+'">'+(psy?'— hold —':band)+'</div><div class="appmeta">suggested starting dose '+(psy?'(exclusion flagged)':'(flat mg, not mg/kg)')+'</div>';
-  out+='<div class="kv" style="margin-top:6px;color:var(--ink)"><b>Why:</b> '+why.join('; ')+'.</div>';
-  out+='<div class="kv" style="color:var(--ink)"><b>Product from COA:</b> '+qty+'.</div>';
+  var units = pot>0 ? ((lo/pot).toFixed(1)+(lo!==hi?'–'+(hi/pot).toFixed(1):'')+' unit(s) @ '+pot+' mg/unit') : 'enter COA potency to compute units';
+  var out='<div style="font-size:22px;font-weight:800;color:'+(psy?'#9a2a1c':'#1c7a4a')+'">'+(psy?'— HOLD / EXCLUSION —':band)+'</div>'+
+    '<div class="appmeta">'+(psy?'see exclusion below':'suggested starting dose — flat mg, not mg/kg (saturable 5-HT2A)')+'</div>';
+  if(!psy) out+='<div class="kv" style="margin-top:6px;color:var(--ink)"><b>Dose from the COA:</b> '+units+' — for <b>'+esc(cond)+'</b>.</div>';
+  out+='<div class="kv" style="color:var(--ink)"><b>Rationale:</b> '+why.join('; ')+'.</div>';
+  out+='<div class="kv" style="color:var(--ink)"><b>Monitoring plan:</b> baseline + <b>C-SSRS</b> suicide screen, <b>vitals q30 min × 2 h then hourly</b>, <b>Challenging Experiences Questionnaire</b> post-session, and a scheduled integration visit.</div>';
   var flags=[];
-  if(psy) flags.push('EXCLUSION: psychosis / bipolar I history — not appropriate; defer to Patient Qualification &amp; Safety criteria.');
-  if(card) flags.push('Cardiac / QTc screening required before dosing (concentration–QTc, PMID 32250059).');
-  if(inter) flags.push('Reconcile serotonergic / interacting meds (MAOI, lithium, tramadol, triptans, St. John’s Wort) before dosing.');
-  if(ad) flags.push('Serotonergic antidepressant may blunt response — assess a taper plan.');
+  if(psy) flags.push('<b>EXCLUSION:</b> psychosis / bipolar I history — psilocybin not appropriate; defer to Patient Qualification &amp; Safety criteria.');
+  if(card) flags.push('Cardiac / QTc: obtain ECG + monitor BP during administration; avoid QT-prolonging co-medications (concentration–QTc, PMID 32250059).');
+  if(inter) flags.push('Reconcile serotonergic / interacting meds (MAOI, lithium, tramadol, triptans, St John&rsquo;s Wort) before dosing.');
+  if(ad) flags.push('Serotonergic antidepressant may blunt response — agree a taper / continuation plan with the prescriber; do not stop abruptly.');
   out+=flags.map(function(f){return '<div class="kv" style="color:#9a2a1c"><b>⚠</b> '+f+'</div>';}).join('');
   g('cpOut').innerHTML=out;
 }
