@@ -597,6 +597,43 @@ var XSTATE = [
   {k:"Maturity / N", nm:"Pre-launch (first patients ~Dec 2026)", or:"Live since 2023 — largest live N", co:"Live since 2025"},
   {k:"Research value", nm:"Richest — prospective, condition-linked, dose-anchored", or:"Strong population dataset (no medical dx)", co:"Weak for outcomes (no client data)"}
 ];
+/* Leading field researchers (via MGH conference faculty) — KOL map to approach for advisory/partnership; NOT affiliated with Parakeet */
+var RESEARCHERS = [
+  {n:"Stephen Ross, MD", a:"NYU Langone Center for Psychedelic Medicine", f:"Psilocybin for cancer-related & end-of-life distress (landmark RCTs)"},
+  {n:"Peter S. Hendricks, PhD", a:"Univ. of Alabama at Birmingham", f:"Psychedelics for substance-use disorder"},
+  {n:"Yvan Beaussant, MD", a:"Dana-Farber / Harvard Medical School", f:"Palliative & end-of-life care"},
+  {n:"Cristina Cusin, MD", a:"MGH Depression & Ketamine Clinic / HMS", f:"Treatment-resistant depression"},
+  {n:"Franklin King, MD", a:"MGH Center for Neuroscience of Psychedelics", f:"Clinician training & education"},
+  {n:"Kelley O'Donnell, MD, PhD", a:"NYU Langone Center for Psychedelic Medicine", f:"Clinical training & delivery"},
+  {n:"Sharmin Ghaznavi, MD, PhD", a:"MGH Center for the Neuroscience of Psychedelics", f:"Cognitive neuroscience of response"},
+  {n:"Stephen J. Haggarty, PhD", a:"MGH Chemical Neurobiology / Precision Therapeutics", f:"Mechanism & neurobiology"},
+  {n:"Maren Nyer, MD, PhD", a:"MGH Depression Clinical & Research Program", f:"Depression; adjunctive approaches"},
+  {n:"Matthew D. Sacchet, PhD", a:"MGH Meditation Research / HMS", f:"Contemplative mechanisms"},
+  {n:"Jenna Traynor, PhD", a:"McLean Hospital / HMS", f:"Clinician-scientist; outcomes"},
+  {n:"Roxanne Sholevar, MD", a:"Dana-Farber / HMS", f:"Psycho-oncology"},
+  {n:"Vitaly Napadow, PhD", a:"Harvard / Spaulding Rehabilitation", f:"Chronic-pain neuroimaging"},
+  {n:"Jeffrey Breau, PhD", a:"Harvard Divinity School", f:"Psychedelics, spirituality & meaning"},
+  {n:"Lisa Summer, PhD", a:"DFCI / MGH psilocybin research", f:"Music & consciousness in sessions"}
+];
+var SCHEMA = [
+  {k:"enrollment_id", t:"string", d:"De-identified patient key (no PII)"},
+  {k:"session_type", t:"enum", d:"preparation | administration | integration"},
+  {k:"condition", t:"enum", d:"TRD | PTSD | SUD | end-of-life | other"},
+  {k:"mg_analyte", t:"number", d:"Total mg psilocybin+psilocin dosed (incl. boosters), from the COA"},
+  {k:"dose_number", t:"int", d:"1 = single, 2 = booster session"},
+  {k:"outcome_instrument", t:"enum", d:"MADRS | PHQ-9 | PCL-5 | WHO-QoL"},
+  {k:"outcome_baseline", t:"number", d:"Score at baseline"},
+  {k:"outcome_followup", t:"number", d:"Score at the reporting timepoint"},
+  {k:"timepoint", t:"enum", d:"baseline | acute | 1mo | 3mo | 6mo | 12mo"},
+  {k:"adverse_event", t:"enum", d:"none | mild | serious (coded)"},
+  {k:"demographics_deid", t:"object", d:"Age band, sex, region (de-identified)"},
+  {k:"tribal_flag", t:"bool", d:"Tribe-authorized data under CARE / OCAP"}
+];
+function exportSchema(){
+  var csv='# Parakeet §9 de-identified session schema (template)\n'+SCHEMA.map(function(f){return f.k;}).join(',')+'\n'+SCHEMA.map(function(f){return f.t;}).join(',')+'\n';
+  if(RCOHORT){ csv+='# illustrative rows (synthetic)\n'; RCOHORT.forEach(function(r){ csv+=['ENR-xxxx','administration',r.c,r.mg,1,'MADRS','','','acute','none','',''].join(',')+'\n'; }); }
+  try{ var b=new Blob([csv],{type:'text/csv'}); var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='parakeet-s9-schema.csv'; document.body.appendChild(a); a.click(); a.remove(); }catch(e){ alert('Export is not available in this view.'); }
+}
 var RCOHORT=null;
 function synthCohort(n){
   var conds=["Treatment-resistant depression","PTSD","Substance-use disorder","End-of-life care"], doses=[10,15,25,25,25,25,30], out=[];
@@ -639,6 +676,18 @@ function renderResearch(){
      '<li><b>Equity &amp; access</b> — who is reached (rural, tribal, income) and the Equity Fund’s impact.</li>'+
      '<li><b>Cross-state benchmarking</b> — compare NM vs Oregon’s population §9 data.</li>'+
      '</ul><div class="note">De-identified, aggregated; tribal data under CARE + OCAP. These are the Research &amp; Continuous Improvement committee’s core questions, made answerable.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Oregon §9 benchmark (real, published) — the comparison series</h3>'+
+     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:6px 0">'+mchip('5,935','OR clients (2025)')+mchip('5,375','OR sessions')+mchip('0.2%','Emergency contacts')+mchip('57.4%','Women')+'</div>'+
+     '<div class="kv" style="color:var(--ink)">Reasons for access (opt-in): <b>anxiety 1,400 · depression 1,300 · PTSD 775</b>. Out-of-state 32.6%; largest age band 35–49 (~40%).</div>'+
+     '<div class="note">Source: OHA <b>2025 Year in Review</b> + peer-reviewed inaugural-year analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/42233004/" target="_blank" rel="noopener">PMID 42233004</a>). The very low <b>0.2% emergency-contact rate</b> is a key safety benchmark the NM medical model should meet or beat. OHA computes average mg/session but has not published it — the NM §9 can report it from the COA.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">§9 minimum data schema (exportable)</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">The de-identified per-session record the registry collects — a template you can export for analysis.</div>';
+  h+=SCHEMA.map(function(f){return '<div class="approw"><div><b style="font-family:ui-monospace,Menlo,monospace;font-size:12px">'+esc(f.k)+'</b> <span class="appmeta">'+esc(f.t)+'</span></div><div class="appmeta" style="max-width:52%;text-align:right">'+esc(f.d)+'</div></div>';}).join('');
+  h+='<div class="actions" style="margin-top:8px"><span class="note">Downloads a CSV template (+ illustrative rows if a cohort is loaded).</span><button class="btn primary sm" onclick="exportSchema()">Export schema (CSV)</button></div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Field researchers &amp; potential advisors</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">Leading psilocybin researchers (via the MGH conference faculty) — a KOL map to approach for advisory, research partnership, and grounding continuous improvement in current science. <b>Not affiliated with Parakeet.</b></div>';
+  h+=RESEARCHERS.map(function(r){return '<div class="approw"><div><b>'+esc(r.n)+'</b> <span class="appmeta">'+esc(r.a)+'</span></div><div class="appmeta" style="max-width:46%;text-align:right">'+esc(r.f)+'</div></div>';}).join('');
+  h+='</div>';
   return h;
 }
 
