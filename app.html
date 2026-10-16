@@ -107,6 +107,7 @@
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
       <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
+      <button data-view="research" onclick="go('research')">Research</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
   </div>
@@ -228,6 +229,7 @@ function render(){
   else if(VIEW==='review') r.innerHTML=renderReview();
   else if(VIEW==='custody') r.innerHTML=renderCustody();
   else if(VIEW==='reporting') r.innerHTML=renderReporting();
+  else if(VIEW==='research') r.innerHTML=renderResearch();
 }
 
 function renderChooser(){
@@ -519,11 +521,13 @@ function renderDashboard(){
 }
 
 /* ---------- clinician / CME layer ---------- */
+/* Accredited (AMA PRA Category 1 / ACCME) psilocybin CME — verify current credits, cohort dates & NM acceptance before enrolling */
 var CME_COURSES = [
-  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", cr:6.5, u:"https://www.hopkinspsychedelic.org/"},
-  {n:"Fluence — Intro to Psilocybin-Assisted Therapy", cr:6, u:"https://www.fluencetraining.com/"},
-  {n:"Psychedelic Support — Understanding Psilocybin (free)", cr:1, u:"https://psychedelic.support/"},
-  {n:"ADAA — Psychedelic Therapies (CE webinar)", cr:1.5, u:"https://adaa.org/"}
+  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", cr:6.5, acc:"AMA PRA Cat 1 · ACCME · live online", u:"https://hopkinscme.cloud-cme.com/"},
+  {n:"MGH / McLean — Annual Conference on Psychedelics & Psychedelic Medicine", cr:11.75, acc:"AMA PRA Cat 1", u:"https://mghcme.org/courses/6th-annual-conference-on-psychedelics-and-psychedelic-medicine/"},
+  {n:"Harvard Medical School — Psychedelic-Assisted Psychotherapy", cr:13.25, acc:"AMA PRA Cat 1 · online/in-person", u:"https://learn.hms.harvard.edu/programs/psychedelic-assisted-psychotherapy"},
+  {n:"Univ. of Arizona (Weil Center) — Intro to Therapeutic Psychedelics", cr:10.25, acc:"AMA PRA Cat 1 · enduring online", u:"https://awcim.arizona.edu/education/online_courses/intro-therapeutic-psychedelics.html"},
+  {n:"Psychedelic Support — Understanding Psilocybin", cr:9, acc:"AMA PRA Cat 1 / CE · online", u:"https://psychedelic.support/"}
 ];
 function loadCME(){ try{ return JSON.parse(localStorage.getItem('parakeet_cme_v1')||'[]'); }catch(e){ return []; } }
 function saveCME(a){ try{ localStorage.setItem('parakeet_cme_v1', JSON.stringify(a)); }catch(e){} }
@@ -538,7 +542,7 @@ function renderClinician(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">CME / continuing education</h3>'+
      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+mchip(tot.toFixed(1),'Credits logged')+mchip(cme.length,'Activities')+'</div>'+
      '<div class="appmeta" style="margin-bottom:6px">Log accredited activities toward the certifying-clinician training (7.35.3.18) and annual CE. Confirm required hours with DOH; verify ACCME accreditation before enrolling.</div>';
-  h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta">'+(c.cr?c.cr+' credit(s)':'certificate')+'</div></div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
+  h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta"><b>'+c.cr+'</b> credits · '+esc(c.acc||'')+'</div></div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
   if(cme.length) h+='<div class="appmeta" style="margin-top:6px">Logged: '+cme.map(function(c){return esc(c.n.split(' — ')[0])+' ('+(c.cr||0)+')';}).join(' · ')+' · <a href="#" onclick="resetCME();return false;">reset</a></div>';
   h+='</div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose planner — flat mg from the COA (evidence-based)</h3>'+
@@ -582,6 +586,60 @@ function cplan(){
   if(ad) flags.push('Serotonergic antidepressant may blunt response — assess a taper plan.');
   out+=flags.map(function(f){return '<div class="kv" style="color:#9a2a1c"><b>⚠</b> '+f+'</div>';}).join('');
   g('cpOut').innerHTML=out;
+}
+
+/* ---------- research & prospective analysis (cross-state) ---------- */
+var XSTATE = [
+  {k:"Model", nm:"Medical — qualifying condition + certifying clinician", or:"Non-medical — adults 21+", co:"Non-medical — adults 21+"},
+  {k:"Dose standard", nm:"Flat 25 mg anchor (evidence-based), set from the COA", or:"Facilitator discretion; product lab-tested", co:"Facilitator discretion"},
+  {k:"Outcome data", nm:"YES — de-identified client outcomes + annual §9 assessment", or:"Population-level (avg mg/client/session, §9-style)", co:"Inventory only — NO client outcomes"},
+  {k:"Reporting", nm:"Per session → annual §9 assessment", or:"Product tracking + annual data", co:"Monthly inventory forms"},
+  {k:"Maturity / N", nm:"Pre-launch (first patients ~Dec 2026)", or:"Live since 2023 — largest live N", co:"Live since 2025"},
+  {k:"Research value", nm:"Richest — prospective, condition-linked, dose-anchored", or:"Strong population dataset (no medical dx)", co:"Weak for outcomes (no client data)"}
+];
+var RCOHORT=null;
+function synthCohort(n){
+  var conds=["Treatment-resistant depression","PTSD","Substance-use disorder","End-of-life care"], doses=[10,15,25,25,25,25,30], out=[];
+  for(var i=0;i<n;i++){ var c=conds[i%4], mg=doses[Math.floor(Math.random()*doses.length)], base=22+Math.floor(Math.random()*12), eff=(mg>=25?0.42:0.22)+Math.random()*0.22, fu=Math.max(1,Math.round(base*(1-eff))); out.push({c:c,mg:mg,chg:base-fu}); }
+  return out;
+}
+function loadCohort(){ RCOHORT=synthCohort(48); render(); }
+function clearCohort(){ RCOHORT=null; render(); }
+function hbar(label,val,max,sub,color){ var w=max?Math.round(val/max*100):0; return '<div style="margin:5px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+esc(label)+'</span><span class="appmeta">'+esc(sub)+'</span></div><div style="height:12px;background:#eef1f2;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+(color||'#1c7a4a')+'"></div></div></div>'; }
+function renderResearch(){
+  var c=loadCustody(), rSessions=0;
+  c.lots.forEach(function(l){ l.pkgs.forEach(function(p){ if(p.status==='administered') rSessions++; }); });
+  var h='<h1>🔬 Research &amp; prospective analysis</h1><div class="sub">Turn the §9 registry into prospective, population-level analysis — and benchmark New Mexico against other state programs. Prototype; local + clearly-labeled illustrative data.</div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Cross-state program comparison</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px">'+
+     '<thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left;font-size:10.5px;text-transform:uppercase">Dimension</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">New Mexico</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Oregon</th><th style="background:#2b6f6a;color:#fff;padding:6px 8px;text-align:left">Colorado</th></tr></thead><tbody>';
+  h+=XSTATE.map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:16%">'+esc(r.k)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.nm+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.or+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.co+'</td></tr>';}).join('');
+  h+='</tbody></table></div><div class="note">Structural facts (verified). NM’s medical §9 registry yields the richest prospective, condition-linked dataset; Oregon has the largest live program; Colorado collects inventory only, so cross-state outcome comparison leans on NM + Oregon.</div></div>';
+  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:#1f5a54;font-size:14px">Prospective §9 analysis (New Mexico)</h3>'+(RCOHORT?'<button class="btn sm" onclick="clearCohort()">Clear</button>':'<button class="btn sm" onclick="loadCohort()">Load illustrative cohort</button>')+'</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0">'+mchip(rSessions,'Real sessions (§9)')+mchip(RCOHORT?RCOHORT.length:0,'Illustrative cohort')+'</div>';
+  if(!RCOHORT){ h+='<div class="appmeta">Administer sessions in the <a href="#" onclick="go(\'custody\');return false;">chain-of-custody</a> module to grow the real §9 dataset, or <b>load the illustrative cohort</b> to demonstrate the analytics.</div>'; }
+  else {
+    h+='<div class="done" style="background:#fbf1d8;border-color:#e6cf94;color:#6d4e12"><b>⚠ ILLUSTRATIVE / SYNTHETIC data</b> — generated to demonstrate the analysis, <b>not</b> real program outcomes.</div>';
+    var byDose={}; RCOHORT.forEach(function(r){byDose[r.mg]=(byDose[r.mg]||0)+1;});
+    var maxD=Math.max(1,Math.max.apply(null,[10,15,25,30].map(function(d){return byDose[d]||0;})));
+    h+='<div class="kv" style="margin-top:8px;color:var(--ink)"><b>Dose distribution (mg analyte / session)</b></div>';
+    h+=[10,15,25,30].map(function(d){var v=byDose[d]||0;return hbar(d+' mg',v,maxD,v+' sessions','#1c7a4a');}).join('');
+    var byC={}; RCOHORT.forEach(function(r){ if(!byC[r.c])byC[r.c]={s:0,n:0}; byC[r.c].s+=r.chg; byC[r.c].n++; });
+    var means=Object.keys(byC).map(function(k){return {c:k,m:byC[k].s/byC[k].n};});
+    var maxM=Math.max.apply(null,means.map(function(x){return x.m;}));
+    h+='<div class="kv" style="margin-top:12px;color:var(--ink)"><b>Mean symptom-score improvement, by condition</b> <span class="appmeta">(points; baseline → follow-up; illustrative)</span></div>';
+    h+=means.map(function(x){return hbar(x.c,x.m,maxM,x.m.toFixed(1)+' pts','#2b5f86');}).join('');
+    h+='<div class="note">Higher doses show larger illustrative improvement — reflecting the 25 mg &gt; 10 mg dose-response (COMPASS, <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a>). Real analysis uses validated instruments (MADRS, PCL-5) at set timepoints, de-identified.</div>';
+  }
+  h+='</div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">What this registry can answer</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
+     '<li><b>Dose-response at population scale</b> — outcomes by mg analyte/session (incl. boosters).</li>'+
+     '<li><b>Outcomes by condition</b> — TRD, PTSD, SUD, end-of-life — with validated instruments.</li>'+
+     '<li><b>Safety signals</b> — adverse-event rates by dose/condition → feed exclusion criteria.</li>'+
+     '<li><b>Durability</b> — change over 1/3/6/12-month follow-ups.</li>'+
+     '<li><b>Equity &amp; access</b> — who is reached (rural, tribal, income) and the Equity Fund’s impact.</li>'+
+     '<li><b>Cross-state benchmarking</b> — compare NM vs Oregon’s population §9 data.</li>'+
+     '</ul><div class="note">De-identified, aggregated; tribal data under CARE + OCAP. These are the Research &amp; Continuous Improvement committee’s core questions, made answerable.</div></div>';
+  return h;
 }
 
 render();
