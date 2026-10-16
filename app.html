@@ -270,7 +270,7 @@ function render(){
   var r=document.getElementById('root');
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=renderDashboard();
-  else if(VIEW==='clinician'){ r.innerHTML=renderClinician(); cplan(); }
+  else if(VIEW==='clinician'){ r.innerHTML=renderClinician(); cplan(); qualCheck(); }
   else if(VIEW==='chooser') r.innerHTML=renderChooser();
   else if(VIEW==='wizard') r.innerHTML=renderWizard();
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
@@ -629,12 +629,18 @@ function designatedHero(){
     '</div>';
 }
 function renderDashboard(){
-  var p=DASH, cfg=COACH[p];
+  var ROLE2COACH={producer:'producer',lab:'lab',clinician:'provider',facilitator:'provider',patient:'patient',doh:null};
+  var p=ROLE2COACH[ROLE];
   var hero=designatedHero();
-  var chips=Object.keys(COACH).map(function(k){var c=COACH[k];return '<button class="pchip'+(k===p?' on':'')+'" onclick="setDash(\''+k+'\')">'+c.ico+' '+c.name+'</button>';}).join('');
   var h=hero;
-  h+='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for each role — no rule-book jargon. Pick who you are:</div>';
-  h+='<div class="pchips">'+chips+'</div>';
+  if(!p){
+    h+='<h1>Regulator dashboard</h1><div class="sub">Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.</div>';
+    h+='<div class="card"><h3 class="dh">Oversight — jump to</h3>'+[['review','Review &amp; decide applications (30-day clock)'],['research','§9 outcomes &amp; cross-state analysis'],['safety','Adverse-event signals &amp; recalls'],['equity','Equity Fund reach &amp; disparities'],['lab','Testing-lab certification status'],['custody','Chain-of-custody &amp; COAs']].map(function(x){return '<div class="approw"><div>'+x[1]+'</div><button class="btn sm" onclick="go(\''+x[0]+'\')">Open</button></div>';}).join('')+'</div>';
+    h+='<div class="card"><h3 class="dh">Help &amp; state resources</h3>'+RESOURCES.map(function(r){return '<div class="ctip" style="color:var(--ink)">🔗 <a href="'+r.u+'" target="_blank" rel="noopener">'+esc(r.t)+'</a></div>';}).join('')+'</div>';
+    return h;
+  }
+  var cfg=COACH[p];
+  h+='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for your role — no rule-book jargon. Change roles with the “signed in as” switcher in the header.</div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
   h+='<div class="card"><h3 class="dh">Your next 3 steps</h3>'+steps.map(function(st,i){
@@ -699,6 +705,18 @@ function renderClinician(){
      '<div class="note">Group is an <b>option, not a requirement</b> — see the <a href="#" onclick="go(\'safety\');return false;">Safety</a> tab for the dose-scaled facilitator ratios and the monitoring protocol.</div></div>';
   var apps=loadApps().filter(function(a){return a.type==='patient';});
   var seeded=[{id:'ENR-7F3K',cond:'Treatment-resistant depression',st:'approved'},{id:'ENR-2A9M',cond:'PTSD',st:'sitevisit'}];
+  h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Patient qualification &amp; safety screening</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">Confirm eligibility before enrollment / dosing — feeds the <b>Patient Qualification &amp; Safety</b> committee. Decision support only.</div>'+
+     '<div class="grid"><div class="field"><label>Qualifying condition</label><select id="qq_cond" onchange="qualCheck()"><option>Treatment-resistant depression</option><option>PTSD</option><option>Substance-use disorder</option><option>End-of-life care</option><option>Other DOH-approved</option></select></div></div>'+
+     '<div class="kv" style="margin:2px 0 6px;color:var(--ink)"><b>Screen:</b><br>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_cs" onchange="qualCheck()"> clinician holds active NM controlled-substances registration</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_exam" onchange="qualCheck()"> exam pathway complete (in-person ≤6 mo or telehealth + records)</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_psy" onchange="qualCheck()"> history of psychosis / bipolar I</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_preg" onchange="qualCheck()"> pregnant / breastfeeding</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_card" onchange="qualCheck()"> uncontrolled cardiac / QTc</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_inter" onchange="qualCheck()"> unmanaged serotonergic / interacting meds</label></div>'+
+     '<div id="qqOut" class="card" style="background:#fbfdfd;margin:0"></div>'+
+     '<div class="note">Hard stops: psychosis / bipolar I, pregnancy. Cardiac / medication flags require management first. Mirrors the dose aid&rsquo;s contraindication checks.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">My patients — de-identified</h3>'+
      '<div class="actions" style="margin:0 0 8px"><span class="note">No names shown — enrollment IDs only; §9 reporting is aggregated.</span><button class="btn primary sm" onclick="startApp(\'patient\')">Enroll a patient</button></div>';
   h+=seeded.map(function(p){return '<div class="approw"><div><b>'+p.id+'</b> <span class="appmeta">'+esc(p.cond)+'</span></div>'+statusChip(p.st)+'</div>';}).join('');
@@ -730,6 +748,20 @@ function cplan(){
   if(ad) flags.push('Serotonergic antidepressant may blunt response — agree a taper / continuation plan with the prescriber; do not stop abruptly.');
   out+=flags.map(function(f){return '<div class="kv" style="color:#9a2a1c"><b>⚠</b> '+f+'</div>';}).join('');
   g('cpOut').innerHTML=out;
+}
+function qualCheck(){
+  var g=function(id){var e=document.getElementById(id);return e?e.checked:false;};
+  var cs=document.getElementById('qq_cond'); if(!cs) return;
+  var cond=cs.value, psy=g('qq_psy'),preg=g('qq_preg'),card=g('qq_card'),inter=g('qq_inter'),reg=g('qq_cs'),exam=g('qq_exam');
+  var verdict,color,why=[];
+  if(psy||preg){ verdict='EXCLUDED'; color='#9a2a1c'; if(psy)why.push('history of psychosis / bipolar I — contraindicated'); if(preg)why.push('pregnant / breastfeeding — exclude'); }
+  else if(card||inter){ verdict='NEEDS REVIEW'; color='#8a5f18'; if(card)why.push('cardiac / QTc concern — ECG + cardiology input before dosing'); if(inter)why.push('serotonergic / interacting meds — reconcile or taper plan before dosing'); }
+  else if(!reg||!exam){ verdict='INCOMPLETE'; color='#8a5f18'; if(!reg)why.push('certifying-clinician NM controlled-substances registration not confirmed'); if(!exam)why.push('exam pathway not complete'); }
+  else { verdict='QUALIFIES'; color='#1c7a4a'; why.push(esc(cond)+' + clinician + exam confirmed; no exclusions flagged'); }
+  var out='<div style="font-size:20px;font-weight:800;color:'+color+'">'+verdict+'</div>'+
+    '<div class="kv" style="margin-top:4px;color:var(--ink)">'+why.map(function(w){return '• '+w;}).join('<br>')+'</div>'+
+    '<div class="note">Decision <b>support</b> — the certifying clinician makes the determination and logs it to the <b>Patient Qualification &amp; Safety</b> committee.</div>';
+  document.getElementById('qqOut').innerHTML=out;
 }
 
 /* ---------- research & prospective analysis (cross-state) ---------- */
@@ -803,10 +835,24 @@ function renderResearch(){
   if(irb && irb.no) h+='<div style="background:#e8f5ec;border:1px solid #bfe3cc;color:#1c5a3a;border-radius:6px;padding:7px 10px;margin-top:6px;font-size:12.5px"><b>✓ IRB on file:</b> protocol '+esc(irb.no)+' — research use unlocked. <a href="#" onclick="clearIRB();return false;">clear</a></div>';
   else h+='<div class="actions" style="margin-top:6px"><input id="irb_no" placeholder="IRB protocol # (e.g. 2026-123)" style="flex:1;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn primary sm" onclick="saveIRB()">Record IRB approval</button></div>';
   h+='<div class="note"><b>Equity in who is studied:</b> monitor the sample for rural / tribal / income representation so the evidence base is not skewed toward those who can afford access.</div></div>';
+  var SS=loadSessions(), optIn=SS.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}), byCO={};
+  optIn.forEach(function(s){ var c=s.condition||'Unspecified'; byCO[c]=(byCO[c]||0)+1; });
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Study recruitment &amp; pre/post capture — the research engine</h3>';
+  if(irb && irb.no){
+    h+='<div class="kv" style="color:var(--ink)"><b>IRB '+esc(irb.no)+' on file → recruitment unlocked.</b> Participants are found from patients who <b>opted in to research</b> in their §9 consent and match the study condition — invited <b>through their treating clinician</b>, and de-identified to the researcher.</div>';
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:6px 0">'+mchip(optIn.length,'Opt-in participants')+mchip(Object.keys(byCO).length,'Conditions')+'</div>';
+    if(optIn.length){ h+=Object.keys(byCO).map(function(c){return '<div class="approw"><div><b>'+esc(c)+'</b> <span class="appmeta">eligible &amp; consented</span></div><div class="appmeta">'+byCO[c]+' candidate(s)</div></div>';}).join(''); }
+    else { h+='<div class="appmeta">No opt-in participants yet — capture §9 sessions with the “+ de-identified research use” consent in <a href="#" onclick="go(\'reporting\');return false;">§9 Reporting</a>.</div>'; }
+  } else {
+    h+='<div class="kv" style="color:var(--ink)">Record an <b>IRB approval</b> above to unlock recruitment. Research use of opt-in data is <b>IRB-gated</b> — you cannot recruit without it.</div>';
+  }
+  h+='<div class="kv" style="color:var(--ink)"><b>Pre/post by design:</b> every participant is measured at <b>baseline (pre)</b> and <b>follow-up (post)</b> on a validated instrument at set timepoints (1 / 3 / 6 / 12 mo) — the change score is the study&rsquo;s primary endpoint.</div>';
+  h+='<div class="kv" style="color:var(--ink)"><b>Works with the tools universities already use:</b> the de-identified dataset exports as a <b>REDCap</b>-ready data dictionary and a <b>Qualtrics</b>-importable CSV; a direct <b>REDCap / Qualtrics API</b> is on the roadmap.</div>';
+  h+='<div class="actions" style="margin-top:4px"><span class="note">Opt-in only · de-identified · IRB-gated — the study never sees identifiers.</span><button class="btn primary sm" onclick="exportSchema()">Export recruitment + pre/post dataset (CSV)</button></div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Cross-state program comparison</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px">'+
      '<thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left;font-size:10.5px;text-transform:uppercase">Dimension</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">New Mexico</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Oregon</th><th style="background:#2b6f6a;color:#fff;padding:6px 8px;text-align:left">Colorado</th></tr></thead><tbody>';
   h+=XSTATE.map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:16%">'+esc(r.k)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.nm+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.or+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.co+'</td></tr>';}).join('');
-  h+='</tbody></table></div><div class="note">Structural facts (verified). NM’s medical §9 registry yields the richest prospective, condition-linked dataset; Oregon has the largest live program; Colorado collects inventory only, so cross-state outcome comparison leans on NM + Oregon.</div></div>';
+  h+='</tbody></table></div><div class="note">Structural facts (verified). NM’s medical §9 registry yields the richest prospective, condition-linked dataset; Oregon has the largest live program; Colorado collects inventory only, so cross-state outcome comparison leans on NM + Oregon.<br><b>Colorado’s regulators (3-agency):</b> DOR <b>Natural Medicine Division</b> (business licensing) · <b>DORA</b> (facilitators) · <b>CDPHE</b> (testing &amp; public-health standards, per CRS 25-1.5-120 — contaminant panel incl. STEC <i>E. coli</i> / salmonella + tryptamine / total-psilocin potency). Further <b>CDPHE guidelines are in draft</b>, release pending — verify at cdphe.colorado.gov / nmd.colorado.gov.</div></div>';
   h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:#1f5a54;font-size:14px">Prospective §9 analysis (New Mexico)</h3>'+(RCOHORT?'<button class="btn sm" onclick="clearCohort()">Clear</button>':'<button class="btn sm" onclick="loadCohort()">Load illustrative cohort</button>')+'</div>';
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0">'+mchip(rSessions,'Real sessions (§9)')+mchip(RCOHORT?RCOHORT.length:0,'Illustrative cohort')+'</div>';
   if(!RCOHORT){ h+='<div class="appmeta">Administer sessions in the <a href="#" onclick="go(\'custody\');return false;">chain-of-custody</a> module to grow the real §9 dataset, or <b>load the illustrative cohort</b> to demonstrate the analytics.</div>'; }
@@ -945,6 +991,7 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>API / machine-to-machine:</b> enrollment, COA results &amp; §9 reporting can be submitted by <b>API</b> or a <b>HIPAA business associate</b> on the clinician&rsquo;s behalf — the enrollment public-comment ask, built in.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Standards-based:</b> <b>FHIR / SMART-on-FHIR</b> app launch with context, so the dose aid &amp; §9 capture run inside the clinician&rsquo;s workflow; §9 is normalized into a <b>queryable</b> research store.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Granular, per-partner consent + patient data access:</b> each party authorizes exactly what it shares, and patients can get a copy of their own record.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Category:</b> Parakeet is <b>govtech + regtech</b> — the state&rsquo;s <b>systems of record</b> (licensing · traceability · §9). Provider-facing care-navigation tools (e.g., <b>Althea</b>, a public-benefit company) are <b>&ldquo;doctor tech&rdquo;</b> — complementary to, not a substitute for, the designated state systems.</div>'+
      '<div class="note">Vendor-neutral by design — works alongside the state&rsquo;s designated licensing system (BT Government) instead of locking the program to one stack.</div></div>';
   return h;
 }
