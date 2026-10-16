@@ -108,6 +108,7 @@
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
       <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
       <button data-view="research" onclick="go('research')">Research</button>
+      <button data-view="safety" onclick="go('safety')">Safety</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
   </div>
@@ -228,7 +229,8 @@ function render(){
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
   else if(VIEW==='review') r.innerHTML=renderReview();
   else if(VIEW==='custody') r.innerHTML=renderCustody();
-  else if(VIEW==='reporting') r.innerHTML=renderReporting();
+  else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); }
+  else if(VIEW==='safety') r.innerHTML=renderSafety();
   else if(VIEW==='research') r.innerHTML=renderResearch();
 }
 
@@ -359,7 +361,7 @@ function renderCustody(){
       h+='</div>';
     } else {
       var sc=l.pass==='Pass'?'s-approved':(l.pass==='Fail'?'s-denied':'s-submitted');
-      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><span class="status '+sc+'">COA '+esc(l.pass)+'</span></div>';
+      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><div style="display:flex;gap:6px;align-items:center">'+(l.recalled?'<span class="status s-denied">RECALLED</span>':'<span class="status '+sc+'">COA '+esc(l.pass)+'</span><button class="btn sm no" onclick="recallLot(\''+l.id+'\')">Recall</button>')+'</div></div>';
       h+='<div class="appmeta">'+esc(l.producer)+' · harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · <b>'+esc(l.psi)+' mg/'+esc(l.unit)+'</b></div>';
       var si=STRAIN_INFO[l.strain]; if(si) h+='<div class="appmeta" style="margin-top:2px"><i>'+si.sp+'</i> — '+si.note+' Typical '+si.pot+'; <b>the COA set the actual mg</b>.</div>';
       h+='<div class="kv" style="margin-top:6px"><b>Packages &amp; custody chain:</b></div>';
@@ -368,6 +370,7 @@ function renderCustody(){
         var act;
         if(p.status==='in-inventory') act='<button class="btn sm" onclick="transferPkg(\''+l.id+'\',\''+p.id+'\')">Transfer</button>';
         else if(p.status==='transferred') act='<button class="btn sm" onclick="administerPkg(\''+l.id+'\',\''+p.id+'\')">Administer</button>';
+        else if(p.status==='recalled') act='<span class="status s-denied">recalled</span>';
         else act='<span class="status s-approved">administered → §9</span>';
         return '<div class="approw"><div><span class="pill">'+p.id+'</span> <span class="appmeta">'+esc(l.psi)+' mg/'+esc(l.unit)+'</span><div class="appmeta">custody: '+esc(ev)+'</div></div>'+act+'</div>';
       }).join('');
@@ -402,32 +405,82 @@ function administerPkg(lotId,pkgId){
   c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='administered'; var eid='ENR-'+Math.random().toString(36).slice(2,6).toUpperCase(); p.events.push('administered → '+eid+' · '+l.psi+' mg dosed'); p.events.push('§9 outcome logged (de-identified)'); } }); });
   saveCustody(c); render();
 }
+function recallLot(lotId){
+  var c=loadCustody();
+  c.lots.forEach(function(l){ if(l.id===lotId){ l.recalled=true; l.recallReason='lab fail or safety signal'; l.pkgs.forEach(function(p){ if(p.status!=='administered'){ p.status='recalled'; p.events.push('RECALLED — pulled from supply chain'); } }); } });
+  saveCustody(c); render();
+}
 
 /* ---------- §9 de-identified reporting (aggregates administered sessions) ---------- */
+var INSTRUMENTS = {
+  "Treatment-resistant depression":["MADRS","PHQ-9","QIDS-SR","WHO-5 (well-being)","WSAS (function)"],
+  "PTSD":["PCL-5","CAPS-5","WSAS (function)","WHO-5 (well-being)"],
+  "Substance-use disorder":["TLFB (use days)","PACS (craving)","WHO-5","WSAS (function)"],
+  "End-of-life care":["HADS","FACIT-Sp (meaning)","QUAL-E (quality of life)","DADDS (death anxiety)"],
+  "Other":["PHQ-9","GAD-7","WHO-5","WSAS (function)"]
+};
+var TIMEPOINTS = ["baseline","acute (day 1–7)","1 month","3 months","6 months","12 months"];
+var NOVEL = [
+  "Functional recovery (WSAS; return to work / school / caregiving)",
+  "Quality of life & well-being (WHO-5, QUAL-E)",
+  "Meaning / existential outcomes (FACIT-Sp; death anxiety at end-of-life)",
+  "Durability — time-to-relapse & % sustained response at 6–12 months",
+  "Acute mystical / psychological-insight score (predictor of response)",
+  "Reduction in concomitant medications (e.g., antidepressant deprescribing)",
+  "Healthcare utilization (ED visits, hospitalizations) pre vs. post",
+  "Patient-reported experience & safety (PREMs)"
+];
+function loadSessions(){ try{ return JSON.parse(localStorage.getItem('parakeet_sessions_v1')||'[]'); }catch(e){ return []; } }
+function saveSessions(a){ try{ localStorage.setItem('parakeet_sessions_v1', JSON.stringify(a)); }catch(e){} }
+function resetSessions(){ try{ localStorage.removeItem('parakeet_sessions_v1'); }catch(e){} render(); }
+function s9cond(){ var sel=document.getElementById('s_cond'), is=document.getElementById('s_instr'); if(!sel||!is) return; var o=INSTRUMENTS[sel.value]||INSTRUMENTS.Other; is.innerHTML='<option value="">— instrument —</option>'+o.map(function(x){return '<option>'+x+'</option>';}).join(''); }
+function recordSession(){
+  var g=function(id){var el=document.getElementById(id);return el?(el.type==='checkbox'?el.checked:el.value):'';};
+  var rec={enrollment_id:g('s_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), session_type:g('s_type'), condition:g('s_cond'), age_band:g('s_age'), sex_region:g('s_region'), mg_analyte:parseFloat(g('s_mg'))||0, dose_number:g('s_dose'), instrument:g('s_instr'), base:g('s_base'), fu:g('s_fu'), timepoint:g('s_tp'), adverse_event:g('s_ae'), tribal:g('s_tribal'), consent:g('s_consent'), at:new Date().toISOString()};
+  var a=loadSessions(); a.unshift(rec); saveSessions(a); render();
+}
 function renderReporting(){
-  var c=loadCustody();
-  var sessions=0, totalMg=0, lotsTested=0, byStrain={}, enr={};
-  c.lots.forEach(function(l){
-    if(l.status!=='awaiting-coa') lotsTested++;
-    l.pkgs.forEach(function(p){
-      if(p.status==='administered'){
-        sessions++; var mg=parseFloat(l.psi)||0; totalMg+=mg;
-        if(!byStrain[l.strain]) byStrain[l.strain]={n:0,mg:0}; byStrain[l.strain].n++; byStrain[l.strain].mg+=mg;
-        (p.events||[]).forEach(function(e){ var m=/ENR-[A-Z0-9]+/.exec(e); if(m) enr[m[0]]=1; });
-      }
-    });
-  });
-  var enrollees=Object.keys(enr).length, avg=sessions?(totalMg/sessions).toFixed(1):'—';
-  var h='<h1>§9 de-identified reporting</h1><div class="sub">The annual assessment (SB219 §9): aggregated, <b>de-identified</b> outcomes from administered sessions — no patient identifiers, ever. Feeds the Secretary dashboard. Prototype; local data.</div>';
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(sessions,'Sessions')+mchip(enrollees,'Enrollees (de-id)')+mchip(sessions?avg:'—','Avg mg / session')+mchip(totalMg.toFixed(0),'Total mg analyte')+'</div>';
-  if(!sessions){
-    h+='<div class="empty">No administrations recorded yet. Run the <a href="#" onclick="go(\'custody\');return false;">chain-of-custody</a> flow (Record COA → package → transfer → <b>administer</b>) to populate this report.</div>';
-  } else {
-    h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By strain</h3>';
-    h+=Object.keys(byStrain).map(function(s){var b=byStrain[s];return '<div class="approw"><div><b>'+esc(s)+'</b> <span class="appmeta"><i>Psilocybe cubensis</i></span></div><div class="appmeta">'+b.n+' session(s) · '+b.mg.toFixed(0)+' mg total · '+(b.mg/b.n).toFixed(1)+' mg/session</div></div>';}).join('');
-    h+='</div>';
+  var S=loadSessions();
+  var admin=S.filter(function(s){return s.session_type==='Administration';});
+  var totalMg=admin.reduce(function(a,s){return a+(+s.mg_analyte||0);},0);
+  var avg=admin.length?(totalMg/admin.length).toFixed(1):'—';
+  var enr={}; S.forEach(function(s){ if(s.enrollment_id) enr[s.enrollment_id]=1; });
+  var aeN=S.filter(function(s){return s.adverse_event && s.adverse_event!=='none' && s.adverse_event!=='';}).length;
+  var h='<h1>§9 reporting & session capture</h1><div class="sub">Capture the <b>minimum data set</b> per session — standardized to <b>mg of psilocybin+psilocin from the COA</b> (never strain or grams) — and report it de-identified. Short &amp; long-term outcomes. Prototype; local data.</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(S.length,'Sessions')+mchip(Object.keys(enr).length,'Enrollees (de-id)')+mchip(admin.length,'Administrations')+mchip(admin.length?avg:'—','Avg mg / session')+mchip(aeN,'Adverse events')+'</div>';
+  h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Record a session (minimum data set)</h3><div class="grid">'+
+    '<div class="field"><label>Enrollment ID (de-identified)</label><input id="s_enr" placeholder="auto if blank"></div>'+
+    '<div class="field"><label>Touchpoint</label><select id="s_type"><option>Preparation</option><option>Administration</option><option>Integration</option></select></div>'+
+    '<div class="field"><label>Qualifying condition</label><select id="s_cond" onchange="s9cond()"><option>Treatment-resistant depression</option><option>PTSD</option><option>Substance-use disorder</option><option>End-of-life care</option><option>Other</option></select></div>'+
+    '<div class="field"><label>mg analyte dosed — psilocybin+psilocin, from COA</label><input id="s_mg" type="number" step="0.1" placeholder="e.g. 25 (administration)"></div>'+
+    '<div class="field"><label>Dose number</label><select id="s_dose"><option>Single</option><option>Booster (2nd)</option></select></div>'+
+    '<div class="field"><label>Outcome instrument</label><select id="s_instr"></select></div>'+
+    '<div class="field"><label>Score — baseline</label><input id="s_base" type="number" step="0.1"></div>'+
+    '<div class="field"><label>Score — this timepoint</label><input id="s_fu" type="number" step="0.1"></div>'+
+    '<div class="field"><label>Timepoint</label><select id="s_tp">'+TIMEPOINTS.map(function(t){return '<option>'+t+'</option>';}).join('')+'</select></div>'+
+    '<div class="field"><label>Adverse event</label><select id="s_ae"><option>none</option><option>mild</option><option>serious</option></select></div>'+
+    '<div class="field"><label>Age band (de-id)</label><select id="s_age"><option>18–34</option><option>35–49</option><option>50–64</option><option>65+</option></select></div>'+
+    '<div class="field"><label>Sex / region (de-id)</label><input id="s_region" placeholder="e.g. F · rural NW"></div>'+
+    '<div class="field"><label>Data release — patient choice</label><select id="s_consent"><option>§9 reporting only (minimal, mandatory)</option><option>Opt in: + de-identified research use</option></select></div>'+
+    '</div>'+
+    '<label style="font-size:12px"><input type="checkbox" id="s_tribal"> Tribe-authorized data (CARE / OCAP)</label>'+
+    '<div class="actions" style="margin-top:8px"><span class="note"><b>Low-burden:</b> ID, condition &amp; demographics auto-carry across a client’s sessions; mg auto-fills from the package COA.</span><button class="btn primary" onclick="recordSession()">Record session</button></div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">What each touchpoint captures</h3>'+
+    '<div class="kv" style="color:var(--ink)"><b>Preparation</b> → enrollment ID, condition, de-id demographics, <b>baseline</b> outcome, screening / exclusion flags.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Administration</b> → <b>mg analyte dosed</b> (from COA), dose number (single / booster), on-site adverse events.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Integration & follow-up</b> → outcome at each <b>timepoint (acute → 1/3/6/12 mo)</b>, adverse events, functional status.</div>'+
+    '<div class="note"><b>Short-term</b> = acute → 1 mo; <b>long-term</b> = 3/6/12 mo durability. The same client is followed across touchpoints, so almost nothing is re-entered.</div></div>';
+  if(S.length){
+    var byC={}; admin.forEach(function(s){ var c=s.condition||'—'; if(!byC[c])byC[c]={n:0,mg:0}; byC[c].n++; byC[c].mg+=(+s.mg_analyte||0); });
+    if(admin.length){ h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By condition (administrations)</h3>'+Object.keys(byC).map(function(c){var b=byC[c];return '<div class="approw"><div><b>'+esc(c)+'</b></div><div class="appmeta">'+b.n+' · '+(b.mg/b.n).toFixed(1)+' mg/session</div></div>';}).join('')+'</div>'; }
+    h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Recent sessions</h3>';
+    h+=S.slice(0,8).map(function(s){ var chg=(s.base!==''&&s.fu!=='')?(' · Δ '+((+s.base)-(+s.fu)).toFixed(1)+' '+(s.instrument||'')):''; return '<div class="approw"><div><b>'+esc(s.enrollment_id)+'</b> <span class="appmeta">'+esc(s.session_type)+' · '+esc(s.condition||'')+(s.mg_analyte?' · '+s.mg_analyte+' mg':'')+'</span><div class="appmeta">'+esc(s.timepoint||'')+chg+((s.adverse_event&&s.adverse_event!=='none')?' · AE: '+esc(s.adverse_event):'')+'</div></div></div>';}).join('');
+    h+='<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetSessions();return false;">reset captured sessions</a></div></div>';
   }
-  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">What §9 captures</h3><div class="kv" style="color:var(--ink)">Matching Oregon’s §9 schema at population scale: <b>average mg dose per client per session</b>, number of sessions, de-identified demographics (where collected), and adverse events — reported as an <b>annual assessment</b>, never per patient.</div><div class="appmeta" style="margin-top:6px">Lots tested: <b>'+lotsTested+'</b> · this closes the loop from the COA-verified dose (flat mg) to real-world outcomes — the evidence-based wedge no cannabis tracker has.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Validated instruments, by condition</h3>'+
+    Object.keys(INSTRUMENTS).filter(function(k){return k!=='Other';}).map(function(k){return '<div class="approw"><div><b>'+esc(k)+'</b></div><div class="appmeta" style="max-width:60%;text-align:right">'+esc(INSTRUMENTS[k].join(' · '))+'</div></div>';}).join('')+
+    '<div class="note">Symptom + <b>function (WSAS)</b> + <b>quality-of-life / well-being (WHO-5, QUAL-E)</b> — not symptom scores alone. Administered by the care team at set timepoints; patient self-report where validated.</div></div>';
+  h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">New metrics worth capturing (beyond symptom change)</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+NOVEL.map(function(n){return '<li>'+esc(n)+'</li>';}).join('')+'</ul><div class="note">Defining program success: durable <b>function, well-being, meaning</b>, reduced medication &amp; utilization — not just an acute symptom drop. These feed the Research &amp; Continuous Improvement committee.</div></div>';
   return h;
 }
 
@@ -644,9 +697,15 @@ function loadCohort(){ RCOHORT=synthCohort(48); render(); }
 function clearCohort(){ RCOHORT=null; render(); }
 function hbar(label,val,max,sub,color){ var w=max?Math.round(val/max*100):0; return '<div style="margin:5px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+esc(label)+'</span><span class="appmeta">'+esc(sub)+'</span></div><div style="height:12px;background:#eef1f2;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+(color||'#1c7a4a')+'"></div></div></div>'; }
 function renderResearch(){
-  var c=loadCustody(), rSessions=0;
-  c.lots.forEach(function(l){ l.pkgs.forEach(function(p){ if(p.status==='administered') rSessions++; }); });
+  var rSessions=loadSessions().filter(function(s){return s.session_type==='Administration';}).length;
   var h='<h1>🔬 Research &amp; prospective analysis</h1><div class="sub">Turn the §9 registry into prospective, population-level analysis — and benchmark New Mexico against other state programs. Prototype; local + clearly-labeled illustrative data.</div>';
+  var irb=loadIRB();
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">Research-ethics gate — QI vs. human-subjects research (IRB)</h3>'+
+    '<div class="kv" style="color:var(--ink)"><b>No IRB:</b> mandatory §9 / QI aggregate reporting and internal quality improvement.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>IRB REQUIRED (built-in step):</b> generalizable research — hypothesis-testing, publication, secondary use of <b>opt-in</b> data, or identifiable data. As with Luma Chart, approval is recorded before research use is unlocked.</div>';
+  if(irb && irb.no) h+='<div style="background:#e8f5ec;border:1px solid #bfe3cc;color:#1c5a3a;border-radius:6px;padding:7px 10px;margin-top:6px;font-size:12.5px"><b>✓ IRB on file:</b> protocol '+esc(irb.no)+' — research use unlocked. <a href="#" onclick="clearIRB();return false;">clear</a></div>';
+  else h+='<div class="actions" style="margin-top:6px"><input id="irb_no" placeholder="IRB protocol # (e.g. 2026-123)" style="flex:1;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn primary sm" onclick="saveIRB()">Record IRB approval</button></div>';
+  h+='<div class="note"><b>Equity in who is studied:</b> monitor the sample for rural / tribal / income representation so the evidence base is not skewed toward those who can afford access.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Cross-state program comparison</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px">'+
      '<thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left;font-size:10.5px;text-transform:uppercase">Dimension</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">New Mexico</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Oregon</th><th style="background:#2b6f6a;color:#fff;padding:6px 8px;text-align:left">Colorado</th></tr></thead><tbody>';
   h+=XSTATE.map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:16%">'+esc(r.k)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.nm+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.or+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+r.co+'</td></tr>';}).join('');
@@ -688,6 +747,57 @@ function renderResearch(){
      '<div class="appmeta" style="margin-bottom:6px">Leading psilocybin researchers (via the MGH conference faculty) — a KOL map to approach for advisory, research partnership, and grounding continuous improvement in current science. <b>Not affiliated with Parakeet.</b></div>';
   h+=RESEARCHERS.map(function(r){return '<div class="approw"><div><b>'+esc(r.n)+'</b> <span class="appmeta">'+esc(r.a)+'</span></div><div class="appmeta" style="max-width:46%;text-align:right">'+esc(r.f)+'</div></div>';}).join('');
   h+='</div>';
+  var OPEN_QS=[
+    "Total mg analyte per session — include secondary / booster doses in the denominator?",
+    "Strain-to-strain potency varies >7.8× — always dose from the batch COA, never strain or grams.",
+    "Should the 7.35.2.19 COA also quantify baeocystin / norpsilocin? (can add 5-HT2A activity beyond psilocybin — Sherwood 2020)",
+    "Single vs two-dose protocols — durability trade-offs (confounded; monitor).",
+    "Flat mg vs mg/kg — flat is current best practice (saturable 5-HT2A); revisit if PK data change.",
+    "Minimum-effective and maximum-safety band per condition — refine from §9 outcomes."
+  ];
+  h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">Continuous-improvement engine</h3>'+
+    '<div class="kv" style="color:var(--ink)"><b>Weighting evidence (honestly):</b> efficacy rests on <b>modest-sized RCTs</b> (e.g. COMPASS n=233, <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a>); the large-n data are <b>observational / surveys</b>. Weight RCTs for causal claims and §9 real-world data for effectiveness, safety signals &amp; generalizability — <b>do not overclaim</b>.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Review cadence:</b> <b>weekly</b> AE signal review · <b>quarterly</b> dose/outcome review · <b>annual</b> literature review to update dose ranges, qualifying conditions &amp; contraindications.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Open dose-science questions</b> — current best practices here may require future revision:</div>'+
+    '<ul style="margin:2px 0 0;padding-left:16px;font-size:12.5px">'+OPEN_QS.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul>'+
+    '<div class="note">Citations: dose-response (PMID 36322843) · strain variability &gt;7.8× (doi 10.3390/jof12070486) · minor alkaloids (Sherwood 2020, doi 10.1021/acs.jnatprod.9b01061).</div></div>';
+  return h;
+}
+
+/* ---------- safety, bioethics & data governance ---------- */
+function loadIRB(){ try{ return JSON.parse(localStorage.getItem('parakeet_irb_v1')||'null'); }catch(e){ return null; } }
+function saveIRB(){ var p=document.getElementById('irb_no'); var v=p?p.value.trim():''; try{ localStorage.setItem('parakeet_irb_v1', v?JSON.stringify({no:v,at:new Date().toISOString()}):'null'); }catch(e){} render(); }
+function clearIRB(){ try{ localStorage.removeItem('parakeet_irb_v1'); }catch(e){} render(); }
+function renderSafety(){
+  var S=loadSessions(), C=loadCustody();
+  var mild=S.filter(function(s){return s.adverse_event==='mild';}).length;
+  var serious=S.filter(function(s){return s.adverse_event==='serious';}).length;
+  var optin=S.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}).length;
+  var recalls=C.lots.filter(function(l){return l.recalled;});
+  var h='<h1>⚠ Safety, ethics &amp; data governance</h1><div class="sub">Adverse-event monitoring, product recall, bioethics safeguards, and HIPAA-grade data handling. Prototype; local data.</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(mild,'Mild AEs')+mchip(serious,'Serious AEs')+mchip(recalls.length,'Recalled batches')+mchip(optin+' / '+S.length,'Opted into research')+'</div>';
+  h+='<div class="card">';
+  if(serious>0) h+='<div style="background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:6px;padding:7px 10px;margin-bottom:8px;font-weight:600">⚠ SIGNAL — '+serious+' serious adverse event(s) flagged for review and possible action.</div>';
+  h+='<h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Adverse-event monitoring</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>Reportable:</b> serious AEs, prolonged psychological distress, and cardiac / QTc events (<a href="https://pubmed.ncbi.nlm.nih.gov/32250059/" target="_blank" rel="noopener">PMID 32250059</a>).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Pathway &amp; timelines:</b> captured on the session record → <b>serious within 24h</b>, other <b>within 72h</b> → DOH / committee review queue.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Signal detection:</b> reviewed <b>weekly</b>; triggers → update <b>exclusion criteria</b>, <b>pull a batch</b> (recall), or issue <b>contraindication alerts</b>.</div>'+
+     '<div class="note">Feeds the <b>Patient Qualification &amp; Safety</b> committee → exclusion / contraindication rules.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Product recall log</h3>';
+  if(recalls.length){ h+=recalls.map(function(l){ var pulled=l.pkgs.filter(function(p){return p.status==='recalled';}).length; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">reason: '+esc(l.recallReason||'safety')+' · '+pulled+' package(s) pulled</div></div><span class="status s-denied">Recalled</span></div>';}).join(''); }
+  else h+='<div class="appmeta">No recalls. Recall a batch from <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> when a lab fails (microbial / heavy-metals / pesticide) or a safety signal arises.</div>';
+  h+='<div class="note">A recall pulls every non-administered package of the lot from the chain; unbroken lot→package IDs make the trace exact.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Bioethics &amp; session safeguards</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>Enhanced informed consent:</b> capacity assessment, plain-language risks/benefits, and <b>explicit consent for physical touch</b> and any recording — obtained <i>before</i> the altered state, with the option to re-affirm.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Vulnerability &amp; boundaries:</b> clients are <b>highly suggestible</b> during administration. Safeguards: a clear touch/boundary policy, <b>monitoring &amp; chaperone norms</b>, no dual relationships, documented conduct standards, and a channel to report misconduct.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Four principles:</b> autonomy (withdraw at any time), non-maleficence (screening, QTc/interaction checks), beneficence, and <b>justice</b> (equitable access).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Cultural humility:</b> no appropriation of Indigenous practice; tribal data under CARE + OCAP with consultation.</div>'+
+     '<div class="note">These safeguards apply <b>at every step</b> — preparation, administration, integration, and every data touch — logged with the session and surfaced to the Education &amp; Training and Patient Qualification &amp; Safety committees.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Data governance &amp; HIPAA</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>De-identification:</b> the §9 dataset carries enrollment IDs + age-band/region only — no names, DOB, or addresses. Identifiable records stay in the clinician portal.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Access:</b> aggregated §9 → DOH / Secretary dashboard; identifiable data → the treating clinician only (role-based, least-privilege, audit-logged).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Consent boundary:</b> the <b>minimal §9 report is mandatory</b>; any <b>secondary research use is opt-in and IRB-gated</b> — minimal reporting by default, opt in for research ('+optin+' of '+S.length+' opted in).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>HIPAA posture:</b> encryption in transit &amp; at rest, MFA + role-based access, immutable audit logs, BAAs; target HITRUST CSF + StateRAMP (roadmap).</div></div>';
   return h;
 }
 
