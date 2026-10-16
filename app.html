@@ -232,7 +232,7 @@ function render(){
   else if(VIEW==='custody') r.innerHTML=renderCustody();
   else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); }
   else if(VIEW==='safety') r.innerHTML=renderSafety();
-  else if(VIEW==='equity') r.innerHTML=renderEquity();
+  else if(VIEW==='equity'){ r.innerHTML=renderEquity(); fscalc(); }
   else if(VIEW==='research') r.innerHTML=renderResearch();
 }
 
@@ -817,12 +817,24 @@ function renderSafety(){
 
 /* ---------- equity & access ---------- */
 var FUND_TOTAL=630000;
+function fscalc(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  if(!document.getElementById('fs_cost')) return;
+  var cost=parseFloat(g('fs_cost'))||1500;
+  var eff=(g('fs_group')==='Group administration')?cost*0.45:cost;
+  if(g('fs_model').indexOf('Gap')===0){ eff=Math.max(50, eff-(parseFloat(g('fs_copay'))||0)); }
+  var pool=630000+(parseFloat(g('fs_match'))||0);
+  var patients=Math.floor(pool/eff), base=Math.floor(630000/cost), mult=base?(patients/base).toFixed(1):'—';
+  var o=document.getElementById('fsOut'); if(!o) return;
+  o.innerHTML='<div style="font-size:22px;font-weight:800;color:#1c7a4a">~'+patients.toLocaleString()+' patients</div><div class="appmeta">funded under this model (≈ $'+Math.round(eff).toLocaleString()+' of fund per patient)</div>'+
+    '<div class="kv" style="margin-top:6px;color:var(--ink)">Baseline (full-cover, individual, $'+cost.toLocaleString()+'): <b>~'+base.toLocaleString()+'</b> patients. This model: <b>'+mult+'×</b> more reach.</div>';
+}
 function loadEquity(){ try{ return JSON.parse(localStorage.getItem('parakeet_equity_v1')||'[]'); }catch(e){ return []; } }
 function saveEquity(a){ try{ localStorage.setItem('parakeet_equity_v1', JSON.stringify(a)); }catch(e){} }
 function resetEquity(){ try{ localStorage.removeItem('parakeet_equity_v1'); }catch(e){} render(); }
 function recordAward(){
   var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
-  var rec={ enr:g('eq_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), amount:parseFloat(g('eq_amt'))||0, use:g('eq_use'), region:g('eq_region'), population:g('eq_pop'), income:g('eq_income'), at:new Date().toISOString() };
+  var rec={ enr:g('eq_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), amount:parseFloat(g('eq_amt'))||0, use:g('eq_use'), region:g('eq_region'), population:g('eq_pop'), income:g('eq_income'), zip:g('eq_zip'), at:new Date().toISOString() };
   var a=loadEquity(); a.unshift(rec); saveEquity(a); render();
 }
 function renderEquity(){
@@ -841,6 +853,14 @@ function renderEquity(){
     '<div class="kv" style="color:var(--ink)"><b>Outreach channels:</b> rural health clinics &amp; FQHCs, tribal / IHS health, community behavioral health, the VA, and hospice / palliative care.</div>'+
     '<div class="kv" style="color:var(--ink)"><b>Levers:</b> fund-eligibility priority, sliding scale, group administration, telehealth prep / integration, and covered transportation.</div>'+
     '<div class="note"><b>Guardrail:</b> reviewed monthly — if the low-income + rural/tribal share falls below NM benchmarks, trigger targeted outreach before the program drifts affluent.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Make the most of $630K — fund-stretch model</h3><div class="grid">'+
+    '<div class="field"><label>Full cost per patient ($)</label><input id="fs_cost" type="number" value="1500" oninput="fscalc()"></div>'+
+    '<div class="field"><label>Subsidy model</label><select id="fs_model" onchange="fscalc()"><option>Full cover</option><option>Gap-fill (patient pays part)</option></select></div>'+
+    '<div class="field"><label>Patient co-pay if gap-fill ($)</label><input id="fs_copay" type="number" value="300" oninput="fscalc()"></div>'+
+    '<div class="field"><label>Delivery</label><select id="fs_group" onchange="fscalc()"><option>Individual sessions</option><option>Group administration</option></select></div>'+
+    '<div class="field"><label>Matching / nonprofit funds ($)</label><input id="fs_match" type="number" value="0" oninput="fscalc()"></div>'+
+    '</div><div id="fsOut" class="card" style="background:#fbfdfd;margin:6px 0 0"></div>'+
+    '<div class="note">Illustrative. Biggest levers: <b>group administration</b> (shares facilitation cost), <b>gap-fill</b> (fund tops up only what the patient cannot pay), <b>matching funds</b>, and covering the <b>bottleneck</b> (product + transport) not the full fee. Negotiated bulk rates + a <b>% of program revenue</b> make the fund recurring, not one-time.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Record a fund award</h3><div class="grid">'+
     '<div class="field"><label>Enrollment ID (de-id)</label><input id="eq_enr" placeholder="auto if blank"></div>'+
     '<div class="field"><label>Amount ($)</label><input id="eq_amt" type="number" placeholder="e.g. 1200"></div>'+
@@ -848,11 +868,12 @@ function renderEquity(){
     '<div class="field"><label>Region</label><select id="eq_region"><option>Urban</option><option>Rural</option><option>Frontier</option><option>Tribal land</option></select></div>'+
     '<div class="field"><label>Population (self-identified)</label><select id="eq_pop"><option>Hispanic / Latino</option><option>Native American</option><option>White</option><option>Other</option><option>Prefer not to say</option></select></div>'+
     '<div class="field"><label>Income (% FPL)</label><select id="eq_income"><option>≤138% (Medicaid-eligible)</option><option>139–250%</option><option>&gt;250%</option><option>Unknown</option></select></div>'+
+    '<div class="field"><label>ZIP (3-digit for de-id — area SES)</label><input id="eq_zip" placeholder="e.g. 875" maxlength="5"></div>'+
     '</div><div class="actions"><span class="note">De-identified — tracks who the fund actually reaches.</span><button class="btn primary" onclick="recordAward()">Record award</button></div></div>';
   if(A.length){ h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By use</h3>'+Object.keys(byUse).map(function(u){return '<div class="approw"><div><b>'+esc(u)+'</b></div><div class="appmeta">$'+byUse[u].toLocaleString()+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetEquity();return false;">reset</a></div></div>'; }
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Access &amp; disparities</h3>'+
     '<div class="kv" style="color:var(--ink)">Track program reach against New Mexico: roughly <b>~50% Hispanic/Latino, ~11% Native American, ~1/4 rural</b> (US Census, approx). Representation below these shares signals an <b>access barrier</b> to address.</div>'+
-    '<div class="note">Also watch: income mix, wait times, no-show / completion by region, and distance to the nearest healing center.</div></div>';
+    '<div class="note"><b>ZIP code</b> is a useful <b>secondary SES indicator</b> — map it to the <b>Area Deprivation Index</b> for area-based need (use 3-digit ZIP for HIPAA de-identification). Also watch: income mix, wait times, no-show / completion by region, and distance to the nearest healing center.</div></div>';
   var EQUITY_XSTATE=[
     {k:"State patient-subsidy fund", nm:"YES — $630K Treatment Equity Fund (therapy · product · transport)", or:"No (board recommended % of revenue; not funded)", co:"No"},
     {k:"Nonprofit access fund", nm:"—", or:"Sheri Eckert Foundation — Psilocybin Access Fund", co:"—"},
