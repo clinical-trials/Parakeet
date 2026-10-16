@@ -579,11 +579,21 @@ function designatedHero(){
       '<button class="btn sm" style="flex:0 0 auto;background:#d9b25a;color:#17423f;border:none;font-weight:700" onclick="'+d.act+';return false;">'+d.btn+' →</button>'+
       '</div>';
   }).join('');
+  var cmeN=CME_COURSES.length, cmeLo=Math.min.apply(null,CME_COURSES.map(function(c){return c.cr;})), cmeHi=Math.max.apply(null,CME_COURSES.map(function(c){return c.cr;}));
+  var beyond='<div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.14);padding-top:9px">'+
+    '<div style="color:#d9b25a;font-weight:700;font-size:11.5px;margin-bottom:6px">On top of compliance, the platform also delivers:</div>'+
+    '<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:7px"><div style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:rgba(217,178,90,.9);color:#17423f;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">4</div>'+
+      '<div style="flex:1;min-width:0;color:#cfe0da;font-size:11.5px"><b style="color:#fff">Research &amp; continuous improvement</b> — ongoing, de-identified §9 prospective analysis + cross-state benchmarking (<b>not</b> a designated system). <a href="#" onclick="go(\'research\');return false;" style="color:#d9b25a;white-space:nowrap">Open Research →</a></div>'+
+      '<button class="btn sm" style="flex:0 0 auto;background:transparent;color:#d9b25a;border:1px solid rgba(217,178,90,.6)" onclick="go(\'research\');return false;">Research →</button></div>'+
+    '<div style="display:flex;gap:9px;align-items:flex-start"><div style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:rgba(217,178,90,.9);color:#17423f;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">5</div>'+
+      '<div style="flex:1;min-width:0;color:#cfe0da;font-size:11.5px"><b style="color:#fff">Clinician education &amp; CME</b> — '+cmeN+' accredited <b>AMA PRA Category&nbsp;1</b> courses ('+cmeLo+'–'+cmeHi+' credits; Johns Hopkins, MGH/McLean, Harvard, Arizona) tracked toward the <b>7.35.3.18</b> certifying-clinician training, beside the dose-individualization decision aid. <a href="#" onclick="go(\'clinician\');return false;" style="color:#d9b25a;white-space:nowrap">Open Clinician →</a></div>'+
+      '<button class="btn sm" style="flex:0 0 auto;background:transparent;color:#d9b25a;border:1px solid rgba(217,178,90,.6)" onclick="go(\'clinician\');return false;">Clinician →</button></div>'+
+    '</div>';
   return '<div style="background:#17423f;border-radius:14px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.12)">'+
     '<div style="color:#fff;font-size:17px;font-weight:800;line-height:1.25">✓ Parakeet provides all three systems the Medical Psilocybin Act requires the department to designate</div>'+
-    '<div style="color:#cfe0da;font-size:12px;margin-top:3px">One integrated platform — fully, in plain language, each mapped to the rule. Compliance first.</div>'+
+    '<div style="color:#cfe0da;font-size:12px;margin-top:3px">One integrated platform — fully, in plain language, each mapped to the rule. Compliance first; research &amp; clinician education on top.</div>'+
     rows+
-    '<div style="color:#9fc0b6;font-size:11px;margin-top:10px;border-top:1px solid rgba(255,255,255,.14);padding-top:8px"><b style="color:#d9b25a">4 · Research &amp; continuous improvement</b> runs on top — <b>ongoing</b>, de-identified, and <b>not</b> a designated system (<a href="#" onclick="go(\'research\');return false;" style="color:#d9b25a">Research</a>).</div>'+
+    beyond+
     '</div>';
 }
 function renderDashboard(){
@@ -614,11 +624,11 @@ function renderDashboard(){
 /* ---------- clinician / CME layer ---------- */
 /* Accredited (AMA PRA Category 1 / ACCME) psilocybin CME — verify current credits, cohort dates & NM acceptance before enrolling */
 var CME_COURSES = [
-  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", cr:6.5, acc:"AMA PRA Cat 1 · ACCME · live online", u:"https://hopkinscme.cloud-cme.com/"},
-  {n:"MGH / McLean — Annual Conference on Psychedelics & Psychedelic Medicine", cr:11.75, acc:"AMA PRA Cat 1", u:"https://mghcme.org/courses/6th-annual-conference-on-psychedelics-and-psychedelic-medicine/"},
-  {n:"Harvard Medical School — Psychedelic-Assisted Psychotherapy", cr:13.25, acc:"AMA PRA Cat 1 · online/in-person", u:"https://learn.hms.harvard.edu/programs/psychedelic-assisted-psychotherapy"},
-  {n:"Univ. of Arizona (Weil Center) — Intro to Therapeutic Psychedelics", cr:10.25, acc:"AMA PRA Cat 1 · enduring online", u:"https://awcim.arizona.edu/education/online_courses/intro-therapeutic-psychedelics.html"},
-  {n:"Psychedelic Support — Understanding Psilocybin", cr:9, acc:"AMA PRA Cat 1 / CE · online", u:"https://psychedelic.support/"}
+  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", cr:6.5, acc:"AMA PRA Cat 1 · ACCME · live online", when:"Fall-2026 cohort ran Oct 9, 2026; next cohort TBD — verify portal", u:"https://hopkinscme.cloud-cme.com/course/courseoverview?P=0&EID=67478"},
+  {n:"MGH / McLean — Annual Conference on Psychedelics & Psychedelic Medicine", cr:11.75, acc:"AMA PRA Cat 1", when:"Annual conference — confirm next date", u:"https://mghcme.org/courses/6th-annual-conference-on-psychedelics-and-psychedelic-medicine/"},
+  {n:"Harvard Medical School — Psychedelic-Assisted Psychotherapy", cr:13.25, acc:"AMA PRA Cat 1 · online/in-person", when:"Cohort-based — verify dates", u:"https://learn.hms.harvard.edu/programs/psychedelic-assisted-psychotherapy"},
+  {n:"Univ. of Arizona (Weil Center) — Intro to Therapeutic Psychedelics", cr:10.25, acc:"AMA PRA Cat 1 · enduring online", when:"Enduring / on-demand", u:"https://awcim.arizona.edu/education/online_courses/intro-therapeutic-psychedelics.html"},
+  {n:"Psychedelic Support — Understanding Psilocybin", cr:9, acc:"AMA PRA Cat 1 / CE · online", when:"Online / on-demand", u:"https://psychedelic.support/"}
 ];
 function loadCME(){ try{ return JSON.parse(localStorage.getItem('parakeet_cme_v1')||'[]'); }catch(e){ return []; } }
 function saveCME(a){ try{ localStorage.setItem('parakeet_cme_v1', JSON.stringify(a)); }catch(e){} }
@@ -633,7 +643,7 @@ function renderClinician(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">CME / continuing education</h3>'+
      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+mchip(tot.toFixed(1),'Credits logged')+mchip(cme.length,'Activities')+'</div>'+
      '<div class="appmeta" style="margin-bottom:6px">Log accredited activities toward the certifying-clinician training (7.35.3.18) and annual CE. Confirm required hours with DOH; verify ACCME accreditation before enrolling.</div>';
-  h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta"><b>'+c.cr+'</b> credits · '+esc(c.acc||'')+'</div></div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
+  h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta"><b>'+c.cr+'</b> credits · '+esc(c.acc||'')+'</div>'+(c.when?'<div class="appmeta" style="color:#8a5f18">📅 '+esc(c.when)+'</div>':'')+'</div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
   if(cme.length) h+='<div class="appmeta" style="margin-top:6px">Logged: '+cme.map(function(c){return esc(c.n.split(' — ')[0])+' ('+(c.cr||0)+')';}).join(' · ')+' · <a href="#" onclick="resetCME();return false;">reset</a></div>';
   h+='</div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose-individualization decision aid — clinical decision support</h3>'+
