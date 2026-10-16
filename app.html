@@ -822,7 +822,7 @@ function saveEquity(a){ try{ localStorage.setItem('parakeet_equity_v1', JSON.str
 function resetEquity(){ try{ localStorage.removeItem('parakeet_equity_v1'); }catch(e){} render(); }
 function recordAward(){
   var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
-  var rec={ enr:g('eq_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), amount:parseFloat(g('eq_amt'))||0, use:g('eq_use'), region:g('eq_region'), population:g('eq_pop'), at:new Date().toISOString() };
+  var rec={ enr:g('eq_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), amount:parseFloat(g('eq_amt'))||0, use:g('eq_use'), region:g('eq_region'), population:g('eq_pop'), income:g('eq_income'), at:new Date().toISOString() };
   var a=loadEquity(); a.unshift(rec); saveEquity(a); render();
 }
 function renderEquity(){
@@ -831,16 +831,23 @@ function renderEquity(){
   var remaining=FUND_TOTAL-disbursed;
   var enr={}; A.forEach(function(x){ if(x.enr) enr[x.enr]=1; });
   var rural=A.filter(function(x){return x.region==='Rural'||x.region==='Frontier'||x.region==='Tribal land';}).length;
+  var need=A.filter(function(x){return x.income && x.income!=='>250%' && x.income!=='Unknown' && (x.region==='Rural'||x.region==='Frontier'||x.region==='Tribal land');}).length;
   var byUse={}; A.forEach(function(x){ byUse[x.use]=(byUse[x.use]||0)+(+x.amount||0); });
   var h='<h1>🌎 Equity &amp; Access</h1><div class="sub">Make sure every New Mexican can reach the program — track the Treatment Equity Fund, surface disparities, and remove rural barriers so geography does not decide who gets care. Prototype; local data.</div>';
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(Object.keys(enr).length,'Patients funded')+mchip('$'+disbursed.toLocaleString(),'Disbursed')+mchip('$'+remaining.toLocaleString(),'Remaining')+mchip(A.length?Math.round(rural/A.length*100)+'%':'—','Rural / frontier')+'</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(Object.keys(enr).length,'Patients funded')+mchip('$'+disbursed.toLocaleString(),'Disbursed')+mchip('$'+remaining.toLocaleString(),'Remaining')+mchip(A.length?Math.round(rural/A.length*100)+'%':'—','Rural / frontier')+mchip(A.length?Math.round(need/A.length*100)+'%':'—','Greatest-need reach')+'</div>';
   h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><b>🪙 Medical Psilocybin Treatment Equity Fund</b> — <b>$630,000</b> (HB2, 2026; state treasury). Can cover <b>therapy sessions, the psilocybin product, and transportation</b> for low-income &amp; rural patients. <b>Income thresholds set by DOH</b> (not yet public). <span class="appmeta">Small relative to need — tracking utilization builds the case to grow it.</span></div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Reach the greatest need (not just the easiest to reach)</h3>'+
+    '<div class="kv" style="color:var(--ink)">Prioritize <b>low-income, rural / frontier, tribal, and marginalized</b> patients with the <b>highest-need conditions</b> — treatment-resistant depression, PTSD, end-of-life, and substance-use disorder — the people Oregon’s cost barrier left behind (its clients skew wealthier, whiter, urban, 32.6% out-of-state).</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Outreach channels:</b> rural health clinics &amp; FQHCs, tribal / IHS health, community behavioral health, the VA, and hospice / palliative care.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>Levers:</b> fund-eligibility priority, sliding scale, group administration, telehealth prep / integration, and covered transportation.</div>'+
+    '<div class="note"><b>Guardrail:</b> reviewed monthly — if the low-income + rural/tribal share falls below NM benchmarks, trigger targeted outreach before the program drifts affluent.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Record a fund award</h3><div class="grid">'+
     '<div class="field"><label>Enrollment ID (de-id)</label><input id="eq_enr" placeholder="auto if blank"></div>'+
     '<div class="field"><label>Amount ($)</label><input id="eq_amt" type="number" placeholder="e.g. 1200"></div>'+
     '<div class="field"><label>Use</label><select id="eq_use"><option>Therapy sessions</option><option>Psilocybin product</option><option>Transportation</option><option>Multiple</option></select></div>'+
     '<div class="field"><label>Region</label><select id="eq_region"><option>Urban</option><option>Rural</option><option>Frontier</option><option>Tribal land</option></select></div>'+
     '<div class="field"><label>Population (self-identified)</label><select id="eq_pop"><option>Hispanic / Latino</option><option>Native American</option><option>White</option><option>Other</option><option>Prefer not to say</option></select></div>'+
+    '<div class="field"><label>Income (% FPL)</label><select id="eq_income"><option>≤138% (Medicaid-eligible)</option><option>139–250%</option><option>&gt;250%</option><option>Unknown</option></select></div>'+
     '</div><div class="actions"><span class="note">De-identified — tracks who the fund actually reaches.</span><button class="btn primary" onclick="recordAward()">Record award</button></div></div>';
   if(A.length){ h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By use</h3>'+Object.keys(byUse).map(function(u){return '<div class="approw"><div><b>'+esc(u)+'</b></div><div class="appmeta">$'+byUse[u].toLocaleString()+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetEquity();return false;">reset</a></div></div>'; }
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Access &amp; disparities</h3>'+
