@@ -115,6 +115,18 @@
       <button data-view="equity" onclick="go('equity')">Equity</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;max-width:900px">
+      <span style="font-size:11px;color:#9fc0bc;text-transform:uppercase;letter-spacing:.06em;font-weight:700">🔐 Role-based access — signed in as</span>
+      <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#123532;color:#fff">
+        <option value="doh">DOH reviewer</option>
+        <option value="clinician">Certifying clinician</option>
+        <option value="facilitator">Facilitator / healing center</option>
+        <option value="producer">Producer</option>
+        <option value="lab">Testing lab</option>
+        <option value="patient">Patient</option>
+      </select>
+      <span style="font-size:11px;color:#8fb3ab">least-privilege — you see only what your role permits</span>
+    </div>
   </div>
 </header>
 <div class="wrap" id="root"></div>
@@ -230,6 +242,20 @@ var DESIGNATED = [
    note:"Supports <b>API / machine-to-machine</b> submission and <b>HIPAA business-associate upload</b> on the clinician’s behalf (per public comment)."}
 ];
 
+/* ---------- role-based access (least-privilege) ---------- */
+var ROLES={
+  doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
+  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','safety','equity']},
+  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety','equity']},
+  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','safety']},
+  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','safety']},
+  patient:{name:'Patient', views:['dashboard','chooser','myapps','equity','safety']}
+};
+var ROLE=(function(){ try{ return localStorage.getItem('parakeet_role_v1')||'doh'; }catch(e){ return 'doh'; } })();
+function roleViews(){ return (ROLES[ROLE]||ROLES.doh).views; }
+function setRole(r){ if(!ROLES[r]) return; ROLE=r; try{ localStorage.setItem('parakeet_role_v1', r); }catch(e){} if(roleViews().indexOf(VIEW)<0) VIEW=roleViews()[0]; render(); window.scrollTo(0,0); }
+function lockView(){ var al=roleViews(); return '<div class="card" style="border-left:4px solid #b4452f;background:#fbf1ef;border-color:#e6c3ba"><h3 style="margin:0 0 6px;color:#a2432f;font-size:15px">🔒 Restricted — outside your role&rsquo;s access</h3><div class="kv" style="color:var(--ink)">The requested section is not part of <b>'+esc((ROLES[ROLE]||ROLES.doh).name)+'</b> access. Parakeet enforces <b>least-privilege, role-based access</b> — you see only what your role permits. Switch roles in the header to view it.</div><div class="actions" style="margin-top:6px"><span class="note">Your role can open: '+al.join(', ')+'.</span><button class="btn primary sm" onclick="go(\'dashboard\')">Go to dashboard</button></div></div>'; }
+
 /* ---------- state ---------- */
 var VIEW="dashboard", TYPE=null, STEP=0, DRAFT={};
 
@@ -238,8 +264,11 @@ function startApp(t){ TYPE=t; STEP=0; DRAFT=loadDraft(t); VIEW='wizard'; render(
 
 /* ---------- render ---------- */
 function render(){
-  document.querySelectorAll('#nav button').forEach(function(b){ b.setAttribute('aria-current', b.dataset.view===VIEW?'true':'false'); });
+  var allowed=roleViews();
+  document.querySelectorAll('#nav button').forEach(function(b){ var v=b.dataset.view; b.style.display=allowed.indexOf(v)>=0?'':'none'; b.setAttribute('aria-current', v===VIEW?'true':'false'); });
+  var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
   var r=document.getElementById('root');
+  if(allowed.indexOf(VIEW)<0){ r.innerHTML=lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=renderDashboard();
   else if(VIEW==='clinician'){ r.innerHTML=renderClinician(); cplan(); }
   else if(VIEW==='chooser') r.innerHTML=renderChooser();
@@ -594,6 +623,7 @@ function designatedHero(){
   return '<div style="background:#17423f;border-radius:14px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.12)">'+
     '<div style="color:#fff;font-size:17px;font-weight:800;line-height:1.25">✓ Parakeet provides all three systems the Medical Psilocybin Act requires the department to designate</div>'+
     '<div style="color:#cfe0da;font-size:12px;margin-top:3px">One integrated platform — fully, in plain language, each mapped to the rule. Compliance first; research &amp; clinician education on top.</div>'+
+    '<div style="color:#d9b25a;font-size:12px;margin-top:5px;font-weight:700">✓ Free for licensed providers — funded through optional payments infrastructure, so compliance never costs the provider or inflates patient fees.</div>'+
     rows+
     beyond+
     '</div>';
@@ -760,6 +790,12 @@ function hbar(label,val,max,sub,color){ var w=max?Math.round(val/max*100):0; ret
 function renderResearch(){
   var rSessions=loadSessions().filter(function(s){return s.session_type==='Administration';}).length;
   var h='<h1>🔬 Research &amp; prospective analysis</h1><div class="sub">Turn the §9 registry into prospective, population-level analysis — and benchmark New Mexico against other state programs. Prototype; local + clearly-labeled illustrative data.</div>';
+  h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">The New Mexico hypothesis — what the §9 registry is built to test</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>Primary:</b> in a <b>medical</b> program that enrolls <b>by qualifying diagnosis</b> and doses <b>flat mg from the COA</b>, condition-specific validated instruments will show <b>clinically meaningful response &amp; remission</b> at 1 / 3 / 6 / 12 months — and, because NM measures <b>by diagnosis</b> and <b>by mg analyte</b>, it can test a <b>dose–response</b> relationship and <b>durability</b> that an open-access, undiagnosed program structurally cannot.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>H1 · Dose:</b> flat 25 mg (saturable 5-HT2A, not mg/kg) is effective across conditions; booster doses counted in the total; strain is irrelevant because the dose is set from the COA (potency varies &gt;7.8×).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>H2 · Safety:</b> NM&rsquo;s serious-AE and emergency-contact rates <b>meet or beat</b> Oregon&rsquo;s real-world bar (≤1.2% serious behavioral; ~0.2% emergency; no serious medical events).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>H3 · Equity:</b> with the greatest-need guardrail + Equity Fund, NM&rsquo;s served population is <b>less affluent-skewed</b> than Oregon&rsquo;s (JAMA: 29% &gt;$200k, ~89% White) and better reflects NM (~50% Hispanic, ~11% Native).</div>'+
+     '<div class="note"><b>Comparator:</b> Oregon&rsquo;s real-world JAMA cohort (Korthuis 2026) is the benchmark — but it is non-medical, undiagnosed, affluent-skewed, and observational. NM&rsquo;s medical §9 is designed to answer the <b>by-diagnosis, dose-anchored</b> questions it cannot. Hypotheses are pre-specified so analyses are honest (see the IRB gate below).</div></div>';
   var irb=loadIRB();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">Research-ethics gate — QI vs. human-subjects research (IRB)</h3>'+
     '<div class="kv" style="color:var(--ink)"><b>No IRB:</b> mandatory §9 / QI aggregate reporting and internal quality improvement.</div>'+
@@ -901,6 +937,7 @@ function renderSafety(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Data governance &amp; HIPAA</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>De-identification:</b> the §9 dataset carries enrollment IDs + age-band/region only — no names, DOB, or addresses. Identifiable records stay in the clinician portal.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Access:</b> aggregated §9 → DOH / Secretary dashboard; identifiable data → the treating clinician only (role-based, least-privilege, audit-logged).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Role-based access is enforced, not just promised:</b> use the <b>“signed in as” switcher</b> in the header — each role (DOH reviewer · certifying clinician · facilitator/healing center · producer · testing lab · patient) sees <b>only the sections its role permits</b>; everything else is hidden and blocked. In production this is backed by server-side authorization + audit logs.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Consent boundary:</b> the <b>minimal §9 report is mandatory</b>; any <b>secondary research use is opt-in and IRB-gated</b> — minimal reporting by default, opt in for research ('+optin+' of '+S.length+' opted in).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>HIPAA posture:</b> encryption in transit &amp; at rest, MFA + role-based access, immutable audit logs, BAAs; target HITRUST CSF + StateRAMP (roadmap).</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Interoperability &amp; data liquidity — connect once, reach many</h3>'+
@@ -964,7 +1001,8 @@ function renderEquity(){
   h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Program economics — compliance is the cost, not the mushroom</h3>'+
     '<div class="kv" style="color:var(--ink)"><b>Separate production from compliance.</b> Raw cultivation of <i>P. cubensis</i> is trivial — <b>pennies to a few dollars per gram</b> of dried material; a 25&nbsp;mg dose is only ~2.5–5&nbsp;g (~$40–75 of product at a ~$15/g benchmark). The <b>loaded cost of goods is dominated by compliance</b>: lab testing / <b>COA per batch</b> (7.35.2.19 panel — potency + microbials + heavy metals + pesticides; hundreds of $ per batch, recurring), plus <b>security, labor, recordkeeping, insurance, and licensing fees</b>. That — not the product — sets the price of a session (~$1,000–2,000, per Oregon).</div>'+
     '<div class="kv" style="color:var(--ink)"><b>Fee-setting levers (NM fees are not set yet):</b> set <b>application fees high</b> (one-time, business-paid → program revenue for oversight + the Equity Fund, without inflating every session); <b>manage recurring licensing fees low-to-moderate</b> (they pass straight through into patient fees); and <b>route a % of program revenue</b> into the fund so it is recurring, not a one-time $630K.</div>'+
-    '<div class="note">Why it matters here: the <b>full cost per patient</b> below is driven by compliance + labor, not the mushroom. Lowering recurring fees and sharing fixed costs (group administration, bulk COA testing) is how the $630K reaches more people.</div></div>';
+    '<div class="kv" style="color:var(--ink)"><b>Funding model (keeps provider cost at zero):</b> the compliance software is <b>free to providers</b>; revenue comes from <b>optional payments infrastructure</b> (transaction processing) — the Althea model — so the platform never adds to a provider&rsquo;s loaded COGS or to the session price.</div>'+
+    '<div class="note">Why it matters here: the <b>full cost per patient</b> below is driven by compliance + labor, not the mushroom. Free software + lowering recurring fees + sharing fixed costs (group administration, bulk COA testing) is how the $630K reaches more people.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Make the most of $630K — fund-stretch model</h3><div class="grid">'+
     '<div class="field"><label>Full cost per patient ($)</label><input id="fs_cost" type="number" value="1500" oninput="fscalc()"></div>'+
     '<div class="field"><label>Subsidy model</label><select id="fs_model" onchange="fscalc()"><option>Full cover</option><option>Gap-fill (patient pays part)</option></select></div>'+
