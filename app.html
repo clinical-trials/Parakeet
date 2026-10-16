@@ -180,7 +180,7 @@ var FORMS = {
   ]},
   provider:{ ico:"🩺", name:"Provider certification", blurb:"Certifying clinician · practitioner · facilitator.", cite:"7.35.3 NMAC", sitevisit:false, steps:[
     {name:"Role & identity", fields:[
-      {id:"role",label:"Certification type",t:"select",opts:["Certifying clinician","Practitioner","Facilitator","Healing center"],req:true},
+      {id:"role",label:"Certification type",t:"select",opts:["Certifying clinician","Practitioner","Facilitator","Healing center","Educational program"],req:true},
       {id:"fullName",label:"Full legal name",t:"text",req:true},
       {id:"email",label:"Email",t:"email",req:true},
       {id:"nmLicense",label:"NM professional license # (if clinician/practitioner)",t:"text",req:false}
@@ -214,6 +214,20 @@ var FORMS = {
   ]}
 };
 
+/* The three systems the law requires the department to designate (7.35.2 / 7.35.3) — compliance core.
+   Research (item 4) is ongoing/secondary, not a designated system. */
+var DESIGNATED = [
+  {n:"1 · Licensing &amp; applications", cite:"7.35.2 · 7.35.3.7", act:"go('chooser')", btn:"Apply",
+   what:"Permit &amp; certification applications and renewals — producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. Decision clocks built in: <b>30-day</b> review; <b>60/30-day</b> renewal windows.",
+   note:"State-designated today: <b>mpp.nm.btgov.com</b> (BT Government). Parakeet delivers the same function with a plain-language, autosaving wizard."},
+  {n:"2 · Traceability — spore to end-use", cite:"7.35.3 def · 7.35.2.19", act:"go('custody')", btn:"Open",
+   what:"Tracks mushrooms &amp; products from <b>inoculation to end use</b>; a chain-of-custody record is generated &amp; <b>verified on every transfer</b> (producer → lab → healing center → administration).",
+   note:"Unique IDs at batch → lot → package (no RFID); ends at <b>administration to an enrolled patient</b> → §9, not a retail sale."},
+  {n:"3 · Patient enrollment", cite:"7.35.3.8", act:"startApp('patient')", btn:"Enroll",
+   what:"<b>Joint</b> patient + certifying-clinician application with documents &amp; attestations; <b>30-day</b> DOH decision; <b>2-year</b> enrollment.",
+   note:"Supports <b>API / machine-to-machine</b> submission and <b>HIPAA business-associate upload</b> on the clinician’s behalf (per public comment)."}
+];
+
 /* ---------- state ---------- */
 var VIEW="dashboard", TYPE=null, STEP=0, DRAFT={};
 
@@ -242,7 +256,8 @@ function renderChooser(){
   var tiles=Object.keys(FORMS).map(function(k){var f=FORMS[k];
     return '<div class="tile" onclick="startApp(\''+k+'\')"><div class="ico">'+f.ico+'</div><h3>'+f.name+'</h3><p>'+f.blurb+'</p><span class="cite">'+f.cite+'</span></div>';
   }).join('');
-  return '<h1>Start an application</h1><div class="sub">Simple, guided intake — your progress is saved automatically on this device. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>';
+  return '<h1>Start an application</h1><div class="sub">Simple, guided intake — your progress is saved automatically on this device. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>'+
+    '<div class="note" style="margin-top:10px"><b>Decision clocks (7.35.2 / 7.35.3):</b> new applications → DOH decision within <b>30 days</b>; renewals → file within the <b>60/30-day renewal window</b>. One intake covers producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. The state&rsquo;s designated application system today is <b>mpp.nm.btgov.com</b> (BT Government); this provides the same function.</div>';
 }
 
 function renderWizard(){
@@ -554,10 +569,29 @@ function appStep(p){
   if(l.status==='denied') return {t:"Application "+l.id+" was denied — review and reapply.",a:"go('chooser')",al:"Reapply"};
   return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
 }
+function designatedHero(){
+  var rows=DESIGNATED.map(function(d){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,.14)">'+
+      '<div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#d9b25a;color:#17423f;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px">✓</div>'+
+      '<div style="flex:1;min-width:0"><div style="color:#fff;font-weight:700;font-size:13.5px">'+d.n+' <span style="background:rgba(255,255,255,.16);color:#eaf3ef;font-size:10.5px;padding:1px 6px;border-radius:5px;margin-left:4px">'+d.cite+'</span></div>'+
+      '<div style="color:#cfe0da;font-size:12px;margin-top:3px">'+d.what+'</div>'+
+      '<div style="color:#9fc0b6;font-size:11px;margin-top:3px">'+d.note+'</div></div>'+
+      '<button class="btn sm" style="flex:0 0 auto;background:#d9b25a;color:#17423f;border:none;font-weight:700" onclick="'+d.act+';return false;">'+d.btn+' →</button>'+
+      '</div>';
+  }).join('');
+  return '<div style="background:#17423f;border-radius:14px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.12)">'+
+    '<div style="color:#fff;font-size:17px;font-weight:800;line-height:1.25">✓ Parakeet provides all three systems the Medical Psilocybin Act requires the department to designate</div>'+
+    '<div style="color:#cfe0da;font-size:12px;margin-top:3px">One integrated platform — fully, in plain language, each mapped to the rule. Compliance first.</div>'+
+    rows+
+    '<div style="color:#9fc0b6;font-size:11px;margin-top:10px;border-top:1px solid rgba(255,255,255,.14);padding-top:8px"><b style="color:#d9b25a">4 · Research &amp; continuous improvement</b> runs on top — <b>ongoing</b>, de-identified, and <b>not</b> a designated system (<a href="#" onclick="go(\'research\');return false;" style="color:#d9b25a">Research</a>).</div>'+
+    '</div>';
+}
 function renderDashboard(){
   var p=DASH, cfg=COACH[p];
+  var hero=designatedHero();
   var chips=Object.keys(COACH).map(function(k){var c=COACH[k];return '<button class="pchip'+(k===p?' on':'')+'" onclick="setDash(\''+k+'\')">'+c.ico+' '+c.name+'</button>';}).join('');
-  var h='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for each role — no rule-book jargon. Pick who you are:</div>';
+  var h=hero;
+  h+='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for each role — no rule-book jargon. Pick who you are:</div>';
   h+='<div class="pchips">'+chips+'</div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
