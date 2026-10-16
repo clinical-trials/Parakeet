@@ -102,6 +102,7 @@
     <div class="brand">PARA<span>·</span>KEET Software <small>Application &amp; Review — NM Medical Psilocybin</small></div>
     <nav class="app" id="nav">
       <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
+      <button data-view="clinician" onclick="go('clinician')">Clinician</button>
       <button data-view="chooser" onclick="go('chooser')">Apply</button>
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
@@ -220,6 +221,7 @@ function render(){
   document.querySelectorAll('#nav button').forEach(function(b){ b.setAttribute('aria-current', b.dataset.view===VIEW?'true':'false'); });
   var r=document.getElementById('root');
   if(VIEW==='dashboard') r.innerHTML=renderDashboard();
+  else if(VIEW==='clinician'){ r.innerHTML=renderClinician(); cplan(); }
   else if(VIEW==='chooser') r.innerHTML=renderChooser();
   else if(VIEW==='wizard') r.innerHTML=renderWizard();
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
@@ -514,6 +516,72 @@ function renderDashboard(){
   h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 class="dh" style="color:var(--gold)">Ideas to do it better</h3>'+cfg.tips.map(function(t){return '<div class="ctip">💡 '+t+'</div>';}).join('')+'</div>';
   h+='<div class="card"><h3 class="dh">Help &amp; state resources</h3>'+RESOURCES.map(function(r){return '<div class="ctip" style="color:var(--ink)">🔗 <a href="'+r.u+'" target="_blank" rel="noopener">'+r.t+'</a></div>';}).join('')+'</div>';
   return h;
+}
+
+/* ---------- clinician / CME layer ---------- */
+var CME_COURSES = [
+  {n:"Johns Hopkins — Intro to Psychedelic Medicine & Psilocybin", cr:6.5, u:"https://www.hopkinspsychedelic.org/"},
+  {n:"Fluence — Intro to Psilocybin-Assisted Therapy", cr:6, u:"https://www.fluencetraining.com/"},
+  {n:"Psychedelic Support — Understanding Psilocybin (free)", cr:1, u:"https://psychedelic.support/"},
+  {n:"ADAA — Psychedelic Therapies (CE webinar)", cr:1.5, u:"https://adaa.org/"}
+];
+function loadCME(){ try{ return JSON.parse(localStorage.getItem('parakeet_cme_v1')||'[]'); }catch(e){ return []; } }
+function saveCME(a){ try{ localStorage.setItem('parakeet_cme_v1', JSON.stringify(a)); }catch(e){} }
+function logCME(i){ var c=CME_COURSES[i]; if(!c) return; var a=loadCME(); a.unshift({n:c.n,cr:c.cr,d:new Date().toISOString()}); saveCME(a); render(); }
+function resetCME(){ try{ localStorage.removeItem('parakeet_cme_v1'); }catch(e){} render(); }
+function renderClinician(){
+  var h='<h1>🩺 Clinician workspace</h1><div class="sub">For certifying clinicians & practitioners — certification, CME, dose planning, and your enrolled patients, with minimal paperwork. Prototype; local data.</div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Certification — certifying clinician</h3>'+
+     '<div class="kv" style="color:var(--ink)">✓ NM controlled-substances registration <b>on file</b> &nbsp;·&nbsp; ✓ Certifying-clinician training module (<b>7.35.3.18</b>) complete &nbsp;·&nbsp; <span class="status s-approved">Active</span></div>'+
+     '<div class="appmeta" style="margin-top:4px">Single sign-on to your clinical portal; enroll patients jointly via the state e-system (≤30-day DOH review). A HIPAA business associate may prepare uploads you review &amp; sign.</div></div>';
+  var cme=loadCME(), tot=cme.reduce(function(a,c){return a+(+c.cr||0);},0);
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">CME / continuing education</h3>'+
+     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+mchip(tot.toFixed(1),'Credits logged')+mchip(cme.length,'Activities')+'</div>'+
+     '<div class="appmeta" style="margin-bottom:6px">Log accredited activities toward the certifying-clinician training (7.35.3.18) and annual CE. Confirm required hours with DOH; verify ACCME accreditation before enrolling.</div>';
+  h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta">'+(c.cr?c.cr+' credit(s)':'certificate')+'</div></div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
+  if(cme.length) h+='<div class="appmeta" style="margin-top:6px">Logged: '+cme.map(function(c){return esc(c.n.split(' — ')[0])+' ('+(c.cr||0)+')';}).join(' · ')+' · <a href="#" onclick="resetCME();return false;">reset</a></div>';
+  h+='</div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose planner — flat mg from the COA (evidence-based)</h3>'+
+     '<div class="grid">'+
+     '<div class="field"><label>Qualifying condition</label><select id="cp_cond" onchange="cplan()"><option>Treatment-resistant depression</option><option>PTSD</option><option>Substance-use disorder</option><option>End-of-life care</option></select></div>'+
+     '<div class="field"><label>Product potency — mg psilocybin / unit (from COA)</label><input id="cp_pot" type="number" value="25" step="0.1" oninput="cplan()"></div>'+
+     '</div>'+
+     '<div class="kv" style="margin:2px 0 6px;color:var(--ink)"><b>Factors:</b><br>'+
+     '<label style="margin-right:12px"><input type="checkbox" id="cp_frail" onchange="cplan()"> fragile / EOL / advanced age</label>'+
+     '<label style="margin-right:12px"><input type="checkbox" id="cp_ad" onchange="cplan()"> continuing antidepressant</label>'+
+     '<label style="margin-right:12px"><input type="checkbox" id="cp_card" onchange="cplan()"> cardiac / QTc</label>'+
+     '<label style="margin-right:12px"><input type="checkbox" id="cp_inter" onchange="cplan()"> interacting meds</label>'+
+     '<label><input type="checkbox" id="cp_psy" onchange="cplan()"> psychosis / bipolar I</label></div>'+
+     '<div id="cpOut" class="card" style="background:#fbfdfd;margin:0"></div>'+
+     '<div class="appmeta" style="margin-top:6px">Decision <b>support</b> only — flat 25 mg anchor individualized on clinical factors, <b>not mg/kg</b>. Evidence: COMPASS <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a> · Raison <a href="https://pubmed.ncbi.nlm.nih.gov/37651119/" target="_blank" rel="noopener">37651119</a> · QTc <a href="https://pubmed.ncbi.nlm.nih.gov/32250059/" target="_blank" rel="noopener">32250059</a>.</div></div>';
+  var apps=loadApps().filter(function(a){return a.type==='patient';});
+  var seeded=[{id:'ENR-7F3K',cond:'Treatment-resistant depression',st:'approved'},{id:'ENR-2A9M',cond:'PTSD',st:'sitevisit'}];
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">My patients — de-identified</h3>'+
+     '<div class="actions" style="margin:0 0 8px"><span class="note">No names shown — enrollment IDs only; §9 reporting is aggregated.</span><button class="btn primary sm" onclick="startApp(\'patient\')">Enroll a patient</button></div>';
+  h+=seeded.map(function(p){return '<div class="approw"><div><b>'+p.id+'</b> <span class="appmeta">'+esc(p.cond)+'</span></div>'+statusChip(p.st)+'</div>';}).join('');
+  h+=apps.map(function(a){return '<div class="approw"><div><b>'+esc(a.id)+'</b> <span class="appmeta">'+esc((a.data&&a.data.condition)||'enrollment')+'</span></div>'+statusChip(a.status)+'</div>';}).join('');
+  h+='</div>';
+  return h;
+}
+function cplan(){
+  var g=function(id){return document.getElementById(id);};
+  if(!g('cp_pot')) return;
+  var frail=g('cp_frail').checked, ad=g('cp_ad').checked, card=g('cp_card').checked, inter=g('cp_inter').checked, psy=g('cp_psy').checked, pot=parseFloat(g('cp_pot').value)||0;
+  var lo=25,hi=25,why=[];
+  if(frail||ad){ lo=10; hi=15; if(frail)why.push('fragile / EOL / age → lower start'); if(ad)why.push('antidepressant-continuation → lower start'); }
+  if(!why.length) why.push('no modifiers → standard 25 mg');
+  var band=(lo===hi)?(lo+' mg'):(lo+'–'+hi+' mg');
+  var qty = pot>0 ? ('<b>'+(lo/pot).toFixed(1)+(lo!==hi?'–'+(hi/pot).toFixed(1):'')+'</b> unit(s) at '+pot+' mg/unit') : 'enter COA potency to compute units';
+  var out='<div style="font-size:22px;font-weight:800;color:'+(psy?'#9a2a1c':'#1c7a4a')+'">'+(psy?'— hold —':band)+'</div><div class="appmeta">suggested starting dose '+(psy?'(exclusion flagged)':'(flat mg, not mg/kg)')+'</div>';
+  out+='<div class="kv" style="margin-top:6px;color:var(--ink)"><b>Why:</b> '+why.join('; ')+'.</div>';
+  out+='<div class="kv" style="color:var(--ink)"><b>Product from COA:</b> '+qty+'.</div>';
+  var flags=[];
+  if(psy) flags.push('EXCLUSION: psychosis / bipolar I history — not appropriate; defer to Patient Qualification &amp; Safety criteria.');
+  if(card) flags.push('Cardiac / QTc screening required before dosing (concentration–QTc, PMID 32250059).');
+  if(inter) flags.push('Reconcile serotonergic / interacting meds (MAOI, lithium, tramadol, triptans, St. John’s Wort) before dosing.');
+  if(ad) flags.push('Serotonergic antidepressant may blunt response — assess a taper plan.');
+  out+=flags.map(function(f){return '<div class="kv" style="color:#9a2a1c"><b>⚠</b> '+f+'</div>';}).join('');
+  g('cpOut').innerHTML=out;
 }
 
 render();
