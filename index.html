@@ -53,12 +53,13 @@
   .cite.or{background:#eef3f6;color:#2b5f86;border-color:#bcd4e6}
   /* gear-shift state selector */
   .shifter{display:flex;flex-direction:column;gap:5px;min-width:240px}
-  .gate{position:relative;height:20px;background:linear-gradient(#0b1b19,#16403b);border:1px solid #08120f;border-radius:12px;box-shadow:inset 0 2px 5px rgba(0,0,0,.55)}
-  .gate .detent{position:absolute;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.14)}
-  .knob{position:absolute;top:50%;left:16.667%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff5df,#e3c074 42%,#a9821f 100%);box-shadow:0 4px 7px rgba(0,0,0,.5),inset 0 -2px 3px rgba(120,80,0,.55),inset 0 2px 3px rgba(255,255,255,.7);transition:left .3s cubic-bezier(.34,1.56,.5,1);z-index:2}
+  .gate{position:relative;height:26px;background:linear-gradient(#0b1b19,#16403b);border:1px solid #08120f;border-radius:13px;box-shadow:inset 0 2px 5px rgba(0,0,0,.55);cursor:pointer}
+  .gate .detent{position:absolute;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.14);pointer-events:none}
+  .knob{position:absolute;top:50%;left:16.667%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff5df,#e3c074 42%,#a9821f 100%);box-shadow:0 4px 7px rgba(0,0,0,.5),inset 0 -2px 3px rgba(120,80,0,.55),inset 0 2px 3px rgba(255,255,255,.7);transition:left .3s cubic-bezier(.34,1.56,.5,1);z-index:2;pointer-events:none}
   .knob::after{content:"";position:absolute;inset:9px;border-radius:50%;border:1.5px solid rgba(120,85,10,.4)}
   .gears{display:flex;gap:4px}
-  .gear{flex:1;appearance:none;border:0;background:transparent;color:#a9c3bf;font-weight:700;font-size:10.5px;line-height:1.1;padding:1px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .gear{flex:1;appearance:none;border:0;background:transparent;color:#a9c3bf;font-weight:700;font-size:10.5px;line-height:1.1;padding:4px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:6px}
+  .gear:hover{background:rgba(255,255,255,.06)}
   .gear b{font-size:11px;background:rgba(255,255,255,.12);border-radius:4px;padding:0 6px;color:#cfe0dd}
   .gear[aria-pressed="true"]{color:#fff}
   .gear[aria-pressed="true"] b{background:#e3c074;color:#17423f}
@@ -227,7 +228,7 @@
   <div class="wrap">
     <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET Software <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
     <div class="shifter" role="group" aria-label="Shift between state programs" title="Shift the gear to switch states">
-      <div class="gate">
+      <div class="gate" onclick="shiftFromGate(event)" title="Click or drag to shift">
         <i class="detent" style="left:16.667%"></i><i class="detent" style="left:50%"></i><i class="detent" style="left:83.333%"></i>
         <div class="knob" id="gearKnob"></div>
       </div>
@@ -410,6 +411,7 @@
     <tr><td class="r">Producer / manufacturer</td><td>P. cubensis only (no synthetic/wild); endorsements cultivation / extraction / edible; LUCS + site inspection · <b>$500 / $10,000 yr</b></td><td>Producer — cultivate, prepare, transfer (7.35.2); first permit: Sacred Alto Spores</td><td>Cultivation / Manufacturing (1 CCR 213-1) ~$8,000</td></tr>
     <tr><td class="r">Service / healing center</td><td>Administration site; ≥1,000 ft from a school; premises + emergency plan · <b>$500 / $10,000 yr</b></td><td>Healing center / approved location incl. home (7.35.3)</td><td>Healing center (micro ~$4,000 → standard), 1 CCR 213-1</td></tr>
     <tr><td class="r">Testing lab</td><td>ORELAP-accredited (TNI 2016); confirm species + potency + solvents · <b>$500 / $10,000 yr</b></td><td>Potency (psilocybin/psilocin mg), microbial, heavy metals, pesticides (7.35.2.19); <b>none permitted yet</b></td><td>Testing (1 CCR 213-1)</td></tr>
+    <tr><td class="r">Worker permit / staff</td><td>Worker permit — any staff at a licensed premises (handle product, records, or client IDs); 21+, background check · <b>$25 / 5-yr term</b></td><td>No standalone permit — staff work under the licensee; provider roles are individually <b>certified</b> (7.35.3)</td><td>Handler license — handle / transport / store (1 CCR 213-1); facilitators licensed via DORA</td></tr>
     <tr><td class="r">Data / tracking</td><td>Product tracking system; ORELAP results entered; OPS complaint process</td><td>Traceability + §9 de-identified outcomes + annual audit (SB219 §9)</td><td>Inventory reporting (8000-series tightening, Nov 4 2026)</td></tr>
     </tbody>
   </table></div>
@@ -744,7 +746,7 @@ const RULEPACKS = {
       {name:"Manufacturer (license)", desc:"Cultivate/process Psilocybe cubensis only (no synthetic/wild); endorsements: cultivation / extraction / edible; LUCS + premises plan + site inspection", cite:"OAR 333-333 · $500 / $10,000 yr"},
       {name:"Service center (license)", desc:"Administration site; ≥1,000 ft from a school; premises + emergency plan", cite:"OAR 333-333 · $500 / $10,000 yr"},
       {name:"Laboratory (license)", desc:"ORELAP-accredited (TNI 2016); confirm species + potency + solvents", cite:"OAR 333-333 · $500 / $10,000 yr"},
-      {name:"Worker permit", desc:"Any employee at a licensed premises handling product or clients; 21+ & background check", cite:"OAR 333-333"}
+      {name:"Worker permit", desc:"Any staff at a licensed premises (handle product, records, or client IDs); 21+, background check; 5-year term", cite:"OAR 333-333 · $25"}
     ],
     eligibility:{gate:"None — adults 21+", detail:"No diagnosis, prescription, or referral. Clients complete at least one preparation session with a licensed facilitator before an administration session at a licensed service center. ~50% fee reductions for veterans, SSI, SNAP, or the Oregon Health Plan.", cite:"ORS 475A / OAR 333-333"},
     conditions:null,
@@ -924,6 +926,7 @@ function render(){
   document.querySelectorAll(".gears .gear").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.state===ACTIVE?"true":"false"); });
 }
 function setState(s){ ACTIVE=s; render(); }
+function shiftFromGate(ev){ var g=ev.currentTarget, r=g.getBoundingClientRect(); var x=(ev.clientX-r.left)/r.width; setState(x<0.3333?'nm':(x<0.6667?'co':'or')); }
 function selPersona(i){
   var p=pack(); if(!p.personas) return; var x=p.personas[i];
   document.querySelectorAll('#personaTiles .ptile').forEach(function(t){t.classList.toggle('sel',+t.dataset.i===i);});

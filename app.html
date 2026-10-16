@@ -105,6 +105,7 @@
       <button data-view="chooser" onclick="go('chooser')">Apply</button>
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
+      <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
   </div>
@@ -224,6 +225,7 @@ function render(){
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
   else if(VIEW==='review') r.innerHTML=renderReview();
   else if(VIEW==='custody') r.innerHTML=renderCustody();
+  else if(VIEW==='reporting') r.innerHTML=renderReporting();
 }
 
 function renderChooser(){
@@ -395,6 +397,34 @@ function administerPkg(lotId,pkgId){
   var c=loadCustody();
   c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='administered'; var eid='ENR-'+Math.random().toString(36).slice(2,6).toUpperCase(); p.events.push('administered → '+eid+' · '+l.psi+' mg dosed'); p.events.push('§9 outcome logged (de-identified)'); } }); });
   saveCustody(c); render();
+}
+
+/* ---------- §9 de-identified reporting (aggregates administered sessions) ---------- */
+function renderReporting(){
+  var c=loadCustody();
+  var sessions=0, totalMg=0, lotsTested=0, byStrain={}, enr={};
+  c.lots.forEach(function(l){
+    if(l.status!=='awaiting-coa') lotsTested++;
+    l.pkgs.forEach(function(p){
+      if(p.status==='administered'){
+        sessions++; var mg=parseFloat(l.psi)||0; totalMg+=mg;
+        if(!byStrain[l.strain]) byStrain[l.strain]={n:0,mg:0}; byStrain[l.strain].n++; byStrain[l.strain].mg+=mg;
+        (p.events||[]).forEach(function(e){ var m=/ENR-[A-Z0-9]+/.exec(e); if(m) enr[m[0]]=1; });
+      }
+    });
+  });
+  var enrollees=Object.keys(enr).length, avg=sessions?(totalMg/sessions).toFixed(1):'—';
+  var h='<h1>§9 de-identified reporting</h1><div class="sub">The annual assessment (SB219 §9): aggregated, <b>de-identified</b> outcomes from administered sessions — no patient identifiers, ever. Feeds the Secretary dashboard. Prototype; local data.</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(sessions,'Sessions')+mchip(enrollees,'Enrollees (de-id)')+mchip(sessions?avg:'—','Avg mg / session')+mchip(totalMg.toFixed(0),'Total mg analyte')+'</div>';
+  if(!sessions){
+    h+='<div class="empty">No administrations recorded yet. Run the <a href="#" onclick="go(\'custody\');return false;">chain-of-custody</a> flow (Record COA → package → transfer → <b>administer</b>) to populate this report.</div>';
+  } else {
+    h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By strain</h3>';
+    h+=Object.keys(byStrain).map(function(s){var b=byStrain[s];return '<div class="approw"><div><b>'+esc(s)+'</b> <span class="appmeta"><i>Psilocybe cubensis</i></span></div><div class="appmeta">'+b.n+' session(s) · '+b.mg.toFixed(0)+' mg total · '+(b.mg/b.n).toFixed(1)+' mg/session</div></div>';}).join('');
+    h+='</div>';
+  }
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">What §9 captures</h3><div class="kv" style="color:var(--ink)">Matching Oregon’s §9 schema at population scale: <b>average mg dose per client per session</b>, number of sessions, de-identified demographics (where collected), and adverse events — reported as an <b>annual assessment</b>, never per patient.</div><div class="appmeta" style="margin-top:6px">Lots tested: <b>'+lotsTested+'</b> · this closes the loop from the COA-verified dose (flat mg) to real-world outcomes — the evidence-based wedge no cannabis tracker has.</div></div>';
+  return h;
 }
 
 /* ---------- dashboard & plain-language compliance coach ---------- */
