@@ -714,7 +714,10 @@ function renderClinician(){
        '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_psy" onchange="qualCheck()"> history of psychosis / bipolar I</label>'+
        '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_preg" onchange="qualCheck()"> pregnant / breastfeeding</label>'+
        '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_card" onchange="qualCheck()"> uncontrolled cardiac / QTc</label>'+
-       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_inter" onchange="qualCheck()"> unmanaged serotonergic / interacting meds</label></div>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_inter" onchange="qualCheck()"> unmanaged serotonergic / interacting meds</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_lith" onchange="qualCheck()"> <b>actively taking lithium</b> (seizure risk)</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_stopped" onchange="qualCheck()"> stopped / tapered a medication before the program</label>'+
+       '<label style="display:inline-block;margin:3px 14px 3px 0"><input type="checkbox" id="qq_noncomp" onchange="qualCheck()"> out of compliance / incomplete med disclosure</label></div>'+
      '<div id="qqOut" class="card" style="background:#fbfdfd;margin:0"></div>'+
      '<div class="note">Hard stops: psychosis / bipolar I, pregnancy. Cardiac / medication flags require management first. Mirrors the dose aid&rsquo;s contraindication checks.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">My patients — de-identified</h3>'+
@@ -752,15 +755,15 @@ function cplan(){
 function qualCheck(){
   var g=function(id){var e=document.getElementById(id);return e?e.checked:false;};
   var cs=document.getElementById('qq_cond'); if(!cs) return;
-  var cond=cs.value, psy=g('qq_psy'),preg=g('qq_preg'),card=g('qq_card'),inter=g('qq_inter'),reg=g('qq_cs'),exam=g('qq_exam');
+  var cond=cs.value, psy=g('qq_psy'),preg=g('qq_preg'),lith=g('qq_lith'),card=g('qq_card'),inter=g('qq_inter'),stopped=g('qq_stopped'),noncomp=g('qq_noncomp'),reg=g('qq_cs'),exam=g('qq_exam');
   var verdict,color,why=[];
-  if(psy||preg){ verdict='EXCLUDED'; color='#9a2a1c'; if(psy)why.push('history of psychosis / bipolar I — contraindicated'); if(preg)why.push('pregnant / breastfeeding — exclude'); }
-  else if(card||inter){ verdict='NEEDS REVIEW'; color='#8a5f18'; if(card)why.push('cardiac / QTc concern — ECG + cardiology input before dosing'); if(inter)why.push('serotonergic / interacting meds — reconcile or taper plan before dosing'); }
+  if(psy||preg||lith){ verdict='EXCLUDED'; color='#9a2a1c'; if(psy)why.push('history of psychosis / bipolar I — contraindicated'); if(preg)why.push('pregnant / breastfeeding — exclude'); if(lith)why.push('<b>actively taking lithium — seizure risk; do not administer</b>'); }
+  else if(card||inter||stopped||noncomp){ verdict='NEEDS REVIEW'; color='#8a5f18'; if(card)why.push('cardiac / QTc — ECG + cardiology input before dosing'); if(inter)why.push('serotonergic / interacting meds — reconcile or taper plan'); if(stopped)why.push('stopped / tapered a medication before the program — confirm it was <b>clinician-guided &amp; safe</b>; record what &amp; when'); if(noncomp)why.push('out of compliance / incomplete medication disclosure — resolve before dosing'); }
   else if(!reg||!exam){ verdict='INCOMPLETE'; color='#8a5f18'; if(!reg)why.push('certifying-clinician NM controlled-substances registration not confirmed'); if(!exam)why.push('exam pathway not complete'); }
   else { verdict='QUALIFIES'; color='#1c7a4a'; why.push(esc(cond)+' + clinician + exam confirmed; no exclusions flagged'); }
   var out='<div style="font-size:20px;font-weight:800;color:'+color+'">'+verdict+'</div>'+
     '<div class="kv" style="margin-top:4px;color:var(--ink)">'+why.map(function(w){return '• '+w;}).join('<br>')+'</div>'+
-    '<div class="note">Decision <b>support</b> — the certifying clinician makes the determination and logs it to the <b>Patient Qualification &amp; Safety</b> committee.</div>';
+    '<div class="note">Decision <b>support</b> — the certifying clinician decides &amp; logs to <b>Patient Qualification &amp; Safety</b>. Medication-change &amp; compliance status are captured so an adverse event can be correctly <b>attributed</b> (stopped a med vs out of compliance vs unrelated). If a session proceeds despite a flag, document it and log an <b>override</b> in the AE tracker.</div>';
   document.getElementById('qqOut').innerHTML=out;
 }
 
@@ -943,14 +946,21 @@ function renderResearch(){
 function loadIRB(){ try{ return JSON.parse(localStorage.getItem('parakeet_irb_v1')||'null'); }catch(e){ return null; } }
 function saveIRB(){ var p=document.getElementById('irb_no'); var v=p?p.value.trim():''; try{ localStorage.setItem('parakeet_irb_v1', v?JSON.stringify({no:v,at:new Date().toISOString()}):'null'); }catch(e){} render(); }
 function clearIRB(){ try{ localStorage.removeItem('parakeet_irb_v1'); }catch(e){} render(); }
+function loadAE(){ try{ return JSON.parse(localStorage.getItem('parakeet_ae_v1')||'[]'); }catch(e){ return []; } }
+function saveAE(a){ try{ localStorage.setItem('parakeet_ae_v1', JSON.stringify(a)); }catch(e){} }
+function recordAE(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
+  var rec={enr:g('ae_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), sev:g('ae_sev'), cat:g('ae_cat'), onset:g('ae_onset'), rel:g('ae_rel'), action:g('ae_action'), note:g('ae_note'), at:new Date().toISOString()};
+  var a=loadAE(); a.unshift(rec); saveAE(a); render(); }
+function resetAE(){ try{ localStorage.removeItem('parakeet_ae_v1'); }catch(e){} render(); }
 function renderSafety(){
   var S=loadSessions(), C=loadCustody();
   var mild=S.filter(function(s){return s.adverse_event==='mild';}).length;
   var serious=S.filter(function(s){return s.adverse_event==='serious';}).length;
   var optin=S.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}).length;
   var recalls=C.lots.filter(function(l){return l.recalled;});
+  var AE=loadAE(), aeSerious=AE.filter(function(x){return x.sev==='Serious';}).length;
   var h='<h1>⚠ Safety, ethics &amp; data governance</h1><div class="sub">Adverse-event monitoring, product recall, bioethics safeguards, and HIPAA-grade data handling. Prototype; local data.</div>';
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(mild,'Mild AEs')+mchip(serious,'Serious AEs')+mchip(recalls.length,'Recalled batches')+mchip(optin+' / '+S.length,'Opted into research')+'</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(AE.length,'AE reports logged')+mchip(aeSerious,'Serious AE reports')+mchip(recalls.length,'Recalled batches')+mchip(optin+' / '+S.length,'Opted into research')+'</div>';
   h+='<div class="card">';
   if(serious>0) h+='<div style="background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:6px;padding:7px 10px;margin-bottom:8px;font-weight:600">⚠ SIGNAL — '+serious+' serious adverse event(s) flagged for review and possible action.</div>';
   h+='<h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Adverse-event monitoring</h3>'+
@@ -958,6 +968,23 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Pathway &amp; timelines:</b> captured on the session record → <b>serious within 24h</b>, other <b>within 72h</b> → DOH / committee review queue.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Signal detection:</b> reviewed <b>weekly</b>; triggers → update <b>exclusion criteria</b>, <b>pull a batch</b> (recall), or issue <b>contraindication alerts</b>.</div>'+
      '<div class="note">Feeds the <b>Patient Qualification &amp; Safety</b> committee → exclusion / contraindication rules.</div></div>';
+  h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Report &amp; track an adverse event</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">De-identified AE reporting — <b>tracked, collected, and adjudicated for relatedness</b>, then fed to the weekly signal review. AEs are often <b>patient-reported / subjective</b>; capture everything, then classify relatedness (a serious medical event — e.g., appendicitis — may be <b>unrelated</b>). Also log when a session <b>proceeded despite a red flag</b>.</div>'+
+     '<div class="grid">'+
+       '<div class="field"><label>Enrollment ID (de-id)</label><input id="ae_enr" placeholder="auto if blank"></div>'+
+       '<div class="field"><label>Severity</label><select id="ae_sev"><option>Mild</option><option>Moderate</option><option>Serious</option></select></div>'+
+       '<div class="field"><label>Category</label><select id="ae_cat"><option>Prolonged psychological distress</option><option>Anxiety / panic</option><option>Cardiac / QTc</option><option>Prolonged perceptual effects (HPPD)</option><option>Suicidality</option><option>Proceeded despite a red flag / contraindication</option><option>Other medical</option></select></div>'+
+       '<div class="field"><label>Onset</label><select id="ae_onset"><option>During administration</option><option>Within 24 h</option><option>24–72 h</option><option>&gt;72 h</option></select></div>'+
+       '<div class="field"><label>Relatedness</label><select id="ae_rel"><option>Related</option><option>Possibly related</option><option>Unrelated</option></select></div>'+
+       '<div class="field"><label>Action taken</label><select id="ae_action"><option>Monitored on site</option><option>Medical attention</option><option>Emergency department</option><option>Exclusion-criteria update</option><option>Batch recall</option></select></div>'+
+     '</div>'+
+     '<div class="field"><label>Note (no PII)</label><input id="ae_note" placeholder="brief, de-identified"></div>'+
+     '<div class="actions"><span class="note">Serious → report within 24 h; other → 72 h. Subjective/patient-reported AEs still count.</span><button class="btn primary" onclick="recordAE()">Log adverse event</button></div></div>';
+  if(AE.length){
+    h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Adverse-event log ('+AE.length+')</h3>'+
+      AE.map(function(x){var scl=x.sev==='Serious'?'s-denied':(x.sev==='Moderate'?'s-submitted':'s-approved');return '<div class="approw"><div><b>'+esc(x.cat)+'</b> <span class="appmeta">'+esc(x.enr)+' · '+esc(x.onset)+' · '+esc(x.rel)+'</span><div class="appmeta">action: '+esc(x.action)+(x.note?' · '+esc(x.note):'')+'</div></div><span class="status '+scl+'">'+esc(x.sev)+'</span></div>';}).join('')+
+      '<div class="appmeta" style="margin-top:6px">Reviewed weekly for signals; relatedness adjudicated before attribution · <a href="#" onclick="resetAE();return false;">reset</a></div></div>';
+  }
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Product recall log</h3>';
   if(recalls.length){ h+=recalls.map(function(l){ var pulled=l.pkgs.filter(function(p){return p.status==='recalled';}).length; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">reason: '+esc(l.recallReason||'safety')+' · '+pulled+' package(s) pulled</div></div><span class="status s-denied">Recalled</span></div>';}).join(''); }
   else h+='<div class="appmeta">No recalls. Recall a batch from <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> when a lab fails (microbial / heavy-metals / pesticide) or a safety signal arises.</div>';
@@ -974,7 +1001,7 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Corroborated by an RCT &amp; on repeat dosing:</b> a randomized trial of group psilocybin-assisted psychotherapy in frontline clinicians logged <b>no serious AEs</b> (12 Grade 1&ndash;2; Lewis et al. 2025, PLOS Medicine); and a Phase 1 study of a <b>second</b> group psilocybin experience with an optional <b>safety-checked 10&nbsp;mg booster</b> had <b>no serious AEs</b> (only transient hypertension) and <b>no rise in challenging experiences</b> — supporting Oregon&rsquo;s booster rule.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Monitoring checklist</b> from that protocol: <b>C-SSRS</b> (Columbia suicide-severity) screen at every visit · <b>Challenging Experiences Questionnaire</b> after dosing · <b>vitals every 30 min for 2 h, then hourly</b> (hypertension was the most common adverse event) · a <b>Data Safety Monitor</b> reviewing events in real time.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Group-specific safeguards:</b> size the group by indication (PTSD may need smaller groups than end-of-life/anxiety), keep a safe clinician-to-patient ratio, <b>one guide per patient during administration</b>, homogeneous cohorts to build trust, and a touch/boundary policy agreed <i>before</i> the altered state.</div>'+
-     '<div class="kv" style="color:var(--ink)"><b>How the dose is set &amp; supervised (Oregon model — OAR 333-333-5020 / 7040):</b> dose = <b>mg of psilocybin analyte from the COA</b> (lab potency test — <b>not strain or grams</b>), booster doses counted in the cumulative total, <b>50 mg hard cap</b>. Supervision scales to the dose; the largest dose in the group sets the required ratio:</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>How the dose is set &amp; supervised (Oregon model — OAR 333-333-5230 / 7040):</b> dose = <b>mg of psilocybin analyte from the COA</b> (lab potency test — <b>not strain or grams</b>), booster doses counted in the cumulative total, <b>50 mg hard cap</b>. Supervision scales to the dose; the largest dose in the group sets the required ratio:</div>'+
      '<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:360px;margin:4px 0"><thead><tr><th style="background:#a2432f;color:#fff;padding:5px 8px;text-align:left">Dose (mg analyte, incl. boosters)</th><th style="background:#a2432f;color:#fff;padding:5px 8px;text-align:center">Min facilitator : client</th></tr></thead><tbody>'+
      ['<5 mg|1 : 25','5 – <10 mg|1 : 15','10 – <15 mg|1 : 8','15 – <25 mg|1 : 6','25 – <35 mg (covers the 25 mg dose)|1 : 4','35 – 50 mg|1 : 2'].map(function(r,i){var p=r.split('|');var bg=i===4?' style="background:#faf3e3"':'';var b=i===4?['<b>','</b>']:['',''];return '<tr'+bg+'><td style="border:1px solid #e6c3ba;padding:4px 8px">'+b[0]+esc(p[0])+b[1]+'</td><td style="border:1px solid #e6c3ba;padding:4px 8px;text-align:center">'+b[0]+esc(p[1])+b[1]+'</td></tr>';}).join('')+
      '</tbody></table></div>'+
