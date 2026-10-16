@@ -763,6 +763,18 @@ function renderResearch(){
     '<div class="kv" style="color:var(--ink)"><b>Open dose-science questions</b> — current best practices here may require future revision:</div>'+
     '<ul style="margin:2px 0 0;padding-left:16px;font-size:12.5px">'+OPEN_QS.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul>'+
     '<div class="note">Citations: dose-response (PMID 36322843) · strain variability &gt;7.8× (doi 10.3390/jof12070486) · minor alkaloids (Sherwood 2020, doi 10.1021/acs.jnatprod.9b01061).</div></div>';
+  var FRAMEWORK=[
+    {a:"1 · Core dataset", s:"§9 session capture — minimum data set, standardized mg from the COA", v:"reporting"},
+    {a:"2 · Outcome measurement", s:"Instruments per condition, short→long-term timepoints, novel metrics", v:"reporting"},
+    {a:"3 · Safety / AE monitoring", s:"AE reporting + signal detection + product recall", v:"safety"},
+    {a:"4 · Data governance & privacy", s:"HIPAA, de-identification, opt-in/opt-out consent, CARE/OCAP", v:"safety"},
+    {a:"5 · Research ethics (IRB)", s:"QI-vs-research gate; IRB recorded before research use", v:"research"},
+    {a:"6 · Evidence appraisal & cadence", s:"Continuous-improvement engine; open dose-science register", v:"research"},
+    {a:"7 · Equity & access", s:"Equity Fund tracker, disparities, rural toolkit, cross-state", v:"equity"}
+  ];
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Research & Continuous Improvement framework — where each piece lives</h3>'+
+    FRAMEWORK.map(function(f){return '<div class="approw"><div><b>'+esc(f.a)+'</b> <span class="appmeta">'+esc(f.s)+'</span></div><button class="btn sm" onclick="go(\''+f.v+'\')">Open</button></div>';}).join('')+
+    '<div class="note">The committee’s seven core questions, each operationalized in the software — capture &rarr; safeguard &rarr; analyze &rarr; improve.</div></div>';
   return h;
 }
 
@@ -834,6 +846,18 @@ function renderEquity(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Access &amp; disparities</h3>'+
     '<div class="kv" style="color:var(--ink)">Track program reach against New Mexico: roughly <b>~50% Hispanic/Latino, ~11% Native American, ~1/4 rural</b> (US Census, approx). Representation below these shares signals an <b>access barrier</b> to address.</div>'+
     '<div class="note">Also watch: income mix, wait times, no-show / completion by region, and distance to the nearest healing center.</div></div>';
+  var EQUITY_XSTATE=[
+    {k:"State patient-subsidy fund", nm:"YES — $630K Treatment Equity Fund (therapy · product · transport)", or:"No (board recommended % of revenue; not funded)", co:"No"},
+    {k:"Nonprofit access fund", nm:"—", or:"Sheri Eckert Foundation — Psilocybin Access Fund", co:"—"},
+    {k:"Licensee fee reductions", nm:"Set by DOH rule (TBD)", or:"50% (veterans / SSI / SNAP / Medicaid)", co:"Varies (DOR / DORA)"},
+    {k:"Out-of-pocket / session", nm:"TBD — fund can offset", or:"~$1,000–$2,000+ (uninsured)", co:"Market (uninsured)"},
+    {k:"Who it reaches (observed)", nm:"Goal: low-income + rural", or:"Skews wealthier than population", co:"Early / limited data"},
+    {k:"Rural strategy", nm:"Telehealth cert + home (EOL) + transport fund", or:"Limited; cost-driven", co:"Limited"},
+    {k:"Group administration", nm:"Under consideration (lowers cost)", or:"Allowed (~14% of sessions)", co:"Per rule"}
+  ];
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Cross-state equity comparison</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px"><thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left;font-size:10.5px;text-transform:uppercase">Dimension</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">New Mexico</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Oregon</th><th style="background:#2b6f6a;color:#fff;padding:6px 8px;text-align:left">Colorado</th></tr></thead><tbody>'+
+    EQUITY_XSTATE.map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:18%">'+esc(r.k)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+esc(r.nm)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+esc(r.or)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+esc(r.co)+'</td></tr>';}).join('')+
+    '</tbody></table></div><div class="note">NM is the only state with a <b>patient-subsidy fund</b>; Oregon leans on a nonprofit + licensee fee cuts, and its clients still skew wealthier — a warning to measure <b>reach</b>, not just intent.</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Rural access toolkit — so geography does not block care</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
     '<li><b>Telemedicine-anchored certification</b> — the certifying clinician may use telehealth (with in-person ≤6 mo) to cut travel.</li>'+
     '<li><b>Other approved location</b>, including the patient’s <b>home</b> for end-of-life — care comes to them.</li>'+
