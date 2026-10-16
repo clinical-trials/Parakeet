@@ -109,6 +109,7 @@
       <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
       <button data-view="research" onclick="go('research')">Research</button>
       <button data-view="safety" onclick="go('safety')">Safety</button>
+      <button data-view="equity" onclick="go('equity')">Equity</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
   </div>
@@ -231,6 +232,7 @@ function render(){
   else if(VIEW==='custody') r.innerHTML=renderCustody();
   else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); }
   else if(VIEW==='safety') r.innerHTML=renderSafety();
+  else if(VIEW==='equity') r.innerHTML=renderEquity();
   else if(VIEW==='research') r.innerHTML=renderResearch();
 }
 
@@ -798,6 +800,49 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Access:</b> aggregated §9 → DOH / Secretary dashboard; identifiable data → the treating clinician only (role-based, least-privilege, audit-logged).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Consent boundary:</b> the <b>minimal §9 report is mandatory</b>; any <b>secondary research use is opt-in and IRB-gated</b> — minimal reporting by default, opt in for research ('+optin+' of '+S.length+' opted in).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>HIPAA posture:</b> encryption in transit &amp; at rest, MFA + role-based access, immutable audit logs, BAAs; target HITRUST CSF + StateRAMP (roadmap).</div></div>';
+  return h;
+}
+
+/* ---------- equity & access ---------- */
+var FUND_TOTAL=630000;
+function loadEquity(){ try{ return JSON.parse(localStorage.getItem('parakeet_equity_v1')||'[]'); }catch(e){ return []; } }
+function saveEquity(a){ try{ localStorage.setItem('parakeet_equity_v1', JSON.stringify(a)); }catch(e){} }
+function resetEquity(){ try{ localStorage.removeItem('parakeet_equity_v1'); }catch(e){} render(); }
+function recordAward(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  var rec={ enr:g('eq_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), amount:parseFloat(g('eq_amt'))||0, use:g('eq_use'), region:g('eq_region'), population:g('eq_pop'), at:new Date().toISOString() };
+  var a=loadEquity(); a.unshift(rec); saveEquity(a); render();
+}
+function renderEquity(){
+  var A=loadEquity();
+  var disbursed=A.reduce(function(s,x){return s+(+x.amount||0);},0);
+  var remaining=FUND_TOTAL-disbursed;
+  var enr={}; A.forEach(function(x){ if(x.enr) enr[x.enr]=1; });
+  var rural=A.filter(function(x){return x.region==='Rural'||x.region==='Frontier'||x.region==='Tribal land';}).length;
+  var byUse={}; A.forEach(function(x){ byUse[x.use]=(byUse[x.use]||0)+(+x.amount||0); });
+  var h='<h1>🌎 Equity &amp; Access</h1><div class="sub">Make sure every New Mexican can reach the program — track the Treatment Equity Fund, surface disparities, and remove rural barriers so geography does not decide who gets care. Prototype; local data.</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(Object.keys(enr).length,'Patients funded')+mchip('$'+disbursed.toLocaleString(),'Disbursed')+mchip('$'+remaining.toLocaleString(),'Remaining')+mchip(A.length?Math.round(rural/A.length*100)+'%':'—','Rural / frontier')+'</div>';
+  h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><b>🪙 Medical Psilocybin Treatment Equity Fund</b> — <b>$630,000</b> (HB2, 2026; state treasury). Can cover <b>therapy sessions, the psilocybin product, and transportation</b> for low-income &amp; rural patients. <b>Income thresholds set by DOH</b> (not yet public). <span class="appmeta">Small relative to need — tracking utilization builds the case to grow it.</span></div>';
+  h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">Record a fund award</h3><div class="grid">'+
+    '<div class="field"><label>Enrollment ID (de-id)</label><input id="eq_enr" placeholder="auto if blank"></div>'+
+    '<div class="field"><label>Amount ($)</label><input id="eq_amt" type="number" placeholder="e.g. 1200"></div>'+
+    '<div class="field"><label>Use</label><select id="eq_use"><option>Therapy sessions</option><option>Psilocybin product</option><option>Transportation</option><option>Multiple</option></select></div>'+
+    '<div class="field"><label>Region</label><select id="eq_region"><option>Urban</option><option>Rural</option><option>Frontier</option><option>Tribal land</option></select></div>'+
+    '<div class="field"><label>Population (self-identified)</label><select id="eq_pop"><option>Hispanic / Latino</option><option>Native American</option><option>White</option><option>Other</option><option>Prefer not to say</option></select></div>'+
+    '</div><div class="actions"><span class="note">De-identified — tracks who the fund actually reaches.</span><button class="btn primary" onclick="recordAward()">Record award</button></div></div>';
+  if(A.length){ h+='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">By use</h3>'+Object.keys(byUse).map(function(u){return '<div class="approw"><div><b>'+esc(u)+'</b></div><div class="appmeta">$'+byUse[u].toLocaleString()+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetEquity();return false;">reset</a></div></div>'; }
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Access &amp; disparities</h3>'+
+    '<div class="kv" style="color:var(--ink)">Track program reach against New Mexico: roughly <b>~50% Hispanic/Latino, ~11% Native American, ~1/4 rural</b> (US Census, approx). Representation below these shares signals an <b>access barrier</b> to address.</div>'+
+    '<div class="note">Also watch: income mix, wait times, no-show / completion by region, and distance to the nearest healing center.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Rural access toolkit — so geography does not block care</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
+    '<li><b>Telemedicine-anchored certification</b> — the certifying clinician may use telehealth (with in-person ≤6 mo) to cut travel.</li>'+
+    '<li><b>Other approved location</b>, including the patient’s <b>home</b> for end-of-life — care comes to them.</li>'+
+    '<li><b>Fund-covered transportation</b> to a healing center.</li>'+
+    '<li><b>Traveling / mobile facilitators</b> and telehealth <b>preparation &amp; integration</b> sessions.</li>'+
+    '</ul></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Follow-up on the fund</h3>'+
+    '<div class="kv" style="color:var(--ink)">DOH is still setting the <b>income criteria and application process</b> — contact <b>medical.psilocybin@doh.nm.gov</b>. Statutory basis: SB219 + HB2 (2026).</div>'+
+    '<div class="note">Reportable to the <b>Equity, Access &amp; Cultural</b> committee: patients funded, $ per patient, geographic &amp; population reach, and outcomes by group — the evidence the fund works (or needs to grow).</div></div>';
   return h;
 }
 
