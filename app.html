@@ -106,6 +106,7 @@
       <button data-view="chooser" onclick="go('chooser')">Apply</button>
       <button data-view="myapps" onclick="go('myapps')">My applications</button>
       <button data-view="custody" onclick="go('custody')">Chain-of-custody</button>
+      <button data-view="lab" onclick="go('lab')">Testing labs</button>
       <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
       <button data-view="research" onclick="go('research')">Research</button>
       <button data-view="safety" onclick="go('safety')">Safety</button>
@@ -230,6 +231,7 @@ function render(){
   else if(VIEW==='myapps') r.innerHTML=renderMyApps();
   else if(VIEW==='review') r.innerHTML=renderReview();
   else if(VIEW==='custody') r.innerHTML=renderCustody();
+  else if(VIEW==='lab') r.innerHTML=renderLab();
   else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); }
   else if(VIEW==='safety') r.innerHTML=renderSafety();
   else if(VIEW==='equity'){ r.innerHTML=renderEquity(); fscalc(); }
@@ -613,6 +615,11 @@ function renderClinician(){
      '<label><input type="checkbox" id="cp_psy" onchange="cplan()"> psychosis / bipolar I</label></div>'+
      '<div id="cpOut" class="card" style="background:#fbfdfd;margin:0"></div>'+
      '<div class="appmeta" style="margin-top:6px">Decision <b>support</b> only — flat 25 mg anchor individualized on clinical factors, <b>not mg/kg</b>. Evidence: COMPASS <a href="https://pubmed.ncbi.nlm.nih.gov/36322843/" target="_blank" rel="noopener">PMID 36322843</a> · Raison <a href="https://pubmed.ncbi.nlm.nih.gov/37651119/" target="_blank" rel="noopener">37651119</a> · QTc <a href="https://pubmed.ncbi.nlm.nih.gov/32250059/" target="_blank" rel="noopener">32250059</a>.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Why group administration works — therapeutic factors (mechanism)</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>Not just cheaper — potentially better:</b> group delivery can add therapeutic value through <b>Yalom&rsquo;s group factors</b> — universality (reduces shame/isolation), instillation of hope, cohesion, and interpersonal learning — which psychedelics may amplify (<i>Can psychedelics enhance group psychotherapy?</i>, J Psychopharmacology 2023).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>RCT-grade signal:</b> group psilocybin-assisted psychotherapy + MBSR beat MBSR alone for clinician depression (QIDS between-groups <b>4.6, p=0.008</b>) with <b>12 Grade 1&ndash;2 AEs and no serious AEs</b> — Lewis et al. 2025 (PLOS Medicine).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Scalable, rural-friendly delivery:</b> hybrid <b>virtual communities-of-practice</b> (weekly resilience groups) + one in-person session is feasible (Allard &amp; Dames 2026). A <b>New Mexico</b> community-engaged implementation study is already aligned to the state program&rsquo;s access &amp; equity aims (Nayo-Washington, Marseille et al. 2026).</div>'+
+     '<div class="note">Group is an <b>option, not a requirement</b> — see the <a href="#" onclick="go(\'safety\');return false;">Safety</a> tab for the dose-scaled facilitator ratios and the monitoring protocol.</div></div>';
   var apps=loadApps().filter(function(a){return a.type==='patient';});
   var seeded=[{id:'ENR-7F3K',cond:'Treatment-resistant depression',st:'approved'},{id:'ENR-2A9M',cond:'PTSD',st:'sitevisit'}];
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">My patients — de-identified</h3>'+
@@ -816,6 +823,7 @@ function renderSafety(){
      '<div class="note">These safeguards apply <b>at every step</b> — preparation, administration, integration, and every data touch — logged with the session and surfaced to the Education &amp; Training and Patient Qualification &amp; Safety committees.</div></div>';
   h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Group-session safety protocol (if group administration is used)</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>It can be done safely:</b> the first modern psilocybin <b>group</b> trial reported <b>zero psilocybin-attributable serious adverse reactions</b>, <b>95% group attendance</b>, and no increase in suicidality — Anderson et al. 2020 (<a href="https://doi.org/10.1016/j.eclinm.2020.100538" target="_blank" rel="noopener">EClinicalMedicine 27:100538</a>).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Corroborated by an RCT &amp; on repeat dosing:</b> a randomized trial of group psilocybin-assisted psychotherapy in frontline clinicians logged <b>no serious AEs</b> (12 Grade 1&ndash;2; Lewis et al. 2025, PLOS Medicine); and a Phase 1 study of a <b>second</b> group psilocybin experience with an optional <b>safety-checked 10&nbsp;mg booster</b> had <b>no serious AEs</b> (only transient hypertension) and <b>no rise in challenging experiences</b> — supporting Oregon&rsquo;s booster rule.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Monitoring checklist</b> from that protocol: <b>C-SSRS</b> (Columbia suicide-severity) screen at every visit · <b>Challenging Experiences Questionnaire</b> after dosing · <b>vitals every 30 min for 2 h, then hourly</b> (hypertension was the most common adverse event) · a <b>Data Safety Monitor</b> reviewing events in real time.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Group-specific safeguards:</b> size the group by indication (PTSD may need smaller groups than end-of-life/anxiety), keep a safe clinician-to-patient ratio, <b>one guide per patient during administration</b>, homogeneous cohorts to build trust, and a touch/boundary policy agreed <i>before</i> the altered state.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>How the dose is set &amp; supervised (Oregon model — OAR 333-333-5020 / 7040):</b> dose = <b>mg of psilocybin analyte from the COA</b> (lab potency test — <b>not strain or grams</b>), booster doses counted in the cumulative total, <b>50 mg hard cap</b>. Supervision scales to the dose; the largest dose in the group sets the required ratio:</div>'+
@@ -922,6 +930,50 @@ function renderEquity(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Follow-up on the fund</h3>'+
     '<div class="kv" style="color:var(--ink)">DOH is still setting the <b>income criteria and application process</b> — contact <b>medical.psilocybin@doh.nm.gov</b>. Statutory basis: SB219 + HB2 (2026).</div>'+
     '<div class="note">Reportable to the <b>Equity, Access &amp; Cultural</b> committee: patients funded, $ per patient, geographic &amp; population reach, and outcomes by group — the evidence the fund works (or needs to grow).</div></div>';
+  return h;
+}
+
+function renderLab(){
+  var LABS=[
+    {n:'Rio Grande Analytics', c:'Albuquerque'},
+    {n:'Rio Grande Analytics', c:'Las Cruces'},
+    {n:'Cristo Clear Analytics', c:'Sunland Park'},
+    {n:'Scepter Labs', c:'Santa Fe'},
+    {n:'Pree Laboratories NM', c:'Las Cruces'},
+    {n:'Argon Labs', c:'Albuquerque'},
+    {n:'Scissortail Laboratory', c:'Albuquerque'}
+  ];
+  var PANEL=[
+    {t:'Potency', d:'Psilocybin + psilocin, quantified in mg — the COA value that sets the dose'},
+    {t:'Microbial contaminants', d:'Pathogens / total counts — patient-safety screen'},
+    {t:'Heavy metals', d:'Mushrooms bioaccumulate metals — a real contamination route'},
+    {t:'Pesticides', d:'Residue screen on substrate &amp; inputs'}
+  ];
+  var h='<h1>🧪 Testing labs — the program&rsquo;s critical path</h1><div class="sub">No certified lab → no COA → no product can transfer to a patient → the program cannot start. This is the gating step right now. Prototype; public-source data, verify before relying.</div>';
+  h+='<div class="card" style="border-left:4px solid #b4452f;background:#fbf1ef;border-color:#e6c3ba"><b style="color:#a2432f">⚑ Status (Oct 2026):</b> NM has <b>no certified psilocybin testing lab yet</b>. Testing-lab applications opened <b>~Oct 5, 2026</b> and are moving <b>slowly</b>; DOH has approved <b>1 of 5</b> producer applicants (Sacred Alto Spores). The program can start on a minimum of <b>1 producer + 1 testing lab + 3 provider categories</b> (certifying clinician, practitioner, facilitator) — but with no lab certified, the <b>Dec 2026</b> first-patient target is at risk. <span class="appmeta">Sources: Santa Fe Reporter &amp; Source New Mexico (Oct 2026); confirm on nmhealth.org.</span></div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip('0','Certified psilocybin labs')+mchip('7','NM cannabis labs (candidate)')+mchip('4','Required test panels')+mchip('1 / 5','Producers approved')+'</div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Required test panel — 7.35.2.19 NMAC (per batch, before transfer)</h3>'+
+    PANEL.map(function(p){return '<div class="approw"><div><b>'+esc(p.t)+'</b></div><div class="appmeta" style="max-width:66%;text-align:right">'+p.d+'</div></div>';}).join('')+
+    '<div class="note">NM&rsquo;s panel is <b>broader than Oregon&rsquo;s</b> (OR = species + potency + solvents). Every result is carried on the <b>COA</b> and travels with the batch in <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a>.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">How the dose is calculated — from the COA, not the strain</h3>'+
+    '<div class="kv" style="color:var(--ink)">Dose = <b>mg of psilocybin + psilocin analyte measured by the lab</b> (potency test), printed on the label / COA — <b>not grams of mushroom, not the strain name, not &ldquo;total potential psilocin.&rdquo;</b> Strain potency varies <b>&gt;7.8&times;</b>, so only the lab-measured mg is reproducible; booster doses count toward the cumulative total. <span class="appmeta">Oregon operationalizes the same rule (OAR 333-333-7040).</span></div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Candidate labs — the fast path to a first COA</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">DOH planning documents name three routes to a certified psilocybin lab: an <b>existing cannabis testing lab</b>, an <b>ISO/IEC 17025-accredited</b> lab, or a lab <b>approved / overseen by the Department</b>. NM already licenses <b>7 cannabis testing lab locations (6 companies)</b> — the realistic near-term pool if the rule recognizes them:</div>';
+  h+=LABS.map(function(l){return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span></div><span class="status s-submitted">Candidate — not yet psilocybin-certified</span></div>';}).join('');
+  h+='<div class="note"><b>ISO/IEC 17025</b> = the international standard for testing-lab competence. Source: NM RLD Cannabis Control Division approved-testing-labs list (Oct 2026); psilocybin certification scope must still be established under 7.35.2.</div></div>';
+  h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">How to unblock it faster (for DOH &amp; the committee)</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
+    '<li><b>Recognize existing accreditation:</b> accept <b>ISO/IEC 17025</b> scope or an active <b>NM cannabis lab</b> license as the backbone, adding only psilocybin-specific method validation.</li>'+
+    '<li><b>Provisional / conditional certification</b> + <b>expedited review</b> so one qualified lab can issue COAs while full certification completes.</li>'+
+    '<li><b>In-state capacity is the gate:</b> psilocybin is federally Schedule I, so samples <b>cannot be shipped across state lines</b> to an Oregon or Colorado lab — NM must certify its own.</li>'+
+    '<li><b>One lab is enough to start</b> (per DOH) — prioritize method validation for the 7.35.2.19 panel at one or two candidate labs.</li>'+
+    '</ul></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Lab certification readiness — what a lab needs</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
+    '<li>ISO/IEC 17025 scope (or equivalent DOH-recognized competence).</li>'+
+    '<li><b>Validated methods</b> for psilocybin + psilocin potency, microbials, heavy metals, pesticides.</li>'+
+    '<li>Reference standards + <b>inter-lab proficiency testing</b> (comparability across labs).</li>'+
+    '<li>Chain-of-custody + LIMS to issue a COA tied to the batch / lot / package ID.</li>'+
+    '<li>Controlled-substance handling &amp; secure storage for Schedule I material.</li>'+
+    '</ul><div class="note">Feeds <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a>: a certified lab records the COA → the batch becomes transferable → administration → §9.</div></div>';
   return h;
 }
 
