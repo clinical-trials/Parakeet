@@ -277,7 +277,7 @@ function render(){
   else if(VIEW==='review') r.innerHTML=renderReview();
   else if(VIEW==='custody') r.innerHTML=renderCustody();
   else if(VIEW==='lab') r.innerHTML=renderLab();
-  else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); }
+  else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); pickMeasure(); }
   else if(VIEW==='safety') r.innerHTML=renderSafety();
   else if(VIEW==='equity'){ r.innerHTML=renderEquity(); fscalc(); }
   else if(VIEW==='research') r.innerHTML=renderResearch();
@@ -489,6 +489,43 @@ function recordSession(){
   var rec={enrollment_id:g('s_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), session_type:g('s_type'), condition:g('s_cond'), age_band:g('s_age'), sex_region:g('s_region'), mg_analyte:parseFloat(g('s_mg'))||0, dose_number:g('s_dose'), instrument:g('s_instr'), base:g('s_base'), fu:g('s_fu'), timepoint:g('s_tp'), adverse_event:g('s_ae'), tribal:g('s_tribal'), consent:g('s_consent'), at:new Date().toISOString()};
   var a=loadSessions(); a.unshift(rec); saveSessions(a); render();
 }
+/* ---------- validated instruments (public-domain) as iPad-friendly questionnaires ---------- */
+var SC03=[['0','Not at all'],['1','Several days'],['2','More than half the days'],['3','Nearly every day']];
+var MEASURES={
+  'PHQ-9':{cond:'Depression', pd:'PHQ-9 — public domain (Pfizer); free to use', prompt:'Over the last 2 weeks, how often have you been bothered by any of the following problems?', scale:SC03, max:27,
+    bands:[[0,4,'Minimal'],[5,9,'Mild'],[10,14,'Moderate'],[15,19,'Moderately severe'],[20,27,'Severe']],
+    items:['Little interest or pleasure in doing things','Feeling down, depressed, or hopeless','Trouble falling or staying asleep, or sleeping too much','Feeling tired or having little energy','Poor appetite or overeating','Feeling bad about yourself — or that you are a failure or have let yourself or your family down','Trouble concentrating on things, such as reading or watching television','Moving or speaking so slowly that others could have noticed — or the opposite, being fidgety or restless and moving a lot more than usual','Thoughts that you would be better off dead, or of hurting yourself in some way']},
+  'GAD-7':{cond:'Anxiety', pd:'GAD-7 — public domain (Pfizer); free to use', prompt:'Over the last 2 weeks, how often have you been bothered by the following problems?', scale:SC03, max:21,
+    bands:[[0,4,'Minimal'],[5,9,'Mild'],[10,14,'Moderate'],[15,21,'Severe']],
+    items:['Feeling nervous, anxious, or on edge','Not being able to stop or control worrying','Worrying too much about different things','Trouble relaxing','Being so restless that it is hard to sit still','Becoming easily annoyed or irritable','Feeling afraid, as if something awful might happen']},
+  'WHO-5':{cond:'Well-being', pd:'WHO-5 Well-Being Index — public domain (WHO); free to use', prompt:'Please indicate, for each of the five statements, which is closest to how you have been feeling over the last two weeks.', scale:[['5','All of the time'],['4','Most of the time'],['3','More than half of the time'],['2','Less than half of the time'],['1','Some of the time'],['0','At no time']], max:25, mult:4,
+    bands:[[0,50,'Low — screen for depression'],[51,100,'Adequate well-being']],
+    items:['I have felt cheerful and in good spirits','I have felt calm and relaxed','I have felt active and vigorous','I woke up feeling fresh and rested','My daily life has been filled with things that interest me']}
+};
+function pickMeasure(){ var s=document.getElementById('m_sel'); if(!s) return; var el=document.getElementById('mForm'); if(el) el.innerHTML=measureForm(s.value); }
+function measureForm(k){
+  var m=MEASURES[k]; if(!m) return '';
+  var h='<div class="kv" style="color:var(--ink);margin:2px 0 8px"><b>'+esc(k)+'</b> · '+esc(m.cond)+' — '+esc(m.prompt)+'</div>';
+  h+=m.items.map(function(it,i){
+    return '<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff"><div style="font-weight:600;font-size:15px;margin-bottom:10px">'+(i+1)+'. '+esc(it)+'</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+
+      m.scale.map(function(o){return '<label style="flex:1 1 130px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:14px 8px;cursor:pointer;font-size:13.5px;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="'+o[0]+'" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.2)">'+esc(o[1])+'</label>';}).join('')+'</div></div>';
+  }).join('');
+  h+='<div id="mScore" class="card" style="background:#fbfdfd;margin:0"><div class="appmeta">Tap an answer on each item to compute the score.</div></div>';
+  return h;
+}
+function scoreMeasure(k){
+  var m=MEASURES[k], sum=0, answered=0;
+  for(var i=0;i<m.items.length;i++){ var sel=document.querySelector('input[name="'+k+'_'+i+'"]:checked'); if(sel){ sum+=parseInt(sel.value,10); answered++; } }
+  var score=m.mult?sum*m.mult:sum, band='';
+  (m.bands||[]).forEach(function(b){ if(score>=b[0] && score<=b[1]) band=b[2]; });
+  var el=document.getElementById('mScore'); if(!el) return;
+  var complete=answered===m.items.length;
+  var flag=(k==='PHQ-9' && (function(){var s=document.querySelector('input[name="PHQ-9_8"]:checked');return s&&parseInt(s.value,10)>0;})());
+  el.innerHTML='<div style="font-size:24px;font-weight:800;color:'+(complete?'#1c7a4a':'#8a949a')+'">'+score+(m.mult?' / 100':' / '+m.max)+'</div>'+
+    '<div class="appmeta">'+(complete?'':'('+answered+' / '+m.items.length+' answered) ')+(band?'<b>'+esc(band)+'</b>':'')+'</div>'+
+    (flag?'<div class="kv" style="color:#9a2a1c;font-size:12.5px"><b>⚠ Item 9 (self-harm) &gt; 0</b> — complete a C-SSRS suicide check now; see the qualification screener.</div>':'')+
+    '<div class="note">'+esc(m.pd)+'. Record the total in the §9 session record; re-administer at 1 / 3 / 6 / 12-month follow-ups for the change score.</div>';
+}
 function renderReporting(){
   var S=loadSessions();
   var admin=S.filter(function(s){return s.session_type==='Administration';});
@@ -557,6 +594,10 @@ function renderReporting(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">RACI Recommended Measures Battery — favored instruments (11 Sep 2026 consensus)</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:520px"><thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">Condition</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">Favored</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Alternatives</th></tr></thead><tbody>'+
      BATTERY.map(function(b){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:22%">'+esc(b.c)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+b.fav+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+b.alt+'</td></tr>';}).join('')+
      '</tbody></table></div><div class="note">Favored for the strongest combination of psychometric quality, brevity, familiarity &amp; longitudinal utility. <b>Substance-use disorder uses several measures, staged</b> — TAPS + AUDIT-C screen at entry, BAM tracks progress at baseline &amp; follow-up. Source: RACI Recommended Battery whitepaper (11 Sep 2026 consensus).</div></div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Administer a measure — iPad-friendly questionnaire</h3>'+
+     '<div class="appmeta" style="margin-bottom:6px">A tap-friendly rendering of the <b>actual validated items</b> (public-domain instruments). The score computes live — record the total in the §9 session, then re-administer at the 1 / 3 / 6 / 12-month follow-ups.</div>'+
+     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
+     '<div id="mForm" style="margin-top:8px"></div></div>';
   return h;
 }
 
@@ -1009,7 +1050,7 @@ function clearIRB(){ try{ localStorage.removeItem('parakeet_irb_v1'); }catch(e){
 function loadAE(){ try{ return JSON.parse(localStorage.getItem('parakeet_ae_v1')||'[]'); }catch(e){ return []; } }
 function saveAE(a){ try{ localStorage.setItem('parakeet_ae_v1', JSON.stringify(a)); }catch(e){} }
 function recordAE(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
-  var rec={enr:g('ae_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), sev:g('ae_sev'), cat:g('ae_cat'), onset:g('ae_onset'), rel:g('ae_rel'), action:g('ae_action'), note:g('ae_note'), at:new Date().toISOString()};
+  var rec={enr:g('ae_enr')||('ENR-'+Math.random().toString(36).slice(2,6).toUpperCase()), tier:g('ae_tier'), cat:g('ae_cat'), onset:g('ae_onset'), rel:g('ae_rel'), action:g('ae_action'), note:g('ae_note'), at:new Date().toISOString()};
   var a=loadAE(); a.unshift(rec); saveAE(a); render(); }
 function resetAE(){ try{ localStorage.removeItem('parakeet_ae_v1'); }catch(e){} render(); }
 function renderSafety(){
@@ -1018,9 +1059,13 @@ function renderSafety(){
   var serious=S.filter(function(s){return s.adverse_event==='serious';}).length;
   var optin=S.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}).length;
   var recalls=C.lots.filter(function(l){return l.recalled;});
-  var AE=loadAE(), aeSerious=AE.filter(function(x){return x.sev==='Serious';}).length;
+  var AE=loadAE();
+  var aeT1=AE.filter(function(x){return (x.tier||'').indexOf('Tier 1')===0;}).length;
+  var aeT2=AE.filter(function(x){return (x.tier||'').indexOf('Tier 2')===0;}).length;
+  var aeT3=AE.filter(function(x){return (x.tier||'').indexOf('Tier 3')===0;}).length;
   var h='<h1>⚠ Safety, ethics &amp; data governance</h1><div class="sub">Adverse-event monitoring, product recall, bioethics safeguards, and HIPAA-grade data handling. Prototype; local data.</div>';
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(AE.length,'AE reports logged')+mchip(aeSerious,'Serious AE reports')+mchip(recalls.length,'Recalled batches')+mchip(optin+' / '+S.length,'Opted into research')+'</div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(aeT1,'Tier 1 routine')+mchip(aeT2,'Tier 2 challenging')+mchip(aeT3,'Tier 3 adverse')+mchip(recalls.length,'Recalled batches')+mchip(optin+' / '+S.length,'Opted-in research')+'</div>';
+  if(aeT3>0) h+='<div style="background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:6px;padding:7px 10px;margin:0 0 8px;font-weight:600">⚠ '+aeT3+' Tier-3 adverse event(s) — must be in the state registry within 5 business days + QI review.</div>';
   h+='<div class="card">';
   if(serious>0) h+='<div style="background:#fdecea;border:1px solid #f1c3bd;color:#9a2a1c;border-radius:6px;padding:7px 10px;margin-bottom:8px;font-weight:600">⚠ SIGNAL — '+serious+' serious adverse event(s) flagged for review and possible action.</div>';
   h+='<h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Adverse-event monitoring</h3>'+
@@ -1029,11 +1074,22 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Signal detection:</b> reviewed <b>weekly</b>; triggers → update <b>exclusion criteria</b>, <b>pull a batch</b> (recall), or issue <b>contraindication alerts</b>.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Framework:</b> aligned to the NM RACI committee&rsquo;s <b>PATAE-adapted</b> AE-monitoring framework (incl. a <b>Sociocultural Domain</b>). Distinguish a <b>challenging experience</b> (may need no intervention) from an <b>adverse event</b> (requires intervention) — e.g., a hospitalization is an AE.</div>'+
      '<div class="note">Feeds the <b>Patient Qualification &amp; Safety</b> committee → exclusion / contraindication rules.</div></div>';
+  var TIERS=[
+    {t:'Tier 1 — Routine / No Incident', col:'#1c7a4a', desc:'Standard session flow; no safety concerns. E.g., expected somatic release (tremors, yawning, tears), transient nausea resolving on its own, mystical-type experience processed in session, mild onset anxiety that resolves.', rep:'<b>No individual incident report required.</b>'},
+    {t:'Tier 2 — Challenging Experience (CE)', col:'#8a5f18', desc:'Difficult emotional / psychological / physical material that stretches the facilitator but is managed within the session container. E.g., intense grief or trauma work that resolves in session, transient paranoia or fear worked through with grounding, discomfort needing hands-on support, distress resolved by next-day integration — participant confirms feeling safe.', rep:'Internal facilitator log + <b>mandatory yes/no challenge flag in the core dataset</b> (site-level trend monitoring); document intervention &amp; outcome; reviewed in supervision / peer consultation.'},
+    {t:'Tier 3 — Adverse Event (AE) with Clinical Significance', col:'#9a2a1c', desc:'Unexpected negative outcome with clinical significance, lasting impact beyond the session, or needing intervention beyond standard facilitator support — physical (severe nausea/dehydration, BP elevation needing evaluation, allergic reaction) or psychological (panic/anxiety &ge;72 h, insomnia/nightmares &ge;1 wk, PTSD intensification, HPPD, persistent dissociation/DPDR, deteriorating depression, ontological shock).', rep:'<b>Mandatory entry into the state registry within 5 business days</b>; document intervention &amp; outcome; triggers a QI system-learning review; participant informed of their <b>right to report directly to DOH</b>. Harms found at follow-up follow the same pathway.'}
+  ];
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">RACI 3-tier event classification (7 Aug 2026 consensus)</h3>'+
+     TIERS.map(function(x){return '<div style="border-left:4px solid '+x.col+';padding:3px 0 3px 10px;margin-bottom:7px"><div style="font-weight:800;color:'+x.col+';font-size:12.5px">'+x.t+'</div><div class="appmeta" style="color:var(--ink)">'+x.desc+'</div><div class="kv" style="color:var(--ink);margin-top:2px"><b>Reporting:</b> '+x.rep+'</div></div>';}).join('')+
+     '<div class="note">A <b>challenging experience</b> is normal and expected (Tier 2 — flagged for trends, no alarm); an <b>adverse event</b> (Tier 3) requires intervention and formal reporting within 5 business days. Source: RACI Harm-Reduction / QI Framework (7 Aug 2026 consensus).</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">AE analysis — state, providers &amp; policymakers</h3>'+
+     '<div class="kv" style="color:var(--ink)">Adverse-event data is <b>reported to and analyzed by three audiences</b>: the <b>state</b> (DOH registry + QI committee), <b>providers</b> (facilitator log + supervision / peer consultation), and <b>policymakers</b> (statewide trend &amp; statistical analysis to refine the rules). All three tiers are collected <b>individually</b> so rates can be tracked and compared over time.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Benchmarks — keep watching Oregon &amp; Colorado:</b> Oregon&rsquo;s published rates are <b>1.2% serious behavioral AEs, 0 serious medical events, 0.2% emergency contacts</b> (Korthuis 2026, JAMA); Colorado has reported adverse events too. NM should <b>meet or beat</b> these and run <b>statistical trend analysis</b> on its own tiered data.</div></div>';
   h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Report &amp; track an adverse event</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">De-identified AE reporting — <b>tracked, collected, and adjudicated for relatedness</b>, then fed to the weekly signal review. AEs are often <b>patient-reported / subjective</b>; capture everything, then classify relatedness (a serious medical event — e.g., appendicitis — may be <b>unrelated</b>). Also log when a session <b>proceeded despite a red flag</b>.</div>'+
      '<div class="grid">'+
        '<div class="field"><label>Enrollment ID (de-id)</label><input id="ae_enr" placeholder="auto if blank"></div>'+
-       '<div class="field"><label>Severity</label><select id="ae_sev"><option>Mild</option><option>Moderate</option><option>Serious</option></select></div>'+
+       '<div class="field"><label>Tier (RACI classification)</label><select id="ae_tier"><option>Tier 1 — Routine / no incident</option><option>Tier 2 — Challenging experience</option><option>Tier 3 — Adverse event (clinical significance)</option></select></div>'+
        '<div class="field"><label>Category</label><select id="ae_cat"><option>Prolonged psychological distress</option><option>Anxiety / panic</option><option>Cardiac / QTc</option><option>Prolonged perceptual effects (HPPD)</option><option>Suicidality</option><option>Proceeded despite a red flag / contraindication</option><option>Other medical</option></select></div>'+
        '<div class="field"><label>Onset</label><select id="ae_onset"><option>During administration</option><option>Within 24 h</option><option>24–72 h</option><option>&gt;72 h</option></select></div>'+
        '<div class="field"><label>Relatedness</label><select id="ae_rel"><option>Related</option><option>Possibly related</option><option>Unrelated</option></select></div>'+
@@ -1043,7 +1099,7 @@ function renderSafety(){
      '<div class="actions"><span class="note">Serious → report within 24 h; other → 72 h. Subjective/patient-reported AEs still count.</span><button class="btn primary" onclick="recordAE()">Log adverse event</button></div></div>';
   if(AE.length){
     h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Adverse-event log ('+AE.length+')</h3>'+
-      AE.map(function(x){var scl=x.sev==='Serious'?'s-denied':(x.sev==='Moderate'?'s-submitted':'s-approved');return '<div class="approw"><div><b>'+esc(x.cat)+'</b> <span class="appmeta">'+esc(x.enr)+' · '+esc(x.onset)+' · '+esc(x.rel)+'</span><div class="appmeta">action: '+esc(x.action)+(x.note?' · '+esc(x.note):'')+'</div></div><span class="status '+scl+'">'+esc(x.sev)+'</span></div>';}).join('')+
+      AE.map(function(x){var tn=(x.tier||'').indexOf('Tier 3')===0?'s-denied':((x.tier||'').indexOf('Tier 2')===0?'s-submitted':'s-approved');var tl=(x.tier||'').split(' — ')[0]||'Tier';return '<div class="approw"><div><b>'+esc(x.cat)+'</b> <span class="appmeta">'+esc(x.enr)+' · '+esc(x.onset)+' · '+esc(x.rel)+'</span><div class="appmeta">action: '+esc(x.action)+(x.note?' · '+esc(x.note):'')+'</div></div><span class="status '+tn+'">'+esc(tl)+'</span></div>';}).join('')+
       '<div class="appmeta" style="margin-top:6px">Reviewed weekly for signals; relatedness adjudicated before attribution · <a href="#" onclick="resetAE();return false;">reset</a></div></div>';
   }
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Product recall log</h3>';
