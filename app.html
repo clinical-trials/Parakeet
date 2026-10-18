@@ -693,12 +693,15 @@ function warmHero(){
   var sunX=Math.round(R(600,1000)), sunY=Math.round(R(100,160)), sunR=Math.round(R(50,70));
   function ridge(baseY,amp){ var s='M0 '+Math.round(baseY+R(-amp,amp))+' '; for(var x=150;x<=1200;x+=150){ s+='L'+x+' '+Math.round(baseY+R(-amp,amp))+' '; } return s+'L1200 300 L0 300 Z'; }
   var r1=ridge(202,15), r2=ridge(236,17), r3=ridge(270,15);
-  var snow=''; if(P.snow){ for(var i=0;i<30;i++){ snow+='<circle cx="'+Math.round(R(0,1200))+'" cy="'+Math.round(R(0,255))+'" r="'+R(1.1,2.6).toFixed(1)+'" fill="#ffffff" opacity="'+R(0.5,0.95).toFixed(2)+'"/>'; } }
-  var svg='<svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" style="width:100%;height:148px;display:block" xmlns="http://www.w3.org/2000/svg">'+
+  var snow=''; if(P.snow){ for(var i=0;i<34;i++){ snow+='<circle class="phsnow" cx="'+Math.round(R(0,1200))+'" cy="'+Math.round(R(-20,250))+'" r="'+R(1.1,2.6).toFixed(1)+'" fill="#ffffff" opacity="'+R(0.5,0.95).toFixed(2)+'" style="animation-duration:'+R(4.5,9).toFixed(1)+'s;animation-delay:-'+R(0,9).toFixed(1)+'s"/>'; } }
+  var clouds=''; for(var c=0;c<2;c++){ var cy=Math.round(R(42,112)), cs=R(0.8,1.5); clouds+='<g class="phcloud" style="animation-duration:'+Math.round(R(62,104))+'s;animation-delay:-'+Math.round(R(0,96))+'s"><ellipse cx="0" cy="'+cy+'" rx="'+Math.round(58*cs)+'" ry="'+Math.round(20*cs)+'" fill="#ffffff" opacity="0.5"/><ellipse cx="'+Math.round(46*cs)+'" cy="'+(cy+6)+'" rx="'+Math.round(40*cs)+'" ry="'+Math.round(16*cs)+'" fill="#ffffff" opacity="0.42"/></g>'; }
+  var style='<style>.phsnow,.phcloud,.phsun{transform-box:fill-box}@media (prefers-reduced-motion:no-preference){.phcloud{animation:phdrift linear infinite}.phsnow{animation:phfall linear infinite}.phsun{animation:phpulse 7s ease-in-out infinite;transform-origin:center}}@keyframes phdrift{from{transform:translateX(-240px)}to{transform:translateX(1440px)}}@keyframes phfall{from{transform:translateY(-30px)}to{transform:translateY(330px)}}@keyframes phpulse{0%,100%{opacity:1}50%{opacity:.82}}</style>';
+  var svg='<svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" style="width:100%;height:148px;display:block" xmlns="http://www.w3.org/2000/svg">'+style+
     '<defs><linearGradient id="phsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+P.sky[0]+'"/><stop offset="0.55" stop-color="'+P.sky[1]+'"/><stop offset="1" stop-color="'+P.sky[2]+'"/></linearGradient>'+
     '<radialGradient id="phsun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="'+P.sun+'"/><stop offset="1" stop-color="'+P.glow+'"/></radialGradient></defs>'+
     '<rect width="1200" height="300" fill="url(#phsky)"/>'+
-    '<circle cx="'+sunX+'" cy="'+sunY+'" r="'+sunR+'" fill="url(#phsun)"/>'+
+    clouds+
+    '<circle class="phsun" cx="'+sunX+'" cy="'+sunY+'" r="'+sunR+'" fill="url(#phsun)"/>'+
     '<path d="'+r1+'" fill="'+P.mesa[0]+'" opacity="0.5"/>'+
     '<path d="'+r2+'" fill="'+P.mesa[1]+'" opacity="0.72"/>'+
     '<path d="'+r3+'" fill="'+P.mesa[2]+'"/>'+
