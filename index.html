@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Parakeet Policy Console — NM · Colorado · Oregon Psilocybin Programs</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='13'%20fill='%2317423f'/%3E%3Cpath%20d='M22%2042%2010%2055l16-6z'%20fill='%23c0392b'/%3E%3Cellipse%20cx='32'%20cy='35'%20rx='15'%20ry='17'%20fill='%23c0392b'/%3E%3Ccircle%20cx='42'%20cy='22'%20r='11'%20fill='%23c0392b'/%3E%3Cpath%20d='M51%2017l10%205-10%205z'%20fill='%23f3c969'/%3E%3Ccircle%20cx='45'%20cy='20'%20r='2.4'%20fill='%23fff'/%3E%3Ccircle%20cx='45.8'%20cy='20.4'%20r='1.1'%20fill='%2317423f'/%3E%3Ccircle%20cx='28'%20cy='31'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='36'%20cy='39'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='28'%20cy='43'%20r='1.8'%20fill='%23fff'/%3E%3Ccircle%20cx='39'%20cy='31'%20r='1.6'%20fill='%23fff'/%3E%3Ccircle%20cx='24'%20cy='37'%20r='1.5'%20fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   :root{
     --ink:#20262b; --muted:#5c6870; --line:#dbe1e4; --bg:#f6f8f8;
@@ -884,9 +884,13 @@ function render(){
   if(showBoard){ document.getElementById("committees").innerHTML=p.committees.map(function(c){var up=c.upcoming?' <span class="vprop" style="padding:1px 8px;font-size:9.5px">NEXT</span>':'';var reg=c.link?' · <a href="'+c.link+'" target="_blank" rel="noopener">register</a>':'';return '<div class="cmtg"><div><b>'+c.n+'</b>'+up+'<div class="cchair">'+c.c+', Chair — '+c.purpose+'</div></div><div class="cwhen">'+c.d+reg+'</div></div>';}).join(""); document.getElementById("boardNote").innerHTML=p.boardNote; }
 
   var EVM=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("eventsList").innerHTML = EVENTS.map(function(e){
+  var todayStr=new Date().toISOString().slice(0,10);
+  var upEv=EVENTS.filter(function(e){return e.d>=todayStr;}).sort(function(a,b){return a.d<b.d?-1:1;});
+  document.getElementById("eventsList").innerHTML = (upEv.length?'':'<div class="note">No upcoming dates currently posted — confirm with DOH / Colorado NMD.</div>')+upEv.map(function(e){
     var dt=e.d.split("-"); var reg=e.link?' · <a href="'+e.link+'" target="_blank" rel="noopener">register</a>':'';
-    return '<div class="ev"><div class="evdate"><div class="m">'+EVM[+dt[1]-1]+'</div><div class="d">'+(+dt[2])+'</div></div><div class="evbody"><div class="evt">'+e.label+'<span class="evtype t-'+e.type+'">'+e.type+'</span></div><div class="evm">'+(e.when||"")+reg+'</div></div></div>';
+    var days=Math.round((new Date(e.d+"T00:00:00")-new Date(todayStr+"T00:00:00"))/86400000);
+    var cd=days<=0?'today':(days===1?'tomorrow':'in '+days+' days');
+    return '<div class="ev"><div class="evdate"><div class="m">'+EVM[+dt[1]-1]+'</div><div class="d">'+(+dt[2])+'</div></div><div class="evbody"><div class="evt">'+e.label+'<span class="evtype t-'+e.type+'">'+e.type+'</span></div><div class="evm">'+(e.when||"")+' · <b>'+cd+'</b>'+reg+'</div></div></div>';
   }).join("");
 
   document.getElementById("regBlock").innerHTML =
