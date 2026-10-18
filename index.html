@@ -250,22 +250,10 @@
   .phero img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
   .phero .pcap{position:absolute;left:0;right:0;bottom:0;padding:10px 16px;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
   .phero .pcap small{display:block;font-weight:600;font-size:10px;opacity:.9;margin-top:2px;letter-spacing:.01em}
-  .phero .cloud{position:absolute;pointer-events:none;will-change:transform;animation:pcd 46s linear infinite;filter:blur(.5px) drop-shadow(0 3px 5px rgba(60,80,100,.14))}
-  .phero .cloud svg{display:block;width:100%;height:100%;overflow:visible}
-  .phero .cloud .cb{fill:#ffffff}
-  .phero .c1{top:12%;left:-32%;width:172px;height:60px;opacity:.9}
-  .phero .c2{top:3%;left:-58%;width:118px;height:44px;opacity:.72;animation-duration:66s;animation-delay:-24s}
-  .phero .c3{top:30%;left:-46%;width:88px;height:34px;opacity:.6;animation-duration:54s;animation-delay:-40s}
-  @keyframes pcd{from{transform:translateX(0)}to{transform:translateX(340%)}}
-  @media (max-width:560px){.phero .c1{width:120px;height:44px}.phero .c2{width:84px;height:32px}.phero .c3{width:60px;height:24px}}
-  @media (prefers-reduced-motion:reduce){.phero .cloud{animation:none}}
   @media (max-width:560px){.phero{height:120px}.phero .pcap{font-size:13px}}
   </style>
   <div class="phero" aria-hidden="true">
     <img id="pheroImg" src="images/sandia-sunset.jpg" alt="New Mexico landscape" loading="lazy" onerror="this.style.display='none'">
-    <div class="cloud c1"><svg viewBox="0 0 120 56" preserveAspectRatio="none" aria-hidden="true"><g class="cb"><ellipse cx="34" cy="38" rx="24" ry="18"/><ellipse cx="62" cy="30" rx="28" ry="23"/><ellipse cx="90" cy="39" rx="21" ry="17"/><rect x="16" y="36" width="92" height="18" rx="9"/></g></svg></div>
-    <div class="cloud c2"><svg viewBox="0 0 120 56" preserveAspectRatio="none" aria-hidden="true"><g class="cb"><ellipse cx="34" cy="38" rx="24" ry="18"/><ellipse cx="62" cy="30" rx="28" ry="23"/><ellipse cx="90" cy="39" rx="21" ry="17"/><rect x="16" y="36" width="92" height="18" rx="9"/></g></svg></div>
-    <div class="cloud c3"><svg viewBox="0 0 120 56" preserveAspectRatio="none" aria-hidden="true"><g class="cb"><ellipse cx="34" cy="38" rx="24" ry="18"/><ellipse cx="62" cy="30" rx="28" ry="23"/><ellipse cx="90" cy="39" rx="21" ry="17"/><rect x="16" y="36" width="92" height="18" rx="9"/></g></svg></div>
     <div class="pcap">New Mexico &middot; Bienvenidos &middot; Yáʼátʼééh</div>
   </div>
   <div class="statehead">
@@ -724,7 +712,7 @@ const RULEPACKS = {
     substances:"Psilocybin / psilocin (medical use)", subCite:"SB219 §13 · 7.35.3 NMAC",
     personas:[
       {key:"applicant",ico:"📝",title:"Applicant",tag:"Get a permit or certification",
-       steps:["Pick your type — producer or lab (7.35.2), or a provider / educational program (7.35.3)","Read the Producer & Laboratory Requirements; gather your documents","Apply through the state electronic system","Complete application → DOH review / site visit within 30 days"],
+       steps:["Pick your type — producer or lab (7.35.2), or a provider / educational program (7.35.3)","Read the Producer & Laboratory Requirements; gather your documents","Apply through the state electronic system","Complete application → DOH review; producers & labs get a site visit within 30 business days"],
        acts:[{l:"Open application portal",h:"app.html",primary:true,note:"working intake demo"},{l:"View rules (nmhealth)",h:"https://www.nmhealth.org/about/asd/cmo/rules/"}]},
       {key:"producer",ico:"🍄",title:"Producer",tag:"Cultivate & transfer safely",
        steps:["Hold a Producer permit (7.35.2) — Sacred Alto Spores is NM's first","Record cultivation batches, strains & chain-of-custody","Send samples for the 7.35.2.19 lab panel → receive a COA (psilocybin/psilocin mg)","Verify the recipient's permit, then transfer to a healing / service center"],

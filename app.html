@@ -378,6 +378,19 @@ function aeBar(){
     '<span style="font-size:18px">→</span></a>';
 }
 
+// Move the descriptive subtitle + citation notes to the BOTTOM of each view,
+// so the functional controls / data entry lead and there is less scrolling.
+function reflowView(){
+  try{
+    var root=document.getElementById('root'); if(!root) return;
+    var tail=[];
+    Array.prototype.forEach.call(root.children,function(el){
+      if(el.classList&&(el.classList.contains('sub')||el.classList.contains('note'))) tail.push(el);
+    });
+    tail.forEach(function(el,i){ if(i===0){ el.style.marginTop='18px'; el.style.borderTop='1px solid var(--line)'; el.style.paddingTop='12px'; } root.appendChild(el); });
+  }catch(e){}
+}
+
 /* ---------- render ---------- */
 function render(){
   var allowed=roleViews();
@@ -399,6 +412,7 @@ function render(){
   else if(VIEW==='safety') r.innerHTML=b+renderSafety();
   else if(VIEW==='equity'){ r.innerHTML=b+renderEquity(); fscalc(); }
   else if(VIEW==='research') r.innerHTML=b+renderResearch();
+  reflowView();
 }
 
 function renderChooser(){
@@ -986,7 +1000,7 @@ function warmHero(){
     '<div class="phtint"></div></div>'+
     '<div style="background:'+BAND[season]+';padding:14px 18px">'+
     '<div style="font-size:16px;font-weight:800;color:#8a4a2c">Welcome &middot; Bienvenidos &middot; Yáʼátʼééh <span style="font-size:11px;font-weight:600;color:#a07a52">&middot; '+L[season]+' in New Mexico</span></div>'+
-    '<div style="font-size:12.5px;color:#5c4636;margin-top:4px;line-height:1.55">New Mexico is home to many peoples &mdash; the <b>19 Pueblos</b>, the <b>Navajo Nation (Diné)</b>, the <b>Jicarilla &amp; Mescalero Apache</b>, <b>Hispano &amp; Chicano</b> communities, and many others. This program is built to meet each person <b>with respect, in their own language and culture</b>, and to reach those most often left out of care. <i>Human, not clinical.</i></div>'+
+    '<div style="font-size:12.5px;color:#5c4636;margin-top:4px;line-height:1.55">New Mexico is home to many peoples &mdash; its <b>23 sovereign Native nations</b> (the <b>19 Pueblos</b>, the <b>Navajo Nation (Diné)</b>, and the <b>Jicarilla, Mescalero &amp; Fort Sill Apache</b>), alongside <b>Hispano &amp; Chicano</b> and many other communities across all <b>33 counties</b>. This program is built to meet each person <b>with respect, in their own language and culture</b>, and to reach those most often left out of care. <i>Human, not clinical.</i></div>'+
     '<div style="font-size:10px;color:#9a8f80;margin-top:6px">Photo: public domain (CC0) &middot; Wikimedia Commons.</div>'+
     '</div></div>';
 }
