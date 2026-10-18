@@ -457,6 +457,33 @@ function recordWaste(){
   var a=loadWaste(); a.unshift(rec); saveWaste(a); render();
 }
 function resetWaste(){ try{ localStorage.removeItem('parakeet_waste_v1'); }catch(e){} render(); }
+/* ---------- manufacturing / product inventory (CO Product Manufacturer Inventory template → structured form) ---------- */
+function loadMfg(){ try{ return JSON.parse(localStorage.getItem('parakeet_mfg_v1')||'[]'); }catch(e){ return []; } }
+function saveMfg(a){ try{ localStorage.setItem('parakeet_mfg_v1', JSON.stringify(a)); }catch(e){} }
+function recordMfg(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  var qty=parseFloat(g('mf_qty'))||0; if(!qty){ return; }
+  var rec={ id:'MFG-'+Math.random().toString(36).slice(2,6).toUpperCase(), src:g('mf_src'), form:g('mf_form'), out:g('mf_out')||('LOT-'+Math.random().toString(36).slice(2,6).toUpperCase()), qty:qty, unit:g('mf_unit'), mg:parseFloat(g('mf_mg'))||0, at:new Date().toISOString() };
+  var a=loadMfg(); a.unshift(rec); saveMfg(a); render();
+}
+function resetMfg(){ try{ localStorage.removeItem('parakeet_mfg_v1'); }catch(e){} render(); }
+function mfgCard(){
+  var m=loadMfg();
+  var h='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">🏭 Manufacturing &amp; product inventory</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">Colorado&rsquo;s <b>Product Manufacturer Inventory</b> template as a structured form — convert a source lot into a product form under your endorsement, with potency from the COA, generating an output lot ID for the chain.</div>'+
+    '<div class="grid">'+
+      '<div class="field"><label>Source lot / batch ID</label><input id="mf_src" placeholder="e.g. LOT-7F3A"></div>'+
+      '<div class="field"><label>Product form (endorsement)</label><select id="mf_form"><option>Whole dried mushrooms (cultivation)</option><option>Ground / homogenized (manufacturing)</option><option>Extract (extraction)</option><option>Edible product (edible)</option></select></div>'+
+      '<div class="field"><label>Output lot ID</label><input id="mf_out" placeholder="auto if blank"></div>'+
+      '<div class="field"><label>Quantity produced</label><input id="mf_qty" type="number" step="0.1" placeholder="e.g. 48"></div>'+
+      '<div class="field"><label>Unit</label><select id="mf_unit"><option>units</option><option>g</option><option>capsules</option></select></div>'+
+      '<div class="field"><label>Potency — mg psilocybin / unit (from COA)</label><input id="mf_mg" type="number" step="0.1" placeholder="e.g. 25"></div>'+
+    '</div>'+
+    '<div class="actions"><span class="note">Links the output lot back to its source for full traceability; potency flows to dosing &amp; §9.</span><button class="btn primary" onclick="recordMfg()">Log production</button></div>';
+  if(m.length){ h+='<div style="margin-top:8px">'+m.map(function(x){return '<div class="approw"><div><b>'+esc(x.out)+'</b> · '+esc(x.form)+' <span class="appmeta">('+(+x.qty)+' '+esc(x.unit)+(x.mg?' · '+x.mg+' mg/unit':'')+' · from '+esc(x.src||'—')+')</span></div><div class="appmeta">'+esc(x.id)+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px">'+m.length+' logged · <a href="#" onclick="resetMfg();return false;">reset</a></div></div>'; }
+  h+='</div>';
+  return h;
+}
 function wasteCard(){
   var w=loadWaste();
   var h='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">🗑 Waste tracking</h3>'+
@@ -523,6 +550,7 @@ function renderCustody(){
       h+='</div>';
     }
   });
+  h+=mfgCard();
   h+=wasteCard();
   return h;
 }
