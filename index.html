@@ -819,7 +819,9 @@ function render(){
   if(p.regStatus){ rs.style.display=""; rs.innerHTML='<b>Regulatory status ('+p.regStatusAsOf+'):</b> '+p.regStatus; }
   else { rs.style.display="none"; }
 
-  document.getElementById("vprops").innerHTML = VPROPS.map(function(v){return '<span class="vprop">'+v+'</span>';}).join("");
+  var vp=document.getElementById("vprops");
+  if(ACTIVE==='nm'){ vp.style.display=''; vp.innerHTML = VPROPS.map(function(v){return '<span class="vprop">'+v+'</span>';}).join(""); }
+  else { vp.style.display='none'; vp.innerHTML=''; }
 
   var pt=document.getElementById("personaTiles");
   if(p.personas){ pt.innerHTML = p.personas.map(function(x,i){return '<div class="ptile" data-i="'+i+'" onclick="selPersona('+i+')"><div class="pico">'+x.ico+'</div><div class="ptitle">'+x.title+'</div><div class="ptag">'+x.tag+'</div></div>';}).join(""); selPersona(0); }
