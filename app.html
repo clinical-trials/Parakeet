@@ -9,10 +9,10 @@
 <style>
   :root{--ink:#20262b;--muted:#5c6870;--line:#e4ddce;--bg:#f4efe3;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   a{color:var(--blue)}
   .wrap{max-width:900px;margin:0 auto;padding:0 20px 70px}
-  header.top{background:var(--pine);color:#fff;padding:14px 0;margin-bottom:20px}
+  header.top{background:linear-gradient(180deg,#1b4b47,#143d39);color:#fff;padding:14px 0;margin-bottom:20px;box-shadow:0 2px 14px rgba(23,66,63,.18)}
   header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:0;max-width:900px}
   .brand{font-weight:800;font-size:19px;letter-spacing:-.01em}
   .brand span{color:#d9b25a}
@@ -27,7 +27,7 @@
   }
   nav.app button{appearance:none;border:0;background:transparent;color:#cfe0dd;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer}
   nav.app button[aria-current="true"]{background:#fff;color:var(--pine)}
-  h1{font-size:22px;margin:0 0 2px}
+  h1{font-size:22px;margin:0 0 2px;letter-spacing:-.015em;color:#163029}
   .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
@@ -242,7 +242,7 @@ var FORMS = {
 var DESIGNATED = [
   {n:"1 · Licensing &amp; applications", cite:"7.35.2 · 7.35.3.7", act:"go('chooser')", btn:"Apply",
    what:"Permit &amp; certification applications and renewals — producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. Decision clocks built in: <b>30-day</b> review; <b>60/30-day</b> renewal windows.",
-   note:"State-designated today: <b>mpp.nm.btgov.com</b> (BT Government). Parakeet delivers the same function with a plain-language, autosaving wizard."},
+   note:"State-designated today: <b>mpp.nm.btgov.com</b>. Parakeet delivers the same function with a plain-language, autosaving wizard."},
   {n:"2 · Traceability — spore to end-use", cite:"7.35.3 def · 7.35.2.19", act:"go('custody')", btn:"Open",
    what:"Tracks mushrooms &amp; products from <b>inoculation to end use</b>; a chain-of-custody record is generated &amp; <b>verified on every transfer</b> (producer → lab → healing center → administration).",
    note:"Unique IDs at batch → lot → package (no RFID); ends at <b>administration to an enrolled patient</b> → §9, not a retail sale."},
@@ -393,7 +393,7 @@ function renderChooser(){
     return '<div class="tile" onclick="startApp(\''+k+'\')"><div class="ico">'+f.ico+'</div><h3>'+f.name+'</h3><p>'+f.blurb+'</p><span class="cite">'+f.cite+'</span></div>';
   }).join('');
   return '<h1>Start an application</h1><div class="sub">Simple, guided intake — your progress is saved automatically on this device. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>'+
-    '<div class="note" style="margin-top:10px"><b>Decision clocks (7.35.2 / 7.35.3):</b> new applications → DOH decision within <b>30 days</b>; renewals → file within the <b>60/30-day renewal window</b>. One intake covers producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. The state&rsquo;s designated application system today is <b>mpp.nm.btgov.com</b> (BT Government); this provides the same function.</div>';
+    '<div class="note" style="margin-top:10px"><b>Decision clocks (7.35.2 / 7.35.3):</b> new applications → DOH decision within <b>30 days</b>; renewals → file within the <b>60/30-day renewal window</b>. One intake covers producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. The state&rsquo;s designated application system today is <b>mpp.nm.btgov.com</b>; this provides the same function.</div>';
 }
 
 function renderWizard(){
@@ -954,6 +954,10 @@ function renderDashboard(){
   var h=warmHero()+(ROLE==='patient'?'':designatedHero());
   if(!p){
     h+='<h1>'+t('Regulator dashboard','Panel del regulador')+'</h1><div class="sub">'+t('Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.','Vista de supervisión para el Departamento: revise solicitudes y monitoree los resultados de la §9, las señales de seguridad y el alcance de la equidad. Cambie de función con el selector de la parte superior.')+'</div>';
+    var _apps=loadApps(), _pend=_apps.filter(function(a){return a.status==='submitted'||a.status==='sitevisit';}).length, _appr=_apps.filter(function(a){return a.status==='approved';}).length;
+    var _ae=(typeof loadAE==='function'?loadAE():[]), _ses=(typeof loadSessions==='function'?loadSessions():[]), _enr={};
+    _ses.forEach(function(s){ if(s.enrollment_id) _enr[s.enrollment_id]=1; });
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 2px">'+mchip(_pend,t('Pending applications','Solicitudes pendientes'))+mchip(_appr,t('Approved','Aprobadas'))+mchip('0',t('Certified labs','Labs certificados'))+mchip(_ae.length,t('Adverse events','Eventos adversos'))+mchip(Object.keys(_enr).length,t('Enrollees (de-id)','Inscritos'))+'</div>';
     h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">What Parakeet is — and what it optimizes for</h3>'+
       '<div class="kv" style="color:var(--ink)"><b>A free, provider-facing compliance &amp; public-health platform</b> for New Mexico&rsquo;s Medical Psilocybin Program — it turns the three designated systems (<b>licensing &middot; traceability &middot; enrollment/certification</b>) into one low-burden, de-identified backbone that keeps patients safe, helps the Department run the program, and produces honest evidence. A <b>medical program&rsquo;s</b> tool, not a dispensary&rsquo;s.</div>'+
       '<ol style="margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)">'+
@@ -978,7 +982,7 @@ function renderDashboard(){
     h+='<h1>'+t('Your compliance dashboard','Su panel de cumplimiento')+'</h1><div class="sub">'+t('Plain-language guidance for your role — no rule-book jargon. Change roles with the “signed in as” switcher in the header.','Orientación en lenguaje sencillo para su función, sin jerga normativa. Cambie de función con el selector de la parte superior.')+'</div>';
   }
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
-  if(p==='patient') h+=patientRights();
+  if(p==='patient') h+=patientJourney()+patientRights();
   if(p==='provider') h+='<a href="#" onclick="go(\'safety\');return false;" style="display:flex;align-items:center;gap:14px;background:#9a2a1c;color:#fff;border-radius:14px;padding:16px 20px;text-decoration:none;margin-bottom:4px;box-shadow:0 8px 22px rgba(154,42,28,.20)"><span style="font-size:30px;line-height:1">⚠</span><span><b style="font-size:17px">'+t('Report an adverse event','Reportar un evento adverso')+'</b><div style="font-size:12.5px;opacity:.93">'+t('Serious events → report within 24 hours. Open the tiered adverse-event form.','Eventos graves → reportar en 24 horas. Abra el formulario de eventos adversos por niveles.')+'</div></span><span style="margin-left:auto;font-size:22px">→</span></a>';
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
   h+='<div class="card"><h3 class="dh">Your next 3 steps</h3>'+steps.map(function(st,i){
@@ -1033,6 +1037,12 @@ function loadConsent(){ try{ return JSON.parse(localStorage.getItem('parakeet_co
 function saveConsent(o){ try{ localStorage.setItem('parakeet_consent_v1', JSON.stringify(o)); }catch(e){} }
 function setConsent(k,v){ var o=loadConsent(); o[k]=v; saveConsent(o); render(); }
 function resetConsent(){ try{ localStorage.removeItem('parakeet_consent_v1'); }catch(e){} render(); }
+function patientJourney(){
+  var steps=[ t('Qualify','Calificar'), t('Prepare','Prepararse'), t('Session','Sesión'), t('Integrate','Integrar'), t('Follow-up','Seguimiento') ];
+  return '<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 10px;color:#1c5a3a;font-size:14px">🧭 '+t('Your journey','Su camino')+'</h3><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">'+
+    steps.map(function(s,i){return '<div style="display:flex;align-items:center;gap:6px"><div style="width:26px;height:26px;border-radius:50%;background:#1c7a4a;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">'+(i+1)+'</div><span style="font-size:13px;color:var(--ink)">'+s+'</span>'+(i<steps.length-1?'<span style="color:#7fae92;margin:0 3px">→</span>':'')+'</div>';}).join('')+
+    '</div><div class="note">'+t('Each step has support, and you can pause or stop at any time.','Cada paso tiene apoyo, y puede pausar o detenerse en cualquier momento.')+'</div></div>';
+}
 function patientRights(){
   var c=loadConsent();
   var rights=[ t('You choose your provider and healing center.','Usted elige a su proveedor y centro de sanación.'),
@@ -1051,6 +1061,9 @@ function patientRights(){
 }
 function renderClinician(){
   var h='<h1>🩺 Clinician workspace</h1><div class="sub">For certifying clinicians & practitioners — certification, CME, dose planning, and your enrolled patients, with minimal paperwork. Prototype; local data.</div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Quick actions</h3><div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    [['📝 Enroll / certify a patient','chooser'],['🧾 Record a §9 session','reporting'],['⚠ Report an adverse event','safety'],['🎓 Apply for research funding','research']].map(function(a){return '<button class="btn" onclick="go(\''+a[1]+'\')" style="flex:1 1 170px;text-align:left">'+a[0]+'</button>';}).join('')+
+    '</div><div class="note">Everything else on this page — certification, CME, the dose aid, patient qualification &amp; billing — supports these core tasks.</div></div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Certification — certifying clinician</h3>'+
      '<div class="kv" style="color:var(--ink)">✓ NM controlled-substances registration <b>on file</b> &nbsp;·&nbsp; ✓ Certifying-clinician training module (<b>7.35.3.18</b>) complete &nbsp;·&nbsp; <span class="status s-approved">Active</span></div>'+
      '<div class="appmeta" style="margin-top:4px">Single sign-on to your clinical portal; enroll patients jointly via the state e-system (≤30-day DOH review). A HIPAA business associate may prepare uploads you review &amp; sign.</div></div>';
@@ -1511,7 +1524,7 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Granular, per-partner consent + patient data access:</b> each party authorizes exactly what it shares, and patients can get a copy of their own record.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Category:</b> Parakeet is <b>govtech + regtech</b> — the state&rsquo;s <b>systems of record</b> (licensing · traceability · §9) that <b>carries the compliance load for the provider</b> rather than leaving each provider to own it. Provider-facing care-navigation / billing tools (e.g., <b>Althea</b>, a public-benefit company) are <b>&ldquo;doctor tech&rdquo;</b> — complementary to, not a substitute for, the designated state systems.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Document vs. actively help with compliance — the key difference:</b> a documentation / billing tool <b>records what a provider did</b> and leaves compliance to them. Parakeet <b>enforces the rules in-workflow</b> — e.g., Oregon&rsquo;s <b>dose-scaled facilitator:client ratios</b> (1:25 under 5 mg → 1:4 at the 25&ndash;35 mg band → 1:2 at 35&ndash;50 mg; 25-client cap; 25 sq ft/person, OAR 333-333-5230), <b>qualification exclusions</b>, <b>decision clocks</b>, unbroken <b>chain-of-custody</b>, and <b>adverse-event tracking</b> — so compliance is <b>built in, not left to the provider to figure out</b>.</div>'+
-     '<div class="note">Vendor-neutral by design — works alongside the state&rsquo;s designated licensing system (BT Government) instead of locking the program to one stack.</div></div>';
+     '<div class="note">Vendor-neutral by design — works alongside the state&rsquo;s designated licensing system instead of locking the program to one stack.</div></div>';
   return h;
 }
 
@@ -1633,7 +1646,7 @@ function renderLab(){
     {n:'Rio Grande Analytics', c:'Albuquerque', p:'(505) 503-6830', a:'524 McKnight Ave NW, Albuquerque, NM 87102', u:'https://www.riograndeanalytics.com/'},
     {n:'Rio Grande Analytics', c:'Las Cruces', p:'(505) 348-6230', a:'9035 Advancement Ave, Bldg 500, Las Cruces, NM 88007', u:'https://www.riograndeanalytics.com/locations'},
     {n:'Cristo Clear Analytics', c:'Sunland Park', p:'(575) 332-9400', a:'1580 Appaloosa Dr, Suite C-360, Sunland Park, NM 88063', u:'https://cristoclear.com/'},
-    {n:'Scepter Labs', c:'Santa Fe', p:'(505) 216-9484', a:'Santa Fe, NM (street address — verify)', u:'https://www.scepterlabs.com/'},
+    {n:'Scepter Labs', c:'Santa Fe', p:'(505) 216-9484', a:'2778 Agua Fria St, Bldg C, Ste B, Santa Fe, NM 87507', e:'kkodea@scepterlabs.com', u:'https://www.scepterlabs.com/'},
     {n:'Pree Laboratories NM', c:'Las Cruces', p:'(575) 556-9026', a:'2841 N Telshor Blvd, Ste A, Las Cruces, NM 88011', u:'https://preenm.com/'},
     {n:'Argon Labs', c:'Albuquerque', p:'', a:'1412 Broadway Blvd NE, Albuquerque, NM'},
     {n:'Scissortail Laboratory', c:'Albuquerque', p:'', a:'6101 Signal Ave NE, Albuquerque, NM'}
@@ -1666,8 +1679,9 @@ function renderLab(){
     '<div class="appmeta" style="margin-bottom:6px">DOH planning documents name three routes to a certified psilocybin lab: an <b>existing cannabis testing lab</b>, an <b>ISO/IEC 17025-accredited</b> lab, or a lab <b>approved / overseen by the Department</b>. NM already licenses <b>7 cannabis testing lab locations (6 companies)</b> — the realistic near-term pool if the rule recognizes them:</div>';
   h+=LABS.map(function(l){
     var tel = l.p? '📞 <a href="tel:'+l.p.replace(/[^0-9]/g,'')+'">'+esc(l.p)+'</a>' : '';
+    var em = l.e? '✉ <a href="mailto:'+l.e+'">'+esc(l.e)+'</a>' : '';
     var site = l.u? '<a href="'+l.u+'" target="_blank" rel="noopener">website</a>' : '';
-    var line1=[tel,site].filter(Boolean).join(' · ');
+    var line1=[tel,em,site].filter(Boolean).join(' · ');
     return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span>'+(line1?'<div class="appmeta">'+line1+'</div>':'')+(l.a?'<div class="appmeta">📍 '+esc(l.a)+'</div>':'')+'<div class="appmeta">awaiting psilocybin certification</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="status s-submitted">Candidate</span><button class="btn sm" onclick="go(\'custody\')">Do a COA →</button></div></div>';
   }).join('');
   h+='<div class="note"><b>ISO/IEC 17025</b> = the international standard for testing-lab competence. Source: NM RLD Cannabis Control Division approved-testing-labs list (Oct 2026). Required test panel &amp; lab certification scope: <b>7.35.2.19 NMAC</b> (producer &amp; laboratory rule — <a href="https://www.nmhealth.org/publication/view/rules/9904/" target="_blank" rel="noopener">7.35.2 NMAC on NM DOH</a>). Phone numbers are public-source (lab websites / NM RLD &amp; NMED lists) — confirm before relying.</div></div>';

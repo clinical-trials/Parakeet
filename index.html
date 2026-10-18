@@ -8,17 +8,17 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   :root{
-    --ink:#20262b; --muted:#5c6870; --line:#dbe1e4; --bg:#f6f8f8;
+    --ink:#20262b; --muted:#5c6870; --line:#e4ddce; --bg:#f4efe3;
     --pine:#17423f; --pine2:#1f5a54; --gold:#a8792b; --goldbg:#faf3e3;
     --green:#1c7a4a; --greenbg:#e8f5ec; --amber:#9a6a00; --amberbg:#fbf1d8;
     --blue:#2b5f86; --bluebg:#eef3f6; --slate:#eef1f2;
     --nm:#a8792b; --co:#2b6f6a; --or:#2b5f86;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;overflow-x:hidden}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   a{color:var(--blue)}
   .wrap{max-width:1120px;margin:0 auto;padding:0 20px 60px}
-  header.top{background:var(--pine);color:#fff;padding:16px 0;margin-bottom:22px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  header.top{background:linear-gradient(180deg,#1b4b47,#143d39);color:#fff;padding:16px 0;margin-bottom:22px;box-shadow:0 2px 14px rgba(23,66,63,.18)}
   header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-bottom:0}
   .brand{font-weight:800;letter-spacing:-.01em;font-size:20px}
   .brand span{color:#d9b25a}
@@ -42,7 +42,7 @@
 
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
-  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0;overflow-wrap:anywhere}
+  .card{background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0;overflow-wrap:anywhere;box-shadow:0 1px 2px rgba(23,66,63,.04),0 10px 26px rgba(23,66,63,.05)}
   .card h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--pine2);display:flex;align-items:center;gap:8px}
   .card.full{grid-column:1/-1}
   .row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px dashed #edf0f1}
@@ -684,19 +684,19 @@ const RULEPACKS = {
       labPanelCite:"7.35.2.19 NMAC",
       transferRule:"Transfer only to permitted healing centers, service centers, or certified facilitators; recipient permit verified before an order is finalized.",
       transferCite:"7.35.2 NMAC",
-      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on mpp.nm.btgov.com (a BT Government domain) — so that incumbent vendor powers the psilocybin LICENSING portal today. NOT confirmed: that it is the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). The incumbent's long-term hold is unsettled — verify with DOH. Either way, Parakeet Software's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with the state licensing portal.",
-      portalCite:"mpp.nm.btgov.com (BT Government) — scope unverified",
+      statePortal:"CONFIRMED (live portal): NM's producer & lab permit applications run on the state's designated application portal (mpp.nm.btgov.com). NOT confirmed: that it is the full system of record (product track-and-trace + the 7.35.3 patient-enrollment e-system, which isn't live yet). The long-term designations are unsettled — verify with DOH. Parakeet Software's wedge is the open traceability/enrollment designations + operator (regtech) services that integrate with the state licensing portal.",
+      portalCite:"mpp.nm.btgov.com — scope unverified",
       gap:"⚠ Critical path: NM lab-permit applications are now OPEN via the state portal (mpp.nm.btgov.com); a complete application triggers a DOH site visit within 30 business days. Until a lab is certified, the 7.35.2.19 panel can't run → no COAs → potency stays Pending → product can't be transferred. Lab certification + certifying-clinician certification are the two gates before first-patient enrollment.",
       cite:"7.35.2 NMAC",
       applicantNote:"<b>For applicants:</b> applications are submitted via the state portal mpp.nm.btgov.com — <b>producer applications opened 08/17/2026</b>; <b>laboratory applications opened 10/05/2026</b>. A complete application triggers a DOH site visit within 30 business days. Review the Producer & Laboratory Requirements (7.35.2 NMAC) first — incomplete applications may be rejected. Questions: medical.psilocybin@doh.nm.gov · 505-827-2321 (DOH Medical Psilocybin Program, Harold Runnels Bldg, Santa Fe). The Act took effect Jun 20, 2025; DOH targets implementation by Dec 31, 2026 (statutory backstop Dec 31, 2027)."
     },
     audit:{detail:"Govtech scope: DOH monitors producers & clinicians for compliance (§7B) and publishes a de-identified <b>annual assessment</b> (§9). Software runs the <b>annual producer audit</b> (chain-of-custody reconciliation, batch ↔ COA ↔ transfer, waste), the <b>annual de-identified patient/outcome assessment</b>, and disciplinary actions & appeals.", cite:"SB219 §7B · §9 · 7.35.3 NMAC"},
     systems:[
-      {n:"1 · Licensing & applications", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for permit/certification applications & renewals — producers & labs (7.35.2) and certifying clinicians, practitioners, facilitators, healing centers, educational programs (7.35.3). Decision clocks: 30-day review; 60/30-day renewal windows. <i>Currently designated: mpp.nm.btgov.com (BT Government).</i>", cite:"7.35.3.7 def · 7.35.2/7.35.3"},
+      {n:"1 · Licensing & applications", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for permit/certification applications & renewals — producers & labs (7.35.2) and certifying clinicians, practitioners, facilitators, healing centers, educational programs (7.35.3). Decision clocks: 30-day review; 60/30-day renewal windows. <i>Currently designated: mpp.nm.btgov.com.</i>", cite:"7.35.3.7 def · 7.35.2/7.35.3"},
       {n:"2 · Traceability (spore-to-end-use)", role:"The <b>&ldquo;traceability system&rdquo;</b> — <i>&ldquo;the department-approved system … to track psilocybin mushrooms and products from inoculation to end use.&rdquo;</i> Chain-of-custody forms generated/verified in-system on every transfer (producer → lab → healing center → administration). <i>Vendor unconfirmed.</i>", cite:"7.35.3 def · §(D) · 7.35.2.19"},
       {n:"3 · Patient enrollment", role:"The <b>&ldquo;electronic system designated by the department&rdquo;</b> for 7.35.3.8 enrollment — joint patient + certifying-clinician application, documents/attestations, 30-day DOH decision, 2-yr enrollment. A public comment asks DOH to support <b>API / machine-to-machine submission</b> and <b>HIPAA-business-associate upload</b> on a clinician's behalf. <i>Not live yet; vendor unconfirmed.</i>", cite:"7.35.3.8 NMAC"}
     ],
-    systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com (BT Government) for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is Parakeet Software's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
+    systemsNote:"The law names <b>NO vendor</b> — each is a &ldquo;department-approved&rdquo; / &ldquo;designated by the department&rdquo; system (7.35.3.7). DOH currently designates mpp.nm.btgov.com for licensing; <b>traceability & enrollment are unconfirmed and open</b>. The public comment's ask for API + business-associate submission is Parakeet Software's regtech integration opening — and the path to resolve the caregiver/navigator gap.",
     substances:"Psilocybin / psilocin (medical use)", subCite:"SB219 §13 · 7.35.3 NMAC",
     personas:[
       {key:"applicant",ico:"📝",title:"Applicant",tag:"Get a permit or certification",
