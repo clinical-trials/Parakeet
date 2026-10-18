@@ -467,6 +467,29 @@ function recordMfg(){
   var a=loadMfg(); a.unshift(rec); saveMfg(a); render();
 }
 function resetMfg(){ try{ localStorage.removeItem('parakeet_mfg_v1'); }catch(e){} render(); }
+/* ---------- premises security checklist (CO Security Checklist tip → built-in self-check) ---------- */
+var SEC_ITEMS=[
+  'Regulated product stored in a <b>locked, limited-access area or vault</b>.',
+  'Access restricted to <b>badged, background-checked</b> staff; visitor log &amp; escort policy.',
+  'Monitored <b>intrusion / alarm system</b> covering entry and storage points.',
+  '<b>Video surveillance</b> of access &amp; storage points, retained for the required period.',
+  '<b>Waste rendered unusable</b> and logged before disposal (see Waste tracking).',
+  '<b>Transport security</b> plan — locked, manifested, route/GPS for transfers.',
+  '<b>Inventory reconciled</b> on a set schedule; discrepancies investigated &amp; reported.',
+  'Written <b>security plan</b> on file and reviewed at least annually.'
+];
+function loadSec(){ try{ return JSON.parse(localStorage.getItem('parakeet_security_v1')||'{}'); }catch(e){ return {}; } }
+function saveSec(o){ try{ localStorage.setItem('parakeet_security_v1', JSON.stringify(o)); }catch(e){} }
+function toggleSec(i,v){ var o=loadSec(); o[i]=v; saveSec(o); render(); }
+function resetSec(){ try{ localStorage.removeItem('parakeet_security_v1'); }catch(e){} render(); }
+function secCard(){
+  var o=loadSec(), done=SEC_ITEMS.filter(function(_,i){return o[i];}).length, pct=Math.round(done/SEC_ITEMS.length*100);
+  var h='<div class="card"><h3 style="margin:0 0 6px;color:#1f5a54;font-size:14px">🔒 Premises security checklist</h3>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="flex:1;height:8px;background:#e9efe9;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(pct===100?'#1c7a4a':'#a8792b')+'"></div></div><div class="appmeta" style="white-space:nowrap"><b>'+done+' / '+SEC_ITEMS.length+'</b> ('+pct+'%)</div></div>'+
+    SEC_ITEMS.map(function(it,i){return '<label style="display:block;margin:6px 0;font-size:13px;cursor:pointer;color:var(--ink)"><input type="checkbox" '+(o[i]?'checked':'')+' onchange="toggleSec('+i+',this.checked)" style="margin-right:8px;transform:scale(1.2)">'+it+'</label>';}).join('')+
+    '<div class="note">Colorado&rsquo;s premises <b>Security Checklist</b> as a built-in self-check — not a substitute for the security requirements in your license category&rsquo;s rule. Source: CO NMD compliance tools. <a href="#" onclick="resetSec();return false;">reset</a></div></div>';
+  return h;
+}
 function mfgCard(){
   var m=loadMfg();
   var h='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">🏭 Manufacturing &amp; product inventory</h3>'+
@@ -552,6 +575,7 @@ function renderCustody(){
   });
   h+=mfgCard();
   h+=wasteCard();
+  h+=secCard();
   return h;
 }
 function registerLot(){
@@ -628,7 +652,10 @@ var MEASURES={
     items:['I have felt cheerful and in good spirits','I have felt calm and relaxed','I have felt active and vigorous','I woke up feeling fresh and rested','My daily life has been filled with things that interest me']},
   'PCL-5':{cond:'PTSD', pd:'PCL-5 — public domain (National Center for PTSD, U.S. Dept. of Veterans Affairs); free to use', prompt:'In the past month, how much were you bothered by:', scale:[['0','Not at all'],['1','A little bit'],['2','Moderately'],['3','Quite a bit'],['4','Extremely']], max:80,
     bands:[[0,30,'Below provisional cutoff'],[31,80,'At/above provisional PTSD cutoff (≥31–33)']],
-    items:['Repeated, disturbing, and unwanted memories of the stressful experience','Repeated, disturbing dreams of the stressful experience','Suddenly feeling or acting as if the stressful experience were actually happening again','Feeling very upset when something reminded you of the stressful experience','Having strong physical reactions when something reminded you of the stressful experience (e.g., heart pounding, trouble breathing, sweating)','Avoiding memories, thoughts, or feelings related to the stressful experience','Avoiding external reminders of the stressful experience (e.g., people, places, conversations, activities, objects, or situations)','Trouble remembering important parts of the stressful experience','Having strong negative beliefs about yourself, other people, or the world','Blaming yourself or someone else for the stressful experience or what happened after it','Having strong negative feelings such as fear, horror, anger, guilt, or shame','Loss of interest in activities that you used to enjoy','Feeling distant or cut off from other people','Trouble experiencing positive feelings (e.g., being unable to feel happiness or have loving feelings for people close to you)','Irritable behavior, angry outbursts, or acting aggressively','Taking too many risks or doing things that could cause you harm','Being superalert or watchful or on guard','Feeling jumpy or easily startled','Having difficulty concentrating','Trouble falling or staying asleep']}
+    items:['Repeated, disturbing, and unwanted memories of the stressful experience','Repeated, disturbing dreams of the stressful experience','Suddenly feeling or acting as if the stressful experience were actually happening again','Feeling very upset when something reminded you of the stressful experience','Having strong physical reactions when something reminded you of the stressful experience (e.g., heart pounding, trouble breathing, sweating)','Avoiding memories, thoughts, or feelings related to the stressful experience','Avoiding external reminders of the stressful experience (e.g., people, places, conversations, activities, objects, or situations)','Trouble remembering important parts of the stressful experience','Having strong negative beliefs about yourself, other people, or the world','Blaming yourself or someone else for the stressful experience or what happened after it','Having strong negative feelings such as fear, horror, anger, guilt, or shame','Loss of interest in activities that you used to enjoy','Feeling distant or cut off from other people','Trouble experiencing positive feelings (e.g., being unable to feel happiness or have loving feelings for people close to you)','Irritable behavior, angry outbursts, or acting aggressively','Taking too many risks or doing things that could cause you harm','Being superalert or watchful or on guard','Feeling jumpy or easily startled','Having difficulty concentrating','Trouble falling or staying asleep']},
+  'WSAS':{cond:'Function', pd:'WSAS (Work & Social Adjustment Scale) — public domain (Mundt/Marks); free to use', prompt:'Rate how much your condition impairs each area (0 = not at all, 8 = very severe):', scale:[['0','Not at all'],['2','Slightly'],['4','Definitely'],['6','Markedly'],['8','Very severe']], max:40,
+    bands:[[0,9,'Subclinical'],[10,20,'Significant impairment'],[21,40,'Moderate–severe impairment']],
+    items:['My ability to work','Home management (cleaning, tidying, shopping, cooking, looking after home or children, paying bills)','Social leisure activities with other people (parties, outings, visits)','Private leisure activities done alone (reading, gardening, hobbies)','My ability to form and maintain close relationships']}
 };
 function pickMeasure(){ var s=document.getElementById('m_sel'); if(!s) return; var el=document.getElementById('mForm'); if(el) el.innerHTML=measureForm(s.value); }
 function measureForm(k){
@@ -739,7 +766,7 @@ function renderReporting(){
      '</tbody></table></div><div class="note">Favored for the strongest combination of psychometric quality, brevity, familiarity &amp; longitudinal utility. <b>Substance-use disorder uses several measures, staged</b> — TAPS + AUDIT-C screen at entry, BAM tracks progress at baseline &amp; follow-up. Source: RACI Recommended Battery whitepaper (11 Sep 2026 consensus).</div></div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Administer a measure — iPad-friendly questionnaire</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">A tap-friendly rendering of the <b>actual validated items</b> (public-domain instruments). The score computes live — record the total in the §9 session, then re-administer at the 1 / 3 / 6 / 12-month follow-ups.</div>'+
-     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
+     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WSAS">WSAS — function</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
      '<div id="mForm" style="margin-top:8px"></div></div>';
   h+=rqCard();
   return h;
