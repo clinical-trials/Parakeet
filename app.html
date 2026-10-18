@@ -101,7 +101,7 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand">PARA<span>·</span>KEET Software <small>Application &amp; Review — NM Medical Psilocybin</small></div>
+    <div class="brand"><img src="favicon.png" alt="" style="height:30px;width:30px;vertical-align:-8px;margin-right:9px;border-radius:7px">PARA<span>·</span>KEET Software <small>Application &amp; Review — NM Medical Psilocybin</small></div>
     <nav class="app" id="nav">
       <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
       <button data-view="clinician" onclick="go('clinician')">Clinician</button>
@@ -655,7 +655,15 @@ var MEASURES={
     items:['Repeated, disturbing, and unwanted memories of the stressful experience','Repeated, disturbing dreams of the stressful experience','Suddenly feeling or acting as if the stressful experience were actually happening again','Feeling very upset when something reminded you of the stressful experience','Having strong physical reactions when something reminded you of the stressful experience (e.g., heart pounding, trouble breathing, sweating)','Avoiding memories, thoughts, or feelings related to the stressful experience','Avoiding external reminders of the stressful experience (e.g., people, places, conversations, activities, objects, or situations)','Trouble remembering important parts of the stressful experience','Having strong negative beliefs about yourself, other people, or the world','Blaming yourself or someone else for the stressful experience or what happened after it','Having strong negative feelings such as fear, horror, anger, guilt, or shame','Loss of interest in activities that you used to enjoy','Feeling distant or cut off from other people','Trouble experiencing positive feelings (e.g., being unable to feel happiness or have loving feelings for people close to you)','Irritable behavior, angry outbursts, or acting aggressively','Taking too many risks or doing things that could cause you harm','Being superalert or watchful or on guard','Feeling jumpy or easily startled','Having difficulty concentrating','Trouble falling or staying asleep']},
   'WSAS':{cond:'Function', pd:'WSAS (Work & Social Adjustment Scale) — public domain (Mundt/Marks); free to use', prompt:'Rate how much your condition impairs each area (0 = not at all, 8 = very severe):', scale:[['0','Not at all'],['2','Slightly'],['4','Definitely'],['6','Markedly'],['8','Very severe']], max:40,
     bands:[[0,9,'Subclinical'],[10,20,'Significant impairment'],[21,40,'Moderate–severe impairment']],
-    items:['My ability to work','Home management (cleaning, tidying, shopping, cooking, looking after home or children, paying bills)','Social leisure activities with other people (parties, outings, visits)','Private leisure activities done alone (reading, gardening, hobbies)','My ability to form and maintain close relationships']}
+    items:['My ability to work','Home management (cleaning, tidying, shopping, cooking, looking after home or children, paying bills)','Social leisure activities with other people (parties, outings, visits)','Private leisure activities done alone (reading, gardening, hobbies)','My ability to form and maintain close relationships']},
+  'AUDIT-C':{cond:'Alcohol use', pd:'AUDIT-C — public domain (derived from the WHO AUDIT); free to use', prompt:'Please answer these three questions about your alcohol use:', max:12,
+    itemScales:[
+      [['0','Never'],['1','Monthly or less'],['2','2–4 times a month'],['3','2–3 times a week'],['4','4+ times a week']],
+      [['0','1 or 2'],['1','3 or 4'],['2','5 or 6'],['3','7 to 9'],['4','10 or more']],
+      [['0','Never'],['1','Less than monthly'],['2','Monthly'],['3','Weekly'],['4','Daily or almost daily']]
+    ],
+    bands:[[0,3,'Below screening cutoff'],[4,12,'Positive screen (≥4 men / ≥3 women) — assess further']],
+    items:['How often do you have a drink containing alcohol?','How many standard drinks do you have on a typical day when you are drinking?','How often do you have six or more drinks on one occasion?']}
 };
 function pickMeasure(){ var s=document.getElementById('m_sel'); if(!s) return; var el=document.getElementById('mForm'); if(el) el.innerHTML=measureForm(s.value); }
 function measureForm(k){
@@ -663,7 +671,7 @@ function measureForm(k){
   var h='<div class="kv" style="color:var(--ink);margin:2px 0 8px"><b>'+esc(k)+'</b> · '+esc(m.cond)+' — '+esc(m.prompt)+'</div>';
   h+=m.items.map(function(it,i){
     return '<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff"><div style="font-weight:600;font-size:15px;margin-bottom:10px">'+(i+1)+'. '+esc(it)+'</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+
-      m.scale.map(function(o){return '<label style="flex:1 1 130px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:14px 8px;cursor:pointer;font-size:13.5px;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="'+o[0]+'" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.2)">'+esc(o[1])+'</label>';}).join('')+'</div>'+
+      (m.itemScales?m.itemScales[i]:m.scale).map(function(o){return '<label style="flex:1 1 130px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:14px 8px;cursor:pointer;font-size:13.5px;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="'+o[0]+'" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.2)">'+esc(o[1])+'</label>';}).join('')+'</div>'+
       '<label style="display:inline-block;margin-top:8px;font-size:12px;color:#6b7b74;cursor:pointer;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="na" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.1)">Prefer not to answer</label></div>';
   }).join('');
   h+='<div id="mScore" class="card" style="background:#fbfdfd;margin:0"><div class="appmeta">Tap an answer on each item to compute the score. Any item may be left as &ldquo;Prefer not to answer.&rdquo;</div></div>';
@@ -766,7 +774,7 @@ function renderReporting(){
      '</tbody></table></div><div class="note">Favored for the strongest combination of psychometric quality, brevity, familiarity &amp; longitudinal utility. <b>Substance-use disorder uses several measures, staged</b> — TAPS + AUDIT-C screen at entry, BAM tracks progress at baseline &amp; follow-up. Source: RACI Recommended Battery whitepaper (11 Sep 2026 consensus).</div></div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Administer a measure — iPad-friendly questionnaire</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">A tap-friendly rendering of the <b>actual validated items</b> (public-domain instruments). The score computes live — record the total in the §9 session, then re-administer at the 1 / 3 / 6 / 12-month follow-ups.</div>'+
-     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WSAS">WSAS — function</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
+     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WSAS">WSAS — function</option><option value="AUDIT-C">AUDIT-C — alcohol / SUD</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
      '<div id="mForm" style="margin-top:8px"></div></div>';
   h+=rqCard();
   return h;
