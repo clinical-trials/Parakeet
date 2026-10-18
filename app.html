@@ -595,6 +595,7 @@ function renderCustody(){
       h+='<div class="appmeta">'+esc(l.producer)+' · harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · '+esc(l.npkg)+' '+esc(l.unit)+'(s) planned</div>';
       var si=STRAIN_INFO[l.strain]; if(si) h+='<div class="appmeta" style="margin-top:2px"><i>'+si.sp+'</i> — '+si.note+' Typical '+si.pot+'; <b>the COA sets the actual mg</b>.</div>';
       h+='<div class="kv" style="margin-top:6px"><b>Ready to be lab tested</b> — 7.35.2.19 panel: psilocybin/psilocin mg, microbial, heavy metals, pesticides.</div>';
+      h+='<div class="kv" style="margin-top:4px">📍 <a href="#" onclick="go(\'lab\');return false;"><b>Find &amp; contact a certified testing lab →</b></a> to run this panel. The lab&rsquo;s COA flows back here and <b>unlocks packaging &amp; transfer</b>.</div>';
       h+='<div class="actions" style="margin-top:8px"><span class="note">Potency (mg/unit) is set from the Certificate of Analysis.</span><button class="btn sm" onclick="recordCOA(\''+l.id+'\')">Record COA (lab) → package</button></div>';
       h+='</div>';
     } else {
@@ -889,6 +890,23 @@ function appStep(p){
   if(l.status==='denied') return {t:"Application "+l.id+" was denied — review and reapply.",a:"go('chooser')",al:"Reapply"};
   return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
 }
+function regulatorTodo(){
+  var apps=loadApps(), pend=apps.filter(function(a){return a.status==='submitted'||a.status==='sitevisit';}).length;
+  var items=[
+    {t:'Finalize 7.35.3 NMAC — patients, certifying clinicians, practitioners, facilitators, healing centers', d:'Public hearing held Oct 2, 2026 · regulations published ≥30 days after finalization', st:'progress'},
+    {t:'Certify at least one testing laboratory (7.35.2.19 panel)', d:'Applications opened Oct 5, 2026 · BLOCKS the first COAs → blocks first patients', st:'blocked', go:'lab'},
+    {t:'Review pending producer & laboratory applications', d:pend+' pending · 30-day decision clock each', st:pend?'progress':'done', go:'review'},
+    {t:'Certify the three provider categories', d:'Certifying clinician · practitioner · facilitator (7.35.3.9)', st:'progress'},
+    {t:'Adopt the fee schedule', d:'7.35.2 / 7.35.3 NMAC — not yet decided', st:'pending', go:'equity'},
+    {t:'Stand up §9 reporting & tiered adverse-event surveillance', d:'The designated reporting system before first administration', st:'progress', go:'safety'},
+    {t:'Enroll the first patients', d:'Target December 2026 · statutory deadline Dec 31, 2027', st:'pending'}
+  ];
+  var STC={done:['s-approved','Done'],progress:['s-review','In progress'],blocked:['s-denied','Blocked'],pending:['s-submitted','Not started']};
+  var h='<div class="card" style="border-left:4px solid #17423f"><h3 class="dh" style="color:#17423f">Regulator to-do — process &amp; deadlines to first patients</h3>';
+  h+=items.map(function(it){ var s=STC[it.st]||STC.pending; return '<div class="approw"><div><b>'+esc(it.t)+'</b>'+(it.go?' <a href="#" class="slink" onclick="go(\''+it.go+'\');return false;">open →</a>':'')+'<div class="appmeta">🗓 '+esc(it.d)+'</div></div><span class="status '+s[0]+'">'+s[1]+'</span></div>'; }).join('');
+  h+='<div class="note">A living checklist of what must happen before New Mexico can enroll its first patients. Dates reflect public sources — confirm with DOH.</div></div>';
+  return h;
+}
 function warmHero(){
   var m=new Date().getMonth();
   var season=(m===11||m<=1)?'winter':(m<=4?'spring':(m<=7?'summer':'fall'));
@@ -961,6 +979,7 @@ function renderDashboard(){
     var _ae=(typeof loadAE==='function'?loadAE():[]), _ses=(typeof loadSessions==='function'?loadSessions():[]), _enr={};
     _ses.forEach(function(s){ if(s.enrollment_id) _enr[s.enrollment_id]=1; });
     h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 2px">'+mchip(_pend,t('Pending applications','Solicitudes pendientes'))+mchip(_appr,t('Approved','Aprobadas'))+mchip('0',t('Certified labs','Labs certificados'))+mchip(_ae.length,t('Adverse events','Eventos adversos'))+mchip(Object.keys(_enr).length,t('Enrollees (de-id)','Inscritos'))+'</div>';
+    h+=regulatorTodo();
     h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">What Parakeet is — and what it optimizes for</h3>'+
       '<div class="kv" style="color:var(--ink)"><b>A free, provider-facing compliance &amp; public-health platform</b> for New Mexico&rsquo;s Medical Psilocybin Program — it turns the three designated systems (<b>licensing &middot; traceability &middot; enrollment/certification</b>) into one low-burden, de-identified backbone that keeps patients safe, helps the Department run the program, and produces honest evidence. A <b>medical program&rsquo;s</b> tool, not a dispensary&rsquo;s.</div>'+
       '<ol style="margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)">'+
@@ -1041,8 +1060,8 @@ function saveConsent(o){ try{ localStorage.setItem('parakeet_consent_v1', JSON.s
 function setConsent(k,v){ var o=loadConsent(); o[k]=v; saveConsent(o); render(); }
 function resetConsent(){ try{ localStorage.removeItem('parakeet_consent_v1'); }catch(e){} render(); }
 function patientJourney(){
-  var steps=[ t('Qualify','Calificar'), t('Prepare','Prepararse'), t('Session','Sesión'), t('Integrate','Integrar'), t('Follow-up','Seguimiento') ];
-  return '<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 10px;color:#1c5a3a;font-size:14px">🧭 '+t('Your journey','Su camino')+'</h3><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">'+
+  var steps=[ t('Qualify','Calificar'), t('Preparation','Preparación'), t('Administration','Administración'), t('Integration','Integración'), t('Follow-up','Seguimiento') ];
+  return '<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 10px;color:#1c5a3a;font-size:14px">🌿 '+t('Your care, step by step','Su atención, paso a paso')+'</h3><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">'+
     steps.map(function(s,i){return '<div style="display:flex;align-items:center;gap:6px"><div style="width:26px;height:26px;border-radius:50%;background:#1c7a4a;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">'+(i+1)+'</div><span style="font-size:13px;color:var(--ink)">'+s+'</span>'+(i<steps.length-1?'<span style="color:#7fae92;margin:0 3px">→</span>':'')+'</div>';}).join('')+
     '</div><div class="note">'+t('Each step has support, and you can pause or stop at any time.','Cada paso tiene apoyo, y puede pausar o detenerse en cualquier momento.')+'</div></div>';
 }
