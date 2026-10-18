@@ -250,18 +250,19 @@
   .phero img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
   .phero .pcap{position:absolute;left:0;right:0;bottom:0;padding:10px 16px;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
   .phero .pcap small{display:block;font-weight:600;font-size:10px;opacity:.9;margin-top:2px;letter-spacing:.01em}
-  .phero .pc{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.5),rgba(255,255,255,0));filter:blur(3px);pointer-events:none}
-  .phero .pc1{top:8%;left:-30%;width:40%;height:60%}.phero .pc2{top:-6%;left:-50%;width:30%;height:50%}.phero .pc3{top:20%;left:-40%;width:24%;height:38%}
-  @media (prefers-reduced-motion:no-preference){.phero .pc1{animation:pcd 70s linear infinite}.phero .pc2{animation:pcd 100s linear infinite;animation-delay:-30s}.phero .pc3{animation:pcd 86s linear infinite;animation-delay:-55s}}
-  @keyframes pcd{from{transform:translateX(0)}to{transform:translateX(360%)}}
+  .phero .pc{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.9),rgba(255,255,255,.4) 58%,rgba(255,255,255,0));filter:blur(4px);pointer-events:none;will-change:transform;animation:pcd 44s linear infinite}
+  .phero .pc1{top:6%;left:-35%;width:52%;height:82%}
+  .phero .pc2{top:-12%;left:-60%;width:40%;height:66%;animation-duration:60s;animation-delay:-22s}
+  .phero .pc3{top:24%;left:-48%;width:32%;height:50%;animation-duration:52s;animation-delay:-38s}
+  @keyframes pcd{from{transform:translateX(0)}to{transform:translateX(330%)}}
+  @media (prefers-reduced-motion:reduce){.phero .pc{animation:none;opacity:.55}}
   @media (max-width:560px){.phero{height:120px}.phero .pcap{font-size:13px}}
   </style>
   <div class="phero" aria-hidden="true">
     <img id="pheroImg" src="images/sandia-sunset.jpg" alt="New Mexico landscape" loading="lazy" onerror="this.style.display='none'">
     <span class="pc pc1"></span><span class="pc pc2"></span><span class="pc pc3"></span>
-    <div class="pcap">New Mexico &middot; Bienvenidos &middot; Yáʼátʼééh<small>Open, public-domain imagery (CC0 &middot; Wikimedia Commons) &middot; clouds drift with the seasons</small></div>
+    <div class="pcap">New Mexico &middot; Bienvenidos &middot; Yáʼátʼééh</div>
   </div>
-  <script>try{var _m=new Date().getMonth();if(_m===11||_m<=1){var _pi=document.getElementById('pheroImg');if(_pi)_pi.src='images/nm-winter.jpg';}}catch(e){}</script>
   <div class="statehead">
     <div>
       <h1 id="stateName"></h1>
@@ -601,14 +602,14 @@ const EXPLAINER = {
       {i:"🏛️",t:"Care happens at a healing center or approved location",n:"supervised, not take-home"},
       {i:"🔬",t:"Product is grown by a licensed producer & lab-tested",n:"your dose is set by the COA"}
     ]},
-  co:{ model:"Non-medical", lead:"Colorado's Regulated Natural Medicine program (Prop 122) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, or qualifying condition.",
+  co:{ model:"Non-medical", lead:"Colorado's Regulated Natural Medicine program (Prop 122) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, qualifying condition, or residency requirement (anyone 21+ may travel in). Regulated access live since 2025.",
     steps:[
       {i:"🧭",t:"You choose a licensed facilitator & healing center",n:"no referral needed"},
       {i:"🤝",t:"A preparation session comes first",n:"informed consent & safety plan"},
       {i:"🏛️",t:"You take psilocybin at a licensed healing center",n:"the facilitator stays with you"},
       {i:"🔄",t:"An optional integration session follows",n:"72-hour check-in"}
     ]},
-  or:{ model:"Non-medical", lead:"Oregon's Psilocybin Services program (Measure 109, live since 2023) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, or referral.",
+  or:{ model:"Non-medical", lead:"Oregon's Psilocybin Services program (Measure 109, live since 2023) lets any adult 21+ access psilocybin through a licensed facilitator — no diagnosis, prescription, referral, or residency requirement (anyone 21+ may travel in).",
     steps:[
       {i:"🧭",t:"Choose a licensed service center & facilitator",n:"verify the license first"},
       {i:"🤝",t:"Complete a preparation session",n:"informed consent & safety plan"},
@@ -873,9 +874,21 @@ function render(){
   document.getElementById("stateName").textContent = p.name + " — " + p.program;
   document.getElementById("stateSub").textContent = p.sub;
 
+  // Per-state hero image + caption + fallback tint — so switching states is unmistakable
+  (function(){
+    var m=new Date().getMonth(), nmImg=(m===11||m<=1)?'images/nm-winter.jpg':'images/sandia-sunset.jpg';
+    var IMG={nm:nmImg,co:'images/co-maroon-bells.jpg',or:'images/or-crater-lake.jpg'};
+    var CAP={nm:'New Mexico · Bienvenidos · Yáʼátʼééh',co:'Colorado · Maroon Bells, Rocky Mountains',or:'Oregon · Crater Lake, Cascade Range'};
+    var GRAD={nm:'linear-gradient(180deg,#f7e1c1,#d18b52)',co:'linear-gradient(180deg,#e7e2b4,#7f8f54)',or:'linear-gradient(180deg,#bfe0f0,#2f6f9e)'};
+    var pi=document.getElementById('pheroImg'); if(pi){ pi.style.display=''; pi.src=IMG[ACTIVE]||IMG.nm; pi.alt=(CAP[ACTIVE]||'')+' landscape'; }
+    var ph=document.querySelector('.phero'); if(ph){ ph.style.background=GRAD[ACTIVE]||GRAD.nm; }
+    var pc=document.querySelector('.phero .pcap'); if(pc){ pc.textContent=CAP[ACTIVE]||CAP.nm; }
+  })();
+
   const ab = document.getElementById("accessBadge");
   ab.className = p.access==="medical" ? "accessbadge access-medical" : "accessbadge access-nonmedical";
-  ab.textContent = p.access==="medical" ? "MEDICAL MODEL" : "NON-MEDICAL MODEL";
+  var LIVE={nm:'Launching 2026 · SB219 (2025)',co:'Live since 2025 · Prop 122 (2022)',or:'Live since 2023 · Measure 109 (2020)'};
+  ab.innerHTML = '<div>'+(p.access==="medical" ? "MEDICAL MODEL" : "NON-MEDICAL MODEL")+'</div><div style="font-weight:600;font-size:9px;letter-spacing:.02em;opacity:.92;margin-top:3px;white-space:nowrap">'+(LIVE[ACTIVE]||'')+'</div>';
 
   document.getElementById("coreModules").innerHTML =
     CORE_MODULES.map(m=>`<span class="coretag">${m}</span>`).join("");
