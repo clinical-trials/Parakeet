@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='13'%20fill='%2317423f'/%3E%3Cpath%20d='M22%2042%2010%2055l16-6z'%20fill='%23c0392b'/%3E%3Cellipse%20cx='32'%20cy='35'%20rx='15'%20ry='17'%20fill='%23c0392b'/%3E%3Ccircle%20cx='42'%20cy='22'%20r='11'%20fill='%23c0392b'/%3E%3Cpath%20d='M51%2017l10%205-10%205z'%20fill='%23f3c969'/%3E%3Ccircle%20cx='45'%20cy='20'%20r='2.4'%20fill='%23fff'/%3E%3Ccircle%20cx='45.8'%20cy='20.4'%20r='1.1'%20fill='%2317423f'/%3E%3Ccircle%20cx='28'%20cy='31'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='36'%20cy='39'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='28'%20cy='43'%20r='1.8'%20fill='%23fff'/%3E%3Ccircle%20cx='39'%20cy='31'%20r='1.6'%20fill='%23fff'/%3E%3Ccircle%20cx='24'%20cy='37'%20r='1.5'%20fill='%23fff'/%3E%3C/svg%3E">
 <style>
-  :root{--ink:#20262b;--muted:#5c6870;--line:#dbe1e4;--bg:#f6f8f8;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
+  :root{--ink:#20262b;--muted:#5c6870;--line:#e4ddce;--bg:#f4efe3;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px}
   a{color:var(--blue)}
@@ -31,8 +31,8 @@
   .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
-  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
-  .tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;transition:.15s}
+  .card{background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(23,66,63,.04),0 10px 26px rgba(23,66,63,.05)}
+  .tile{background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:.18s;box-shadow:0 1px 2px rgba(23,66,63,.04),0 8px 22px rgba(23,66,63,.05)}
   .tile:hover{border-color:var(--pine2);box-shadow:0 3px 10px rgba(0,0,0,.06)}
   .tile .ico{font-size:24px}
   .tile h3{margin:6px 0 3px;font-size:15px;color:var(--pine)}
@@ -116,6 +116,9 @@
       <button data-view="review" onclick="go('review')">DOH review</button>
     </nav>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;max-width:900px">
+      <span style="font-size:11px;color:#9fc0bc;text-transform:uppercase;letter-spacing:.06em;font-weight:700">🌐 Language</span>
+      <select id="langSel" onchange="setLang(this.value)" aria-label="Language" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#123532;color:#fff"><option value="en">English</option><option value="es">Español</option></select>
+      <span style="width:1px;height:16px;background:rgba(255,255,255,.25);margin:0 4px"></span>
       <span style="font-size:11px;color:#9fc0bc;text-transform:uppercase;letter-spacing:.06em;font-weight:700">🔐 Role-based access — signed in as</span>
       <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#123532;color:#fff">
         <option value="doh">DOH reviewer</option>
@@ -245,8 +248,8 @@ var DESIGNATED = [
 /* ---------- role-based access (least-privilege) ---------- */
 var ROLES={
   doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
-  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','safety','equity']},
-  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety','equity']},
+  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','research','safety','equity']},
+  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','research','safety','equity']},
   producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','safety']},
   lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','safety']},
   patient:{name:'Patient', views:['dashboard','chooser','myapps','equity','safety']}
@@ -254,6 +257,64 @@ var ROLES={
 var ROLE=(function(){ try{ return localStorage.getItem('parakeet_role_v1')||'doh'; }catch(e){ return 'doh'; } })();
 function roleViews(){ return (ROLES[ROLE]||ROLES.doh).views; }
 function setRole(r){ if(!ROLES[r]) return; ROLE=r; try{ localStorage.setItem('parakeet_role_v1', r); }catch(e){} if(roleViews().indexOf(VIEW)<0) VIEW=roleViews()[0]; render(); window.scrollTo(0,0); }
+/* ---------- language / i18n (EN · ES) ---------- */
+var LANG=(function(){ try{ return localStorage.getItem('parakeet_lang_v1')||'en'; }catch(e){ return 'en'; } })();
+function setLang(l){ LANG=(l==='es'?'es':'en'); try{ localStorage.setItem('parakeet_lang_v1', LANG); }catch(e){} render(); window.scrollTo(0,0); }
+function t(en, es){ return (LANG==='es' && es) ? es : en; }
+/* ---------- policy / program calendar (keep updated as hearings & deadlines are announced) ---------- */
+var EVENTS=[
+  {d:'2026-11-04', t:'Colorado Natural Medicine Division — final rulemaking hearing', note:'9:30am MT · 1707 Cole Blvd, Lakewood, Ste 300 · written-comment deadline 5pm · implements HB26-1325 (1 CCR 213-1)', tag:'CO', hard:true},
+  {d:'2026-12-01', t:'New Mexico — target for first patients', note:'DOH goal (~December 2026), about a year ahead of the statutory deadline', tag:'NM', hard:false},
+  {d:'2027-12-31', t:'New Mexico — statutory implementation deadline', note:'SB219 backstop; the program must be operational', tag:'NM', hard:true}
+];
+function daysUntil(d){ var now=new Date(); now.setHours(0,0,0,0); return Math.round((new Date(d+'T00:00:00')-now)/86400000); }
+function fmtEventDate(d){ var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; var p=d.split('-'); return m[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
+function nextEvent(){ var now=new Date(); now.setHours(0,0,0,0); return EVENTS.filter(function(e){ return new Date(e.d+'T00:00:00')>=now; }).sort(function(a,b){ return a.d<b.d?-1:1; })[0]||null; }
+function eventBanner(){
+  var e=nextEvent(); if(!e) return '';
+  var n=daysUntil(e.d), when = n<=0? t('today','hoy') : (n===1? t('in 1 day','en 1 día') : t('in '+n+' days','en '+n+' días'));
+  return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#17423f;color:#fff;border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:13px">'+
+    '<span style="font-weight:800;letter-spacing:.04em;font-size:10.5px;text-transform:uppercase;background:#d9b25a;color:#1c2227;border-radius:5px;padding:2px 7px">'+t('Next policy event','Próximo evento')+'</span>'+
+    '<span><b>'+fmtEventDate(e.d)+'</b> — '+esc(e.t)+'</span>'+
+    '<span style="margin-left:auto;background:#123532;border-radius:20px;padding:2px 10px;font-size:12px;white-space:nowrap">'+when+'</span>'+
+    '<a href="#" onclick="go(\'research\');return false;" style="color:#d9b25a;font-weight:700;white-space:nowrap">'+t('full calendar','calendario')+' →</a></div>';
+}
+function eventsCard(){
+  var now=new Date(); now.setHours(0,0,0,0);
+  return '<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">📅 '+t('Upcoming policy calendar','Calendario de eventos')+'</h3>'+
+    EVENTS.slice().sort(function(a,b){ return a.d<b.d?-1:1; }).map(function(e){
+      var past=new Date(e.d+'T00:00:00')<now, n=daysUntil(e.d);
+      return '<div class="approw" style="'+(past?'opacity:.5;':'')+'"><div><b>'+fmtEventDate(e.d)+'</b> &middot; <span style="font-weight:700;color:'+(e.tag==='CO'?'#2b6f6a':'#17423f')+'">'+e.tag+'</span> '+esc(e.t)+'<div class="appmeta">'+e.note+(e.hard?'':' &middot; <i>target</i>')+'</div></div><div class="appmeta" style="white-space:nowrap">'+(past?t('past','pasado'):(n+' '+t('days','días')))+'</div></div>';
+    }).join('')+
+    '<div class="note">'+t('Verify each date against the issuing agency before relying on it. CO = Colorado Natural Medicine Division; NM = New Mexico DOH.','Verifique cada fecha con la agencia correspondiente antes de confiar en ella. CO = División de Medicina Natural de Colorado; NM = Departamento de Salud de NM.')+'</div></div>';
+}
+/* ---------- provider-submitted research questions → idea pipeline for the §11(B) Research Fund ---------- */
+function loadRQ(){ try{ return JSON.parse(localStorage.getItem('parakeet_rquestions_v1')||'[]'); }catch(e){ return []; } }
+function saveRQ(a){ try{ localStorage.setItem('parakeet_rquestions_v1', JSON.stringify(a)); }catch(e){} }
+function submitRQ(){
+  var q=(document.getElementById('rq_q')||{}).value||''; if(!q.trim()){ return; }
+  var rec={ id:'RQ-'+Math.random().toString(36).slice(2,6).toUpperCase(), q:q.trim(), topic:(document.getElementById('rq_topic')||{}).value||'', who:(document.getElementById('rq_who')||{}).value||'', at:new Date().toISOString() };
+  var a=loadRQ(); a.unshift(rec); saveRQ(a); render();
+}
+function resetRQ(){ try{ localStorage.removeItem('parakeet_rquestions_v1'); }catch(e){} render(); }
+function rqCard(){
+  var rq=loadRQ();
+  var h='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">💡 '+t('Submit a research question','Proponga una pregunta de investigación')+'</h3>'+
+    '<div class="kv" style="color:var(--ink)">'+t('Front-line providers see the questions that matter. Submit one here to seed the RACI committee&rsquo;s agenda and the <b>§11(B) Research Fund</b> — whose grants are open to <b>universities and health care providers studying medical psilocybin</b>.','Los proveedores de primera línea ven las preguntas que importan. Proponga una aquí para nutrir la agenda del comité RACI y el <b>Fondo de Investigación §11(B)</b>, cuyas subvenciones están abiertas a <b>universidades y proveedores de salud que estudian la psilocibina médica</b>.')+'</div>'+
+    '<div class="grid">'+
+      '<div class="field" style="grid-column:1 / -1"><label>'+t('Your research question','Su pregunta de investigación')+'</label><textarea id="rq_q" rows="2" placeholder="'+t('e.g. Does durability of response differ by diagnosis at 6 and 12 months?','p. ej., ¿la durabilidad de la respuesta difiere por diagnóstico a los 6 y 12 meses?')+'"></textarea></div>'+
+      '<div class="field"><label>'+t('Topic','Tema')+'</label><select id="rq_topic"><option>'+t('Durability / relapse','Durabilidad / recaída')+'</option><option>'+t('Dose–response','Dosis–respuesta')+'</option><option>'+t('Safety / adverse events','Seguridad / eventos adversos')+'</option><option>'+t('Equity / access','Equidad / acceso')+'</option><option>'+t('Cost-effectiveness','Costo-efectividad')+'</option><option>'+t('Special populations','Poblaciones especiales')+'</option><option>'+t('Other','Otro')+'</option></select></div>'+
+      '<div class="field"><label>'+t('Submitted by','Enviado por')+'</label><select id="rq_who"><option>'+t('Certifying clinician','Clínico certificador')+'</option><option>'+t('Practitioner','Profesional')+'</option><option>'+t('Facilitator','Facilitador')+'</option><option>'+t('Researcher / university','Investigador / universidad')+'</option><option>'+t('Other','Otro')+'</option></select></div>'+
+    '</div>'+
+    '<div class="actions"><span class="note">'+t('De-identified idea pipeline — not a grant application. No patient data.','Canal de ideas no identificado — no es una solicitud de subvención. Sin datos de pacientes.')+'</span><button class="btn primary" onclick="submitRQ()">'+t('Submit question','Enviar pregunta')+'</button></div>';
+  if(rq.length){ h+='<div style="margin-top:8px">'+rq.map(function(r){return '<div class="approw"><div><b>'+esc(r.q)+'</b><div class="appmeta">'+esc(r.topic)+' · '+esc(r.who)+'</div></div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px">'+rq.length+' '+t('submitted','enviadas')+' · <a href="#" onclick="resetRQ();return false;">'+t('reset','restablecer')+'</a></div></div>'; }
+  h+='</div>';
+  return h;
+}
+function langBanner(){
+  if(LANG!=='es') return '';
+  return '<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6;margin-bottom:12px"><b>🌐 Español (versión preliminar)</b> — Esta plataforma está disponible en español. La <b>traducción está en progreso</b>; en caso de discrepancia, el <b>texto normativo en inglés</b> (SB219; 7.35.2 / 7.35.3 NMAC) prevalece. Los materiales oficiales del Departamento de Salud deben traducirse profesionalmente. <span class="appmeta">Puede cambiar el idioma en la parte superior.</span></div>';
+}
 function lockView(){ var al=roleViews(); return '<div class="card" style="border-left:4px solid #b4452f;background:#fbf1ef;border-color:#e6c3ba"><h3 style="margin:0 0 6px;color:#a2432f;font-size:15px">🔒 Restricted — outside your role&rsquo;s access</h3><div class="kv" style="color:var(--ink)">The requested section is not part of <b>'+esc((ROLES[ROLE]||ROLES.doh).name)+'</b> access. Parakeet enforces <b>least-privilege, role-based access</b> — you see only what your role permits. Switch roles in the header to view it.</div><div class="actions" style="margin-top:6px"><span class="note">Your role can open: '+al.join(', ')+'.</span><button class="btn primary sm" onclick="go(\'dashboard\')">Go to dashboard</button></div></div>'; }
 
 /* ---------- state ---------- */
@@ -267,20 +328,22 @@ function render(){
   var allowed=roleViews();
   document.querySelectorAll('#nav button').forEach(function(b){ var v=b.dataset.view; b.style.display=allowed.indexOf(v)>=0?'':'none'; b.setAttribute('aria-current', v===VIEW?'true':'false'); });
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
-  var r=document.getElementById('root');
-  if(allowed.indexOf(VIEW)<0){ r.innerHTML=lockView(); return; }
-  if(VIEW==='dashboard') r.innerHTML=renderDashboard();
-  else if(VIEW==='clinician'){ r.innerHTML=renderClinician(); cplan(); qualCheck(); }
-  else if(VIEW==='chooser') r.innerHTML=renderChooser();
-  else if(VIEW==='wizard') r.innerHTML=renderWizard();
-  else if(VIEW==='myapps') r.innerHTML=renderMyApps();
-  else if(VIEW==='review') r.innerHTML=renderReview();
-  else if(VIEW==='custody') r.innerHTML=renderCustody();
-  else if(VIEW==='lab') r.innerHTML=renderLab();
-  else if(VIEW==='reporting'){ r.innerHTML=renderReporting(); s9cond(); pickMeasure(); }
-  else if(VIEW==='safety') r.innerHTML=renderSafety();
-  else if(VIEW==='equity'){ r.innerHTML=renderEquity(); fscalc(); }
-  else if(VIEW==='research') r.innerHTML=renderResearch();
+  var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
+  try{ document.documentElement.lang=LANG; }catch(e){}
+  var r=document.getElementById('root'), b=langBanner()+eventBanner();
+  if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
+  if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
+  else if(VIEW==='clinician'){ r.innerHTML=b+renderClinician(); cplan(); qualCheck(); }
+  else if(VIEW==='chooser') r.innerHTML=b+renderChooser();
+  else if(VIEW==='wizard') r.innerHTML=b+renderWizard();
+  else if(VIEW==='myapps') r.innerHTML=b+renderMyApps();
+  else if(VIEW==='review') r.innerHTML=b+renderReview();
+  else if(VIEW==='custody') r.innerHTML=b+renderCustody();
+  else if(VIEW==='lab') r.innerHTML=b+renderLab();
+  else if(VIEW==='reporting'){ r.innerHTML=b+renderReporting(); s9cond(); pickMeasure(); }
+  else if(VIEW==='safety') r.innerHTML=b+renderSafety();
+  else if(VIEW==='equity'){ r.innerHTML=b+renderEquity(); fscalc(); }
+  else if(VIEW==='research') r.innerHTML=b+renderResearch();
 }
 
 function renderChooser(){
@@ -392,6 +455,11 @@ function renderCustody(){
   var h='<h1>Chain-of-custody &amp; COA</h1><div class="sub">Unique IDs at <b>batch → lot → package</b>, tied to COA potency (mg) — no RFID. The chain ends at <b>administration to an enrolled patient</b> (mg dosed → §9), not a retail sale. Seeded with the first NM-permitted producer. Prototype; local data.</div>';
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(c.lots.length,'Lots')+mchip(awaiting,'Awaiting COA')+mchip(tested,'Tested &amp; packaged')+mchip(admin,'Administered → §9')+'</div>';
   h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><b>🍄 Sacred Alto Spores</b> — first NM-permitted producer. <b>4 strains in the system, ready to be lab tested.</b><div class="appmeta" style="margin-top:4px">⚠ No NM testing laboratory is permitted yet — lab-permit applications open <b>10/05/2026</b> (DOH) — so every COA is <b>Pending</b>. &ldquo;Record COA (lab)&rdquo; simulates the lab step for the demo. · <a href="#" onclick="resetCustody();return false;">Reset demo data</a></div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Producer licensing — Oregon&rsquo;s model as a reference for NM</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>What can be made:</b> Oregon licenses only <b>Psilocybe cubensis</b> — <b>no synthetic</b> psilocybin, <b>no wild harvesting</b>. Product forms: whole dried mushrooms, ground homogenized fungi, extracts, and edibles, under separate <b>endorsements</b> (cultivation / extraction / edible — no extra fee). Edible or extract endorsements require a <b>Dept. of Agriculture food-safety license</b>.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>How you qualify:</b> 21+, criminal background check, a <b>Land-Use Compatibility Statement</b> (local zoning sign-off, 21-day response), a manufacturing <b>premises plan</b>, and a <b>social equity plan</b>.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>What it costs (Oregon):</b> <b>$500</b> application + <b>$10,000/yr</b> license (reduced to <b>$5,000</b> for low-income / Oregon Health Plan applicants). <b>NM has not set its fees</b> — the program-economics view argues for a <b>high one-time application fee</b> (business-paid → program revenue) and <b>moderate recurring fees</b> (which pass into patient cost).</div>'+
+     '<div class="note">New Mexico producers are permitted under <b>7.35.2 NMAC</b>, and NM traceability ends at <b>administration to an enrolled patient</b> (not a retail sale). Source: Oregon Health Authority, OPS <b>Manufacturer License</b> fact sheet (2025, incl. Spanish). Licensing questions (OR): Licensing.Psilocybin@oha.oregon.gov.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 12px;color:#1f5a54;font-size:14px">Register a harvest lot</h3><div class="grid">'+
      '<div class="field"><label>Strain</label><input id="c_strain" value="Golden Teacher"></div>'+
      '<div class="field"><label>Producer</label><input id="c_producer" value="Sacred Alto Spores"></div>'+
@@ -500,7 +568,10 @@ var MEASURES={
     items:['Feeling nervous, anxious, or on edge','Not being able to stop or control worrying','Worrying too much about different things','Trouble relaxing','Being so restless that it is hard to sit still','Becoming easily annoyed or irritable','Feeling afraid, as if something awful might happen']},
   'WHO-5':{cond:'Well-being', pd:'WHO-5 Well-Being Index — public domain (WHO); free to use', prompt:'Please indicate, for each of the five statements, which is closest to how you have been feeling over the last two weeks.', scale:[['5','All of the time'],['4','Most of the time'],['3','More than half of the time'],['2','Less than half of the time'],['1','Some of the time'],['0','At no time']], max:25, mult:4,
     bands:[[0,50,'Low — screen for depression'],[51,100,'Adequate well-being']],
-    items:['I have felt cheerful and in good spirits','I have felt calm and relaxed','I have felt active and vigorous','I woke up feeling fresh and rested','My daily life has been filled with things that interest me']}
+    items:['I have felt cheerful and in good spirits','I have felt calm and relaxed','I have felt active and vigorous','I woke up feeling fresh and rested','My daily life has been filled with things that interest me']},
+  'PCL-5':{cond:'PTSD', pd:'PCL-5 — public domain (National Center for PTSD, U.S. Dept. of Veterans Affairs); free to use', prompt:'In the past month, how much were you bothered by:', scale:[['0','Not at all'],['1','A little bit'],['2','Moderately'],['3','Quite a bit'],['4','Extremely']], max:80,
+    bands:[[0,30,'Below provisional cutoff'],[31,80,'At/above provisional PTSD cutoff (≥31–33)']],
+    items:['Repeated, disturbing, and unwanted memories of the stressful experience','Repeated, disturbing dreams of the stressful experience','Suddenly feeling or acting as if the stressful experience were actually happening again','Feeling very upset when something reminded you of the stressful experience','Having strong physical reactions when something reminded you of the stressful experience (e.g., heart pounding, trouble breathing, sweating)','Avoiding memories, thoughts, or feelings related to the stressful experience','Avoiding external reminders of the stressful experience (e.g., people, places, conversations, activities, objects, or situations)','Trouble remembering important parts of the stressful experience','Having strong negative beliefs about yourself, other people, or the world','Blaming yourself or someone else for the stressful experience or what happened after it','Having strong negative feelings such as fear, horror, anger, guilt, or shame','Loss of interest in activities that you used to enjoy','Feeling distant or cut off from other people','Trouble experiencing positive feelings (e.g., being unable to feel happiness or have loving feelings for people close to you)','Irritable behavior, angry outbursts, or acting aggressively','Taking too many risks or doing things that could cause you harm','Being superalert or watchful or on guard','Feeling jumpy or easily startled','Having difficulty concentrating','Trouble falling or staying asleep']}
 };
 function pickMeasure(){ var s=document.getElementById('m_sel'); if(!s) return; var el=document.getElementById('mForm'); if(el) el.innerHTML=measureForm(s.value); }
 function measureForm(k){
@@ -508,21 +579,23 @@ function measureForm(k){
   var h='<div class="kv" style="color:var(--ink);margin:2px 0 8px"><b>'+esc(k)+'</b> · '+esc(m.cond)+' — '+esc(m.prompt)+'</div>';
   h+=m.items.map(function(it,i){
     return '<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff"><div style="font-weight:600;font-size:15px;margin-bottom:10px">'+(i+1)+'. '+esc(it)+'</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+
-      m.scale.map(function(o){return '<label style="flex:1 1 130px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:14px 8px;cursor:pointer;font-size:13.5px;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="'+o[0]+'" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.2)">'+esc(o[1])+'</label>';}).join('')+'</div></div>';
+      m.scale.map(function(o){return '<label style="flex:1 1 130px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:14px 8px;cursor:pointer;font-size:13.5px;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="'+o[0]+'" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.2)">'+esc(o[1])+'</label>';}).join('')+'</div>'+
+      '<label style="display:inline-block;margin-top:8px;font-size:12px;color:#6b7b74;cursor:pointer;user-select:none"><input type="radio" name="'+k+'_'+i+'" value="na" onchange="scoreMeasure(\''+k+'\')" style="margin-right:6px;transform:scale(1.1)">Prefer not to answer</label></div>';
   }).join('');
-  h+='<div id="mScore" class="card" style="background:#fbfdfd;margin:0"><div class="appmeta">Tap an answer on each item to compute the score.</div></div>';
+  h+='<div id="mScore" class="card" style="background:#fbfdfd;margin:0"><div class="appmeta">Tap an answer on each item to compute the score. Any item may be left as &ldquo;Prefer not to answer.&rdquo;</div></div>';
   return h;
 }
 function scoreMeasure(k){
-  var m=MEASURES[k], sum=0, answered=0;
-  for(var i=0;i<m.items.length;i++){ var sel=document.querySelector('input[name="'+k+'_'+i+'"]:checked'); if(sel){ sum+=parseInt(sel.value,10); answered++; } }
+  var m=MEASURES[k], sum=0, answered=0, declined=0;
+  for(var i=0;i<m.items.length;i++){ var sel=document.querySelector('input[name="'+k+'_'+i+'"]:checked'); if(sel){ if(sel.value==='na'){ declined++; } else { sum+=parseInt(sel.value,10); answered++; } } }
   var score=m.mult?sum*m.mult:sum, band='';
-  (m.bands||[]).forEach(function(b){ if(score>=b[0] && score<=b[1]) band=b[2]; });
+  if(declined===0){ (m.bands||[]).forEach(function(b){ if(score>=b[0] && score<=b[1]) band=b[2]; }); }
   var el=document.getElementById('mScore'); if(!el) return;
-  var complete=answered===m.items.length;
-  var flag=(k==='PHQ-9' && (function(){var s=document.querySelector('input[name="PHQ-9_8"]:checked');return s&&parseInt(s.value,10)>0;})());
+  var total=m.items.length, left=total-answered-declined, complete=left===0;
+  var flag=(k==='PHQ-9' && (function(){var s=document.querySelector('input[name="PHQ-9_8"]:checked');return s&&s.value!=='na'&&parseInt(s.value,10)>0;})());
   el.innerHTML='<div style="font-size:24px;font-weight:800;color:'+(complete?'#1c7a4a':'#8a949a')+'">'+score+(m.mult?' / 100':' / '+m.max)+'</div>'+
-    '<div class="appmeta">'+(complete?'':'('+answered+' / '+m.items.length+' answered) ')+(band?'<b>'+esc(band)+'</b>':'')+'</div>'+
+    '<div class="appmeta">'+answered+' answered'+(declined?' · <b>'+declined+' declined</b>':'')+(left?' · '+left+' left':'')+(band?' · <b>'+esc(band)+'</b>':'')+'</div>'+
+    (declined?'<div class="kv" style="color:#6b7b74;font-size:12px">Declined items are <b>not scored</b> — a patient may decline any question (privacy-first, mirroring Oregon&rsquo;s data standard). Interpret a partial total with care.</div>':'')+
     (flag?'<div class="kv" style="color:#9a2a1c;font-size:12.5px"><b>⚠ Item 9 (self-harm) &gt; 0</b> — complete a C-SSRS suicide check now; see the qualification screener.</div>':'')+
     '<div class="note">'+esc(m.pd)+'. Record the total in the §9 session record; re-administer at 1 / 3 / 6 / 12-month follow-ups for the change score.</div>';
 }
@@ -609,7 +682,7 @@ function renderReporting(){
      '</tbody></table></div><div class="note">Favored for the strongest combination of psychometric quality, brevity, familiarity &amp; longitudinal utility. <b>Substance-use disorder uses several measures, staged</b> — TAPS + AUDIT-C screen at entry, BAM tracks progress at baseline &amp; follow-up. Source: RACI Recommended Battery whitepaper (11 Sep 2026 consensus).</div></div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Administer a measure — iPad-friendly questionnaire</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">A tap-friendly rendering of the <b>actual validated items</b> (public-domain instruments). The score computes live — record the total in the §9 session, then re-administer at the 1 / 3 / 6 / 12-month follow-ups.</div>'+
-     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
+     '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
      '<div id="mForm" style="margin-top:8px"></div></div>';
   return h;
 }
@@ -743,17 +816,34 @@ function designatedHero(){
 function renderDashboard(){
   var ROLE2COACH={producer:'producer',lab:'lab',clinician:'provider',facilitator:'provider',patient:'patient',doh:null};
   var p=ROLE2COACH[ROLE];
-  var hero=designatedHero();
-  var h=warmHero()+hero;
+  var h=warmHero()+(ROLE==='patient'?'':designatedHero());
   if(!p){
-    h+='<h1>Regulator dashboard</h1><div class="sub">Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.</div>';
+    h+='<h1>'+t('Regulator dashboard','Panel del regulador')+'</h1><div class="sub">'+t('Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.','Vista de supervisión para el Departamento: revise solicitudes y monitoree los resultados de la §9, las señales de seguridad y el alcance de la equidad. Cambie de función con el selector de la parte superior.')+'</div>';
+    h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">What Parakeet is — and what it optimizes for</h3>'+
+      '<div class="kv" style="color:var(--ink)"><b>A free, provider-facing compliance &amp; public-health platform</b> for New Mexico&rsquo;s Medical Psilocybin Program — it turns the three designated systems (<b>licensing &middot; traceability &middot; enrollment/certification</b>) into one low-burden, de-identified backbone that keeps patients safe, helps the Department run the program, and produces honest evidence. A <b>medical program&rsquo;s</b> tool, not a dispensary&rsquo;s.</div>'+
+      '<ol style="margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)">'+
+      [['Patients first','a medical program; safety, access &amp; privacy lead'],
+       ['Compliance with the law','the three designated systems, done fully &amp; easily'],
+       ['Safety &amp; harm reduction','screening + tiered adverse-event surveillance'],
+       ['Lowest possible burden','collect once, use many — less work for all'],
+       ['Access &amp; equity','free to providers; reach rural / tribal / low-income'],
+       ['Honest prospective evidence','secondary — opt-in, de-identified, IRB-gated'],
+       ['Public stewardship','priced as low as possible for taxpayers; built with providers']
+      ].map(function(x){return '<li style="margin:2px 0"><b>'+x[0]+'</b> — '+x[1]+'</li>';}).join('')+
+      '</ol>'+
+      '<div class="note">Priorities, in order. A one-page overview is available for reviewers; research never comes ahead of patient care.</div></div>';
     h+='<div class="card"><h3 class="dh">Oversight — jump to</h3>'+[['review','Review &amp; decide applications (30-day clock)'],['research','§9 outcomes &amp; cross-state analysis'],['safety','Adverse-event signals &amp; recalls'],['equity','Equity Fund reach &amp; disparities'],['lab','Testing-lab certification status'],['custody','Chain-of-custody &amp; COAs']].map(function(x){return '<div class="approw"><div>'+x[1]+'</div><button class="btn sm" onclick="go(\''+x[0]+'\')">Open</button></div>';}).join('')+'</div>';
     h+='<div class="card"><h3 class="dh">Help &amp; state resources</h3>'+RESOURCES.map(function(r){return '<div class="ctip" style="color:var(--ink)">🔗 <a href="'+r.u+'" target="_blank" rel="noopener">'+esc(r.t)+'</a></div>';}).join('')+'</div>';
     return h;
   }
   var cfg=COACH[p];
-  h+='<h1>Your compliance dashboard</h1><div class="sub">Plain-language guidance for your role — no rule-book jargon. Change roles with the “signed in as” switcher in the header.</div>';
+  if(p==='patient'){
+    h+='<h1>'+t('Welcome — your care, your choices','Bienvenido — su cuidado, sus decisiones')+'</h1><div class="sub">'+t('Everything here is in plain language. Your care comes first, and the choices are yours.','Todo aquí está en lenguaje sencillo. Su cuidado es lo primero, y las decisiones son suyas.')+'</div>';
+  } else {
+    h+='<h1>'+t('Your compliance dashboard','Su panel de cumplimiento')+'</h1><div class="sub">'+t('Plain-language guidance for your role — no rule-book jargon. Change roles with the “signed in as” switcher in the header.','Orientación en lenguaje sencillo para su función, sin jerga normativa. Cambie de función con el selector de la parte superior.')+'</div>';
+  }
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
+  if(p==='patient') h+=patientRights();
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
   h+='<div class="card"><h3 class="dh">Your next 3 steps</h3>'+steps.map(function(st,i){
     var num=st.done?'✓':(i+1);
@@ -784,11 +874,66 @@ function loadCME(){ try{ return JSON.parse(localStorage.getItem('parakeet_cme_v1
 function saveCME(a){ try{ localStorage.setItem('parakeet_cme_v1', JSON.stringify(a)); }catch(e){} }
 function logCME(i){ var c=CME_COURSES[i]; if(!c) return; var a=loadCME(); a.unshift({n:c.n,cr:c.cr,d:new Date().toISOString()}); saveCME(a); render(); }
 function resetCME(){ try{ localStorage.removeItem('parakeet_cme_v1'); }catch(e){} render(); }
+/* ---------- optional billing & payments (the free software's revenue layer) ---------- */
+var BILL_RATE={ ach:0.025, card:0.04 };
+function loadBilling(){ try{ return JSON.parse(localStorage.getItem('parakeet_billing_v1')||'[]'); }catch(e){ return []; } }
+function saveBilling(a){ try{ localStorage.setItem('parakeet_billing_v1', JSON.stringify(a)); }catch(e){} }
+function billEst(){
+  var amt=parseFloat((document.getElementById('bl_amt')||{}).value)||0;
+  var rail=(document.getElementById('bl_rail')||{}).value||'ach';
+  var fee=amt*(BILL_RATE[rail]||0), net=amt-fee, el=document.getElementById('blEst'); if(!el) return;
+  el.innerHTML = amt? ('Processing fee ('+(rail==='ach'?'bank / ACH · Straddle':'card · Curve')+'): <b>$'+fee.toFixed(2)+'</b> (~'+(BILL_RATE[rail]*100).toFixed(1)+'%) &nbsp;·&nbsp; Net to provider: <b>$'+net.toFixed(2)+'</b>') : 'Enter an amount to estimate the fee.';
+}
+function recordCharge(){
+  var amt=parseFloat((document.getElementById('bl_amt')||{}).value)||0; if(!amt){ return; }
+  var rail=(document.getElementById('bl_rail')||{}).value||'ach';
+  var rec={ id:'PAY-'+Math.random().toString(36).slice(2,6).toUpperCase(), enr:(document.getElementById('bl_enr')||{}).value||'(unassigned)', svc:(document.getElementById('bl_svc')||{}).value||'', amt:amt, rail:rail, fee:amt*(BILL_RATE[rail]||0), status:'Requested', at:new Date().toISOString() };
+  var a=loadBilling(); a.unshift(rec); saveBilling(a); render();
+}
+function markPaid(id){ var a=loadBilling(); a.forEach(function(x){ if(x.id===id) x.status='Paid'; }); saveBilling(a); render(); }
+function resetBilling(){ try{ localStorage.removeItem('parakeet_billing_v1'); }catch(e){} render(); }
+/* ---------- patient rights & layered, revocable consent (patient-first, privacy-first, bilingual) ---------- */
+function loadConsent(){ try{ return JSON.parse(localStorage.getItem('parakeet_consent_v1')||'{}'); }catch(e){ return {}; } }
+function saveConsent(o){ try{ localStorage.setItem('parakeet_consent_v1', JSON.stringify(o)); }catch(e){} }
+function setConsent(k,v){ var o=loadConsent(); o[k]=v; saveConsent(o); render(); }
+function resetConsent(){ try{ localStorage.removeItem('parakeet_consent_v1'); }catch(e){} render(); }
+function patientRights(){
+  var c=loadConsent();
+  var rights=[ t('You choose your provider and healing center.','Usted elige a su proveedor y centro de sanación.'),
+    t('You can ask questions, and decline any question or step.','Puede hacer preguntas y rechazar cualquier pregunta o paso.'),
+    t('You can pause or stop at any time.','Puede pausar o detenerse en cualquier momento.'),
+    t('Your privacy is protected — only the minimum required program data is mandatory.','Su privacidad está protegida: solo los datos mínimos requeridos del programa son obligatorios.'),
+    t('You may bring an interpreter or a support person.','Puede traer un intérprete o una persona de apoyo.'),
+    t('Financial help may be available through the Treatment Equity Fund.','Puede haber ayuda económica a través del Fondo de Equidad del Tratamiento.') ];
+  var h='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">🌿 '+t('Your rights','Sus derechos')+'</h3><ul style="margin:0;padding-left:16px;font-size:13px;color:var(--ink)">'+rights.map(function(r){return '<li style="margin:3px 0">'+r+'</li>';}).join('')+'</ul></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">'+t('Your privacy choices','Sus opciones de privacidad')+'</h3>'+
+    '<div class="kv" style="color:var(--ink)">'+t('These are yours to change at any time. Nothing here is required for your care.','Estas son suyas y puede cambiarlas en cualquier momento. Nada de esto es obligatorio para su atención.')+'</div>'+
+    '<label style="display:block;margin:8px 0;font-size:13px;cursor:pointer"><input type="checkbox" '+(c.researchOptIn?'checked':'')+' onchange="setConsent(\'researchOptIn\',this.checked)" style="margin-right:8px;transform:scale(1.2)">'+t('Share my <b>de-identified</b> information to help research that could help future patients.','Compartir mi información <b>no identificada</b> para apoyar investigaciones que podrían ayudar a futuros pacientes.')+'</label>'+
+    '<label style="display:block;margin:8px 0;font-size:13px;cursor:pointer"><input type="checkbox" '+(c.recording?'checked':'')+' onchange="setConsent(\'recording\',this.checked)" style="margin-right:8px;transform:scale(1.2)">'+t('Allow my session to be <b>recorded</b> to support my care (optional).','Permitir que mi sesión sea <b>grabada</b> para apoyar mi atención (opcional).')+'</label>'+
+    '<div class="note">'+t('The minimum program data required by law is always kept private and used only for safety and oversight. You can withdraw these choices anytime.','Los datos mínimos del programa requeridos por ley siempre se mantienen privados y se usan solo para la seguridad y la supervisión. Puede retirar estas opciones en cualquier momento.')+' · <a href="#" onclick="resetConsent();return false;">'+t('reset','restablecer')+'</a></div></div>';
+  return h;
+}
 function renderClinician(){
   var h='<h1>🩺 Clinician workspace</h1><div class="sub">For certifying clinicians & practitioners — certification, CME, dose planning, and your enrolled patients, with minimal paperwork. Prototype; local data.</div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Certification — certifying clinician</h3>'+
      '<div class="kv" style="color:var(--ink)">✓ NM controlled-substances registration <b>on file</b> &nbsp;·&nbsp; ✓ Certifying-clinician training module (<b>7.35.3.18</b>) complete &nbsp;·&nbsp; <span class="status s-approved">Active</span></div>'+
      '<div class="appmeta" style="margin-top:4px">Single sign-on to your clinical portal; enroll patients jointly via the state e-system (≤30-day DOH review). A HIPAA business associate may prepare uploads you review &amp; sign.</div></div>';
+  var bl=loadBilling(), blPaid=bl.filter(function(x){return x.status==='Paid';}).reduce(function(s,x){return s+(+x.amt||0);},0);
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">💳 Billing &amp; payments <span style="font-weight:600;color:#6b7b74">(optional)</span></h3>'+
+     '<div class="kv" style="color:var(--ink)">The compliance software is <b>free</b>. This optional billing layer is how Parakeet sustains itself — a simple <b>2.5&ndash;4% processing fee</b> <b>only</b> on payments you run through it. Keep your own billing and pay nothing. Collect for <b>care services</b> (preparation · administration · integration).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Why providers use it:</b> setting up compliant payments in this <b>Schedule&nbsp;I</b> space is hard, and most clinicians will not do it on their own. Parakeet handles it through <b>vendors already operating here</b> — <b>Straddle</b> for bank/ACH and <b>Curve</b> for Visa/Mastercard — so you can get paid without becoming a payments expert.</div>'+
+     '<div class="grid">'+
+       '<div class="field"><label>Patient (de-identified enrollment ID)</label><input id="bl_enr" placeholder="e.g. ENR-7F3A"></div>'+
+       '<div class="field"><label>Care service</label><select id="bl_svc"><option>Preparation session</option><option>Administration session</option><option>Integration session</option><option>Full care package</option></select></div>'+
+       '<div class="field"><label>Amount ($)</label><input id="bl_amt" type="number" oninput="billEst()" placeholder="e.g. 1200"></div>'+
+       '<div class="field"><label>Payment method</label><select id="bl_rail" onchange="billEst()"><option value="ach">Pay by bank (ACH) via Straddle — lower fee</option><option value="card">Card (Visa / Mastercard) via Curve — higher fee</option></select></div>'+
+     '</div>'+
+     '<div id="blEst" class="appmeta" style="margin:4px 0 2px">Enter an amount to estimate the fee.</div>'+
+     '<div class="actions"><span class="note">Illustrative processing fee ~2.5&ndash;4% (bank lower · card higher). The patient receives a secure payment request.</span><button class="btn primary" onclick="recordCharge()">Create payment request</button></div>'+
+     (bl.length? '<div style="margin-top:10px"><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px">'+mchip(bl.length,'Requests')+mchip('$'+blPaid.toLocaleString(),'Collected')+'</div>'+
+        bl.map(function(b){return '<div class="approw"><div><b>$'+(+b.amt).toFixed(2)+'</b> · '+esc(b.svc)+' <span class="appmeta">('+esc(b.enr)+' · '+(b.rail==='ach'?'bank/ACH':'card')+' · fee $'+(+b.fee).toFixed(2)+')</span></div><div>'+(b.status==='Paid'?'<span class="status s-approved">Paid</span>':'<button class="btn sm" onclick="markPaid(\''+b.id+'\')">Mark paid</button>')+'</div></div>';}).join('')+
+        '<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetBilling();return false;">reset</a></div></div>' : '')+
+     '<div class="note"><b>Banking reality:</b> because psilocybin is <b>Schedule&nbsp;I federally</b>, mainstream card networks restrict this category — so <b>pay-by-bank (ACH)</b> is the primary, lower-cost rail and card carries a higher fee. Payments are processed through specialized vendors: <b>Straddle</b> for ACH / bank payments and <b>Curve</b> for Visa / Mastercard. This is an interim <b>grey rail pending FDA rescheduling / descheduling</b>, after which normal banking opens. Not legal or financial advice; structure your billing with counsel.</div></div>';
   var cme=loadCME(), tot=cme.reduce(function(a,c){return a+(+c.cr||0);},0);
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">CME / continuing education</h3>'+
      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+mchip(tot.toFixed(1),'Credits logged')+mchip(cme.length,'Activities')+'</div>'+
@@ -796,6 +941,10 @@ function renderClinician(){
   h+=CME_COURSES.map(function(c,i){return '<div class="approw"><div><a href="'+c.u+'" target="_blank" rel="noopener"><b>'+esc(c.n)+'</b></a><div class="appmeta"><b>'+c.cr+'</b> credits · '+esc(c.acc||'')+'</div>'+(c.when?'<div class="appmeta" style="color:#8a5f18">📅 '+esc(c.when)+'</div>':'')+'</div><button class="btn sm" onclick="logCME('+i+')">+ Log</button></div>';}).join('');
   if(cme.length) h+='<div class="appmeta" style="margin-top:6px">Logged: '+cme.map(function(c){return esc(c.n.split(' — ')[0])+' ('+(c.cr||0)+')';}).join(' · ')+' · <a href="#" onclick="resetCME();return false;">reset</a></div>';
   h+='</div>';
+  h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 style="margin:0 0 8px;color:#17423f;font-size:14px">Facilitator &amp; practitioner licensing — and the New Mexico <i>medical</i> difference</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>How Oregon licenses facilitators (reference):</b> complete an OPS-approved <b>training program</b> (core training + practicum + comprehensive exam), pass the <b>state facilitator exam</b> (≥75%, retakeable), clear a background check, be 21+, and submit a <b>social equity plan</b>; <b>$150</b> application + <b>$2,000/yr</b> licensure (reduced to <b>$1,000</b> for veterans / SSI / SNAP / low-income), with <b>4 hours of continuing education</b> each year to renew. Facilitators work <b>non-directively</b> and stay present through the administration session.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>The key difference for NM:</b> Oregon requires <b>no medical referral or diagnosis</b> — an adult may self-refer. <b>New Mexico is a medical program</b>: a patient must be certified by a <b>certifying clinician</b> for a <b>qualifying condition</b>, and that clinician holds a <b>NM controlled-substance registration</b> (7.35.3.9.D). Parakeet <b>enforces that gate</b> — the clinician certification above is a precondition to enrollment.</div>'+
+     '<div class="note">Source: Oregon Health Authority, OPS <b>Facilitator License</b> &amp; <b>Facilitator Scope of Practice</b> fact sheets (2025). NM fees &amp; training hours (7.35.3.18) are set by DOH — confirm against the adopted rule.</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Dose-individualization decision aid — clinical decision support</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">Enter the condition + COA potency and check clinical modifiers → a starting-dose band in <b>mg from the COA</b>, a monitoring plan, and contraindication flags. Decision <b>support</b> only — the certifying clinician decides.</div>'+
      '<div class="grid">'+
@@ -945,11 +1094,23 @@ function renderResearch(){
      '<div class="kv" style="color:var(--ink)"><b>H3 · Equity:</b> with the greatest-need guardrail + Equity Fund, NM&rsquo;s served population is <b>less affluent-skewed</b> than Oregon&rsquo;s (JAMA: 29% &gt;$200k, ~89% White) and better reflects NM (~50% Hispanic, ~11% Native).</div>'+
      '<div class="note"><b>Comparator:</b> Oregon&rsquo;s real-world JAMA cohort (Korthuis 2026) is the benchmark — but it is non-medical, undiagnosed, affluent-skewed, and observational. NM&rsquo;s medical §9 is designed to answer the <b>by-diagnosis, dose-anchored</b> questions it cannot. Hypotheses are pre-specified so analyses are honest (see the IRB gate below).</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Aligned to the NM RACI committee (Research &amp; Continuous Improvement)</h3>'+
-     '<div class="kv" style="color:var(--ink)"><b>Program research funding:</b> <b>$300,000</b> appropriated for research (in addition to the <b>$630,000</b> Equity Fund). The committee (Chair: Dan Jennings) is recommending guidelines for <b>research &amp; data collection</b>.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Two statutory funds (SB219 §11):</b> the <b>Medical Psilocybin Research Fund</b> — <b>$300,000</b>, grants to <b>state research universities and health care providers studying any facet of the medical use of psilocybin</b> (§11(B)) — and the <b>Treatment Equity Fund</b> — <b>$630,000</b>, patient treatments (§11(A)). Both are nonreverting, DOH-administered, and subject to legislative appropriation. <span class="appmeta">The $300K is a program <b>fund</b>, not a committee budget: RACI <b>advises</b> on research &amp; data-collection guidelines (Chair: Dan Jennings) but does not hold or spend it; the other advisory committees have no separate line-item budgets.</span></div>'+
      '<div class="kv" style="color:var(--ink)"><b>AE-monitoring framework:</b> NM is adapting <b>PATAE</b> (Psychedelic-Assisted-Therapy Adverse Events) — including a <b>Sociocultural Domain</b> for cultural considerations. This software&rsquo;s <a href="#" onclick="go(\'safety\');return false;">AE tracker</a> follows that model.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Outcome measures:</b> aligning to the committee&rsquo;s <b>Recommended Outcome Battery</b> (G. Evans), with deviations &amp; amendments tracked.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>De-identification per committee decisions:</b> <b>year of birth</b> (not DOB) · <b>diagnosed disability yes/no</b> · residency by <b>ZIP code</b>.</div>'+
      '<div class="note">Source: RACI committee meeting minutes, Apr 10, 2026 (NMDOH MCPP; publication 9727). Public hearing Apr 24, 2026; final regulations published ≥30 days after finalization.</div></div>';
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Program governance — advisory board, committees &amp; funds (SB219)</h3>'+
+     '<div class="kv" style="color:var(--ink)">A <b>9-member</b> Medical Psilocybin Advisory Board (SB219 §8) advises the Department; its work runs through four subcommittees:</div>'+
+     '<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:360px;margin:4px 0"><thead><tr><th style="background:#17423f;color:#fff;padding:5px 8px;text-align:left">Committee</th><th style="background:#17423f;color:#fff;padding:5px 8px;text-align:left">Chair</th></tr></thead><tbody>'+
+     [['Research &amp; Continuous Improvement (RACI)','Dan Jennings'],['Training &amp; Education','Brenda Burgard'],['Dosage, Administration &amp; Clinical Practice','Ian Dunn'],['Equity, Access &amp; Cultural Considerations','DezBa']].map(function(r){return '<tr><td style="border:1px solid #dbe1e4;padding:4px 8px">'+r[0]+'</td><td style="border:1px solid #dbe1e4;padding:4px 8px">'+esc(r[1])+'</td></tr>';}).join('')+
+     '</tbody></table></div>'+
+     '<div class="note">The committees <b>advise</b>; the Department administers the <b>two statutory funds</b> (Research <b>$300K</b> §11(B) · Equity <b>$630K</b> §11(A)). Committees have <b>no separate line-item budgets</b>. Source: NMDOH RACI minutes (pub 9727); SB219 §8, §11.</div></div>';
+  h+=eventsCard();
+  h+=rqCard();
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Evidence base — building on prior state syntheses (non-duplicative)</h3>'+
+     '<div class="kv" style="color:var(--ink)">New Mexico need not re-derive the science from scratch. Oregon&rsquo;s <b>Psilocybin Advisory Board Rapid Evidence Review</b> (OPAB, Jul&nbsp;30&nbsp;2021; <b>2025 addendum</b> of newer references) already synthesized the safety &amp; efficacy literature under ORS&nbsp;475A, concluding psilocybin <b>&ldquo;holds promise as an option to address mental health issues&rdquo;</b> and may reduce problematic alcohol and tobacco use. A companion <b>Cultural &amp; Anthropological Review</b> (Nov&nbsp;2022) covers traditional and Indigenous use.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>How NM extends it:</b> Oregon&rsquo;s is a <b>rapid</b> review (not an exhaustive systematic review), the 2025 addendum references were <b>not incorporated into the analysis</b>, and OPAB itself recommends a <b>full update</b>. NM&rsquo;s <b>medical, by-diagnosis</b> program &mdash; with the RACI Recommended Outcome Battery and the §9 registry &mdash; is positioned to <b>contribute the prospective, dose-anchored evidence</b> those reviews call for, and the Cultural &amp; Anthropological Review maps directly to our <b>cultural-humility</b> principle below.</div>'+
+     '<div class="note">Source: Oregon Health Authority / OPAB, <a href="https://www.oregon.gov/oha/ph/preventionwellness/pages/psilocybin-scientific-literature-review.aspx" target="_blank" rel="noopener">Scientific Literature Review</a> (Rapid Evidence Review 2021, addendum 2025; Cultural &amp; Anthropological Review 2022). A starting point for the project annotated bibliography — not a substitute for primary sources.</div></div>';
   var GP=[
     ['Participant-centered throughout','Information capture serves the client first &mdash; structured around the client&rsquo;s path (referral → long-term follow-up), not the system&rsquo;s convenience.'],
     ['Collect only what you will act on','If we won&rsquo;t do something meaningful with a data point, we don&rsquo;t collect it. <b>Reviewed continuously.</b>'],
@@ -959,6 +1120,7 @@ function renderResearch(){
     ['Honor the ineffable','Pair validated measures with open narrative space &mdash; &ldquo;yes, and,&rdquo; not &ldquo;either / or.&rdquo;'],
     ['Capture at the natural point of care','Each element is recorded where it naturally arises, by the best-positioned person &mdash; light burden, accurate information.'],
     ['Cultural &amp; spiritual humility','Capture the whole person; intentionally reach Indigenous &amp; Medicaid populations often missing from existing data.'],
+    ['Bilingual by default — language justice','Care, consent, screeners, and public materials are offered in <b>English and Spanish</b> (and, wherever possible, a person&rsquo;s own language), so language is never a barrier to safe care or informed consent. Every public PDF ships in Spanish too.'],
     ['Compassionate timing','Nothing beyond the administration on dosing day; the post-session window is protected (no outreach earlier than one week after administration).']
   ];
   h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">Research guiding principles (RACI) — a durable reference for policymakers &amp; future contributors</h3>'+
@@ -1057,6 +1219,7 @@ function renderResearch(){
      '<div class="kv" style="color:var(--ink)"><b>Affordability is the real access barrier.</b> The drug is cheap ($5&ndash;25 / dose; Aday et al. 2024) but the therapy is not: only <b>12% (6/49)</b> of psychedelic trials even collected income, and the two largest US psilocybin trials had <b>median participant income &ge; $100k vs the US median $47,960</b> (Grossman et al. 2025, Nat Ment Health 3:567&ndash;574).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Telehealth design that fits rural NM:</b> a low-income (&le; 200% FPL) group pilot put <b>preparation &amp; integration online</b> and kept <b>only the administration in person</b>, with depression (HAM-D) falling ~22 &rarr; ~9 — Hicks et al. 2026 (LIGPATD, Oregon feasibility study).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Group can also improve outcomes:</b> a 2026 mixed-methods systematic review (30 studies, 22 protocols) found group therapy reduces depression, anxiety &amp; trauma symptoms and adds <b>peer support, normalization &amp; belonging</b> — Tsang et al. 2026 (<a href="https://doi.org/10.3389/fpubh.2026.1788352" target="_blank" rel="noopener">Front Public Health; doi 10.3389/fpubh.2026.1788352</a>).</div>'+
+     '<div class="kv" style="color:var(--ink);background:#fff6e9;border:1px solid #e8d3a0;border-radius:8px;padding:7px 10px;margin-top:4px"><b>Honest caveat:</b> these figures come from <b>cost modeling</b> and <b>uncontrolled</b> real-world programs. They support <b>feasibility</b> — including serving <b>low-income</b> participants — but do <b>not</b> establish real-world <b>cost-effectiveness</b> or &ldquo;twice the patients per dollar.&rdquo; Comparative <b>effectiveness &amp; cost-effectiveness research is needed</b> — exactly what the <a href="#" onclick="go(\'research\');return false;">§11(B) Research Fund</a> could support. Source: LoParco, Bone, Galvin, Rossheim &amp; Berg, <i>Oregon&rsquo;s Psilocybin Services: A Summary and Public Health Commentary</i> (PMC13348737).</div>'+
      '<div class="note">Feeds the <a href="#" onclick="go(\'equity\');return false;">Equity</a> fund-stretch model: group administration + telehealth prep/integration are the levers that make the $630K reach more patients. Quality is not traded for cost — a review found <b>no efficacy difference</b> between group and control conditions. Group should be an <b>option, not a requirement</b>.</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">What the registry collects at every session — the reporting dataset</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>Minimum data set / session (de-identified):</b> total <b>mg analyte dosed</b> (incl. boosters) from the COA, condition, de-identified demographics (age band, 3-digit ZIP, race/ethnicity, income band), session type, outcome scores &amp; adverse events — the exact exportable fields are in the schema below.</div>'+
@@ -1144,6 +1307,15 @@ function renderSafety(){
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">AE analysis — state, providers &amp; policymakers</h3>'+
      '<div class="kv" style="color:var(--ink)">Adverse-event data is <b>reported to and analyzed by three audiences</b>: the <b>state</b> (DOH registry + QI committee), <b>providers</b> (facilitator log + supervision / peer consultation), and <b>policymakers</b> (statewide trend &amp; statistical analysis to refine the rules). All three tiers are collected <b>individually</b> so rates can be tracked and compared over time.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Benchmark — Oregon&rsquo;s state regulatory data (OHA 2025 Year-in-Review / §303, n=5,935 clients):</b> emergency-services contacts <b>0.2% (13)</b> · adverse behavioral <b>0.1% (6)</b>, severe behavioral <b>0.1% (7)</b> · adverse medical <b>0.2% (13)</b>, severe medical <b>0.03% (2)</b> · <b>no product safety recalls</b>. (Research cohort — Korthuis 2026 JAMA, n=346 — reported 1.2% serious behavioral / 0 serious medical.) NM should <b>meet or beat</b> these and run <b>statistical trend analysis</b> on its own tiered data; keep reviewing Oregon&rsquo;s annual reports + Colorado&rsquo;s.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Oregon&rsquo;s layered safety framework — a reference blueprint for NM</h3>'+
+     '<div class="kv" style="color:var(--ink)">Oregon builds safety in at <b>every stage</b> — not as one checkpoint. NM can mirror this, and Parakeet is built to support each layer:</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>① Before</b> — eligibility is determined in a <b>preparation session</b>, and every client completes a <b>Client Safety &amp; Support Plan</b> identifying their specific risks. <span class="appmeta">→ Parakeet qualification &amp; safety screener.</span></div>'+
+     '<div class="kv" style="color:var(--ink)"><b>② Product</b> — products are standardized to a <b>known mg of psilocybin analyte</b>; psilocybin cannot be sold to an intoxicated client. <span class="appmeta">→ flat mg-from-COA dosing.</span></div>'+
+     '<div class="kv" style="color:var(--ink)"><b>③ During</b> — minimum on-site stay, <b>minimum client–facilitator ratios</b>, nondirective client-centered facilitation, limited supportive touch.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>④ Emergency</b> — on a medical/behavioral emergency, facilitators must <b>contact emergency services, document the event, and notify the state</b>. <span class="appmeta">→ Parakeet Tier-3 mandatory report.</span></div>'+
+     '<div class="kv" style="color:var(--ink)"><b>⑤ After</b> — an individualized <b>transportation plan</b>, and the facilitator must contact <b>every client within 72 hours</b> to check post-session reactions and offer integration. <span class="appmeta">→ follow-up tracker.</span></div>'+
+     '<div class="kv" style="color:var(--ink)"><b>⑥ Oversight</b> — complaints and incidents are investigated and results posted publicly on the OPS Data Dashboard.</div>'+
+     '<div class="note"><b>Nuance NM should preserve:</b> the 72-hour contact is a <b>safety check-in</b>, which is different from <b>research</b> outreach — the RACI guiding principles ask that data-collection outreach wait at least a week, so the two should not be conflated. Source: Oregon Health Authority, <b>Oregon Psilocybin Services — Health and Safety</b> fact sheet (May 2025); oregon.gov/psilocybin (ORS 475A · OAR 333-333).</div></div>';
   h+='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Report &amp; track an adverse event</h3>'+
      '<div class="appmeta" style="margin-bottom:6px">De-identified AE reporting — <b>tracked, collected, and adjudicated for relatedness</b>, then fed to the weekly signal review. AEs are often <b>patient-reported / subjective</b>; capture everything, then classify relatedness (a serious medical event — e.g., appendicitis — may be <b>unrelated</b>). Also log when a session <b>proceeded despite a red flag</b>.</div>'+
      '<div class="grid">'+
@@ -1189,6 +1361,11 @@ function renderSafety(){
      '<div class="kv" style="color:var(--ink)"><b>Role-based access is enforced, not just promised:</b> use the <b>“signed in as” switcher</b> in the header — each role (DOH reviewer · certifying clinician · facilitator/healing center · producer · testing lab · patient) sees <b>only the sections its role permits</b>; everything else is hidden and blocked. In production this is backed by server-side authorization + audit logs.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Consent boundary:</b> the <b>minimal §9 report is mandatory</b>; any <b>secondary research use is opt-in and IRB-gated</b> — minimal reporting by default, opt in for research ('+optin+' of '+S.length+' opted in).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>HIPAA posture:</b> encryption in transit &amp; at rest, MFA + role-based access, immutable audit logs, BAAs; target HITRUST CSF + StateRAMP (roadmap).</div></div>';
+  h+='<div class="card" style="border-color:#c9bfe0;background:#f4f1fb"><h3 style="margin:0 0 8px;color:#5a4a8a;font-size:14px">Oregon&rsquo;s data-privacy &amp; security model — design reference for the NM software</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>Granular, revocable consent (OPS, May 2025):</b> participation is confidential by right; sharing <b>de-identified</b> data with third parties requires an <b>opt-out</b> offer; any <b>personally identifiable</b> disclosure needs <b>prior written authorization</b> (revocable); and <b>session recording</b> needs separate written consent from <b>everyone present</b>. Parakeet mirrors this with layered consent, not one blanket checkbox.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Privacy-first defaults worth adopting:</b> every data question offers <b>&ldquo;I decline to answer&rdquo;</b> (Oregon&rsquo;s SB303 form does); client records are <b>not stored off-site</b>; each licensee keeps a <b>confidentiality plan</b>; and the state <b>de-identifies statewide before publishing</b> aggregates — explicitly guarding against <b>re-identification by data linkage</b> (why NM should use 3-digit ZIP + small-cell suppression).</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>One secure reporting portal:</b> Oregon routes required client data through a single secure system (&ldquo;TLC&rdquo; — Track, License, Comply) that reports only to the state. <b>Parakeet is that portal for NM</b> — collect once, report to DOH, publish only de-identified aggregates.</div>'+
+     '<div class="note"><b>Also plan for Public Records Law:</b> a state-held dataset can face disclosure requests, so build in confidentiality protections and exemptions up front. Source: Oregon Health Authority, <b>Oregon Psilocybin Services — Data Privacy and Security</b> fact sheet (May 2025); ORS 475A · OAR 333-333.</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Interoperability &amp; data liquidity — connect once, reach many</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>One connection, not point-to-point:</b> a single, <b>vendor-neutral</b> integration links the state&rsquo;s designated systems (licensing, traceability, §9) with clinician <b>EHRs</b> — a producer, lab, clinician or healing center connects <b>once</b> instead of building a bespoke link to each. (The Redox model — Niko Skievaski — applied to psilocybin.)</div>'+
      '<div class="kv" style="color:var(--ink)"><b>API / machine-to-machine:</b> enrollment, COA results &amp; §9 reporting can be submitted by <b>API</b> or a <b>HIPAA business associate</b> on the clinician&rsquo;s behalf — the enrollment public-comment ask, built in.</div>'+
@@ -1242,6 +1419,10 @@ function renderEquity(){
     '<div class="kv" style="color:var(--ink)"><b>Outreach channels:</b> rural health clinics &amp; FQHCs, tribal / IHS health, community behavioral health, the VA, and hospice / palliative care.</div>'+
     '<div class="kv" style="color:var(--ink)"><b>Levers:</b> fund-eligibility priority, sliding scale, group administration, telehealth prep / integration, and covered transportation.</div>'+
     '<div class="note"><b>Guardrail:</b> reviewed monthly — if the low-income + rural/tribal share falls below NM benchmarks, trigger targeted outreach before the program drifts affluent.</div></div>';
+  h+='<div class="card" style="border-color:#c9bfe0;background:#f4f1fb"><h3 style="margin:0 0 8px;color:#5a4a8a;font-size:14px">Workforce — the program as a clinician recruitment &amp; retention engine</h3>'+
+    '<div class="kv" style="color:var(--ink)">New Mexico is one of the <b>most medically underserved states</b>, with widespread federally designated <b>health-professional-shortage areas</b> — too few prescribers, especially in rural, frontier &amp; tribal communities, is itself the access barrier above. A well-run psilocybin program can help <b>reverse</b> it: just as Oregon drew facilitators and clinicians from other states, a <b>research-active</b> New Mexico program with strong <b>CME</b>, conference presence, and a genuinely usable toolset can make the state a place clinicians <b>relocate to or add as a second practice</b> — bringing capacity that outlasts any one program.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>How the software helps:</b> accredited CME &amp; clinician education built into first use, a <b>searchable licensed-provider directory</b> that fills panels, <b>low documentation burden</b> (the same burnout lever behind <a href="#" onclick="go(\'research\');return false;">Luma Chart</a>), and an IRB-gated research engine that draws academically minded providers. Recruitment / retention partners such as <b>New Mexico Health Resources</b> (provider placement for underserved NM communities) are natural allies.</div>'+
+    '<div class="note">Framed for regulators &amp; boards: program participation can be presented to the <b>Medical Board, Board of Nursing &amp; Board of Pharmacy</b> as a <b>workforce benefit</b>, not just a new duty — the theme of the board outreach letters.</div></div>';
   h+='<div class="card" style="border-left:4px solid #b4452f;background:#fbf1ef;border-color:#e6c3ba"><h3 style="margin:0 0 8px;color:#a2432f;font-size:14px">Who actually gets served — the affluent-skew benchmark (hard data)</h3>'+
     '<div class="kv" style="color:var(--ink)">Oregon&rsquo;s real-world JAMA cohort (n=346) shows who an open-access model reaches <i>without</i> a greatest-need guardrail:</div>'+
     '<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:320px;margin:4px 0"><thead><tr><th style="background:#a2432f;color:#fff;padding:5px 8px;text-align:left">Household income</th><th style="background:#a2432f;color:#fff;padding:5px 8px;text-align:right">Share of clients</th></tr></thead><tbody>'+
@@ -1275,6 +1456,10 @@ function renderEquity(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Access &amp; disparities</h3>'+
     '<div class="kv" style="color:var(--ink)">Track program reach against New Mexico: roughly <b>~50% Hispanic/Latino, ~11% Native American, ~1/4 rural</b> (US Census, approx). Representation below these shares signals an <b>access barrier</b> to address.</div>'+
     '<div class="note"><b>ZIP code</b> is a useful <b>secondary SES indicator</b> — map it to the <b>Area Deprivation Index</b> for area-based need (use 3-digit ZIP for HIPAA de-identification). Also watch: income mix, wait times, no-show / completion by region, and distance to the nearest healing center.</div></div>';
+  h+='<div class="card" style="border-color:#c9bfe0;background:#f4f1fb"><h3 style="margin:0 0 8px;color:#5a4a8a;font-size:14px">Oregon&rsquo;s equity &amp; access model — reference blueprint + data-collection ideas</h3>'+
+     '<div class="kv" style="color:var(--ink)"><b>What Oregon does (OPS Equity &amp; Access, May 2025):</b> <b>Social Equity Plans</b> required with every license application (licensees set equity goals; plans &amp; evaluation reports are public); <b>reduced license fees</b> for <b>low-income or veteran</b> applicants; <b>interpretation</b> (Spanish &amp; ASL), <b>CART captioning</b>, and materials in other languages, large print &amp; braille; a client may have an <b>interpreter or support person</b> in the administration session; <b>non-discrimination</b> by race, ethnicity, religion, language, disability, age, gender &amp; gender identity; and mandatory <b>facilitator training</b> in cultural equity, racial justice &amp; social determinants of health.</div>'+
+     '<div class="kv" style="color:var(--ink)"><b>Data-collection ideas for NM</b> (opt-in, de-identified, privacy-first — this is a medical program): capture equity dimensions on Oregon&rsquo;s <b>REALD + SOGI</b> standard — <b>race, ethnicity, language, disability</b> plus <b>sexual orientation &amp; gender identity</b> — with <b>veteran status</b>, <b>interpreter / accessibility needs</b>, and (with consent) <b>who was present</b> at the session. Track <b>Social Equity Plan</b> metrics at the licensee level. This turns equity from an aspiration into something measured.</div>'+
+     '<div class="note">Source: Oregon Health Authority, <b>Oregon Psilocybin Services — Equity and Access</b> fact sheet (May 2025); oregon.gov/psilocybin. REALD/SOGI is OHA&rsquo;s statewide demographic-data standard. Collect only what will be acted on, per the RACI <a href="#" onclick="go(\'research\');return false;">guiding principles</a>.</div></div>';
   var EQUITY_XSTATE=[
     {k:"State patient-subsidy fund", nm:"YES — $630K Treatment Equity Fund (therapy · product · transport)", or:"No (board recommended % of revenue; not funded)", co:"No"},
     {k:"Nonprofit access fund", nm:"—", or:"Sheri Eckert Foundation — Psilocybin Access Fund", co:"—"},
