@@ -531,6 +531,32 @@ function renderReporting(){
     Object.keys(INSTRUMENTS).filter(function(k){return k!=='Other';}).map(function(k){return '<div class="approw"><div><b>'+esc(k)+'</b></div><div class="appmeta" style="max-width:60%;text-align:right">'+esc(INSTRUMENTS[k].join(' · '))+'</div></div>';}).join('')+
     '<div class="note">Symptom + <b>function (WSAS)</b> + <b>quality-of-life / well-being (WHO-5, QUAL-E)</b> — not symptom scores alone. Administered by the care team at set timepoints; patient self-report where validated.</div></div>';
   h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">New metrics worth capturing (beyond symptom change)</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+NOVEL.map(function(n){return '<li>'+esc(n)+'</li>';}).join('')+'</ul><div class="note">Defining program success: durable <b>function, well-being, meaning</b>, reduced medication &amp; utilization — not just an acute symptom drop. These feed the Research &amp; Continuous Improvement committee.</div></div>';
+  var PRITEMS=[
+    {stage:'Preparation', items:['Goals &amp; intentions','Preferences &amp; boundaries','Cultural &amp; spiritual considerations','Support planning','Readiness for treatment','Hopes, concerns &amp; expectations']},
+    {stage:'Administration session', items:['Accommodations provided','Support interventions','Safety concerns','Notable events','Cultural / spiritual elements incorporated (music, language, ceremonial elements, spiritual supports, environmental modifications)']},
+    {stage:'Integration', items:['Integration themes','Meaning-making','Challenging experiences','Significant life changes','Emerging concerns','Referrals &amp; ongoing support needs']}
+  ];
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Practitioner-reported items (RACI consensus) — 3 stages</h3>'+
+     PRITEMS.map(function(s){return '<div class="kv" style="color:var(--ink)"><b>'+s.stage+':</b> '+s.items.join(' · ')+'</div>';}).join('')+
+     '<div class="note">Recorded at the <b>natural point of care</b> across preparation → administration → integration; <b>captured once, reused</b> (non-duplicative). Source: RACI Reporting-Framework consensus (12 Jun 2026).</div></div>';
+  var PFB=[
+    'Did you feel respected, understood, and supported throughout the process?',
+    'Were your cultural, spiritual, accessibility, or personal needs appropriately considered?',
+    'Were there any aspects of your experience that you found particularly meaningful, challenging, or concerning?',
+    'Is there anything else you would like us to know about your experience?'
+  ];
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><h3 style="margin:0 0 8px;color:#1c5a3a;font-size:14px">Participant feedback — 4 brief client-reported questions (RACI consensus)</h3><ol style="margin:0;padding-left:18px;font-size:12.5px">'+
+     PFB.map(function(q){return '<li style="margin:3px 0">'+esc(q)+'</li>';}).join('')+'</ol>'+
+     '<div class="note">Framed in <b>feelings &amp; needs</b> (nonviolent communication), paired with open narrative space clients fill in their own words — human, not transactional. Honor the ineffable: <b>structured + narrative</b>, &ldquo;yes, and.&rdquo;</div></div>';
+  var BATTERY=[
+    {c:'Depression', fav:'PHQ-9', alt:'MADRS (trial comparability) · QIDS-SR16 · GRID-HAMD (detailed, higher burden)'},
+    {c:'Anxiety', fav:'OASIS', alt:'GAD-7 (familiar, comparable) · STAI (state vs trait, burdensome)'},
+    {c:'Well-being', fav:'WHO-5', alt:'SWLS (life satisfaction)'},
+    {c:'Substance-use disorder', fav:'Staged → <b>TAPS + AUDIT-C</b> at entry, then <b>BAM</b> at baseline &amp; follow-up', alt:'AUDIT · DAST-10 · TLFB (detailed, higher burden)'}
+  ];
+  h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">RACI Recommended Measures Battery — favored instruments (11 Sep 2026 consensus)</h3><div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11.5px;min-width:520px"><thead><tr><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">Condition</th><th style="background:#17423f;color:#fff;padding:6px 8px;text-align:left">Favored</th><th style="background:#2b5f86;color:#fff;padding:6px 8px;text-align:left">Alternatives</th></tr></thead><tbody>'+
+     BATTERY.map(function(b){return '<tr><td style="border:1px solid #dbe1e4;padding:6px 8px;font-weight:700;background:#fbfdfd;width:22%">'+esc(b.c)+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+b.fav+'</td><td style="border:1px solid #dbe1e4;padding:6px 8px">'+b.alt+'</td></tr>';}).join('')+
+     '</tbody></table></div><div class="note">Favored for the strongest combination of psychometric quality, brevity, familiarity &amp; longitudinal utility. <b>Substance-use disorder uses several measures, staged</b> — TAPS + AUDIT-C screen at entry, BAM tracks progress at baseline &amp; follow-up. Source: RACI Recommended Battery whitepaper (11 Sep 2026 consensus).</div></div>';
   return h;
 }
 
