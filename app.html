@@ -401,7 +401,7 @@ function render(){
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
   var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   try{ document.documentElement.lang=LANG; }catch(e){}
-  var r=document.getElementById('root'), b=langBanner()+eventBanner()+aeBar();
+  var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert()+aeBar();
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
   else if(VIEW==='clinician'){ r.innerHTML=b+renderClinician(); cplan(); qualCheck(); }
@@ -503,6 +503,76 @@ function renderReview(){
   return h;
 }
 function decide(id,status){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.status=status; a.decidedAt=new Date().toISOString(); } }); saveApps(apps); render(); }
+
+/* ---------- DOH-promulgated licensing requirements & bulletins → licensee portal ---------- */
+var DEFAULT_BULLETINS=[
+  {id:'REQ-7352-PROD', cat:'requirement', aud:'producer', title:'Producer permit — required submissions', body:'Site plan &amp; LUCS; written security plan; chain-of-custody SOPs; the cultivation / extraction / edible endorsements you are applying for; staff background attestations. A complete application triggers a DOH site visit within 30 business days.', cite:'7.35.2 NMAC', at:'2026-08-17T00:00:00.000Z'},
+  {id:'REQ-73522-LAB', cat:'requirement', aud:'lab', title:'Testing laboratory — validated panel &amp; COA', body:'Validated potency (psilocybin + psilocin, mg), microbial, heavy-metal and pesticide panels; a standardized COA format with retention; ISO-17025-aligned quality assurance.', cite:'7.35.2.19 NMAC', at:'2026-10-05T00:00:00.000Z'},
+  {id:'REQ-RACI-DEID', cat:'RACI', aud:'all', title:'RACI: §9 de-identification standard', body:'Report de-identified only — <b>year of birth</b> (not full DOB), <b>diagnosed disability yes/no</b>, and residency by <b>ZIP code</b>. No names or full dates of birth leave the clinic.', cite:'RACI minutes Apr 10 2026 · pub 9727', at:'2026-04-10T00:00:00.000Z'},
+  {id:'REQ-RACI-OUT', cat:'RACI', aud:'clinician', title:'RACI: Recommended Outcome Battery', body:'Use the committee&rsquo;s <b>Recommended Outcome Battery</b> (G. Evans) of validated instruments; capture baseline + <b>1 / 3 / 6 / 12-month</b> follow-ups; track any deviations &amp; amendments.', cite:'RACI minutes Apr 10 2026', at:'2026-04-10T00:00:00.000Z'},
+  {id:'REQ-RACI-AE', cat:'RACI', aud:'all', title:'RACI: Adverse-event monitoring (PATAE)', body:'Adverse events follow the <b>PATAE</b> framework (incl. a <b>Sociocultural Domain</b> for cultural considerations); serious events are reported within <b>24 hours</b>.', cite:'RACI minutes Apr 10 2026', at:'2026-04-10T00:00:00.000Z'},
+  {id:'REQ-RENEW', cat:'requirement', aud:'all', title:'Renewal window — file within 60 / 30 days', body:'Permits &amp; certifications renew on a term (enrollment <b>2 years</b>; permits/certifications <b>annual</b> — DOH sets the final term by rule). The window opens at <b>60 days</b> before expiry; file no later than <b>30 days</b> before to avoid a lapse.', cite:'7.35.2 / 7.35.3 NMAC', at:'2026-06-20T00:00:00.000Z'}
+];
+function loadBulletins(){ try{ var raw=localStorage.getItem('parakeet_bulletins_v1'); return raw? JSON.parse(raw): DEFAULT_BULLETINS.slice(); }catch(e){ return DEFAULT_BULLETINS.slice(); } }
+function saveBulletins(a){ try{ localStorage.setItem('parakeet_bulletins_v1', JSON.stringify(a)); }catch(e){} }
+function loadAcks(){ try{ return JSON.parse(localStorage.getItem('parakeet_acks_v1')||'{}'); }catch(e){ return {}; } }
+function saveAcks(o){ try{ localStorage.setItem('parakeet_acks_v1', JSON.stringify(o)); }catch(e){} }
+function ackBulletin(id){ var o=loadAcks(); o[id]=new Date().toISOString(); saveAcks(o); render(); }
+function resetBulletins(){ try{ localStorage.removeItem('parakeet_bulletins_v1'); localStorage.removeItem('parakeet_acks_v1'); }catch(e){} render(); }
+function publishBulletin(){ var g=function(id){var el=document.getElementById(id);return el?el.value:'';}; var title=g('bl_title'); if(!title.trim()){ return; } var rec={id:'DOH-'+Math.random().toString(36).slice(2,6).toUpperCase(), cat:'requirement', aud:g('bl_aud')||'all', title:esc(title.trim()), body:esc(g('bl_body')), cite:esc(g('bl_cite'))||'DOH bulletin', at:new Date().toISOString(), doh:true}; var a=loadBulletins(); a.unshift(rec); saveBulletins(a); render(); }
+function bulletinsForRole(role){ var want={producer:['producer','all'],lab:['lab','all'],clinician:['clinician','all'],facilitator:['clinician','all']}[role]||['all']; return loadBulletins().filter(function(b){return want.indexOf(b.aud)>=0;}); }
+function bulletinsCard(mode){
+  var AUDLBL={producer:'Producers',lab:'Labs',clinician:'Clinicians',all:'All licensees'};
+  if(mode==='doh'){
+    var all=loadBulletins(), acks=loadAcks();
+    var h='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">📢 Licensing requirements &amp; bulletins — promulgate to licensees</h3>'+
+      '<div class="appmeta" style="margin-bottom:6px">Publish a requirement once; it appears in the matching <b>producer / laboratory / clinician portal</b> immediately, with read-receipts. This is how RACI decisions and rule updates reach licensees.</div>'+
+      '<div class="grid">'+
+        '<div class="field"><label>Audience</label><select id="bl_aud"><option value="all">All licensees</option><option value="producer">Producers</option><option value="lab">Laboratories</option><option value="clinician">Clinicians</option></select></div>'+
+        '<div class="field"><label>Citation (optional)</label><input id="bl_cite" placeholder="e.g. 7.35.2 NMAC"></div>'+
+      '</div>'+
+      '<div class="field"><label>Title</label><input id="bl_title" placeholder="e.g. Updated security-plan requirement"></div>'+
+      '<div class="field"><label>Requirement / bulletin text</label><textarea id="bl_body" rows="2" placeholder="What licensees must do"></textarea></div>'+
+      '<div class="actions"><span class="note">Prototype: shared on this device. In production this posts from the DOH portal to each licensee portal with audit + receipts.</span><button class="btn primary" onclick="publishBulletin()">Publish to licensees</button></div>';
+    h+=all.map(function(b){ return '<div class="approw"><div><b>'+b.title+'</b> <span class="pill">'+AUDLBL[b.aud]+'</span>'+(b.cat==='RACI'?' <span class="pill" style="background:#fff;color:#2b5f86">RACI</span>':'')+'<div class="appmeta">'+(b.cite||'')+' · posted '+fmtDate(b.at)+(acks[b.id]?' · ✓ acknowledged by licensee':'')+'</div></div></div>'; }).join('');
+    h+='<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetBulletins();return false;">reset bulletins</a></div></div>';
+    return h;
+  }
+  var list=bulletinsForRole(ROLE), acks=loadAcks(), unack=list.filter(function(b){return !acks[b.id];}).length;
+  if(!list.length) return '';
+  var h='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 class="dh" style="color:#2b5f86">📋 Licensing requirements from DOH'+(unack?' <span class="pill" style="background:#fdecea;color:#9a2a1c">'+unack+' new</span>':'')+'</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">Requirements &amp; bulletins the Department has promulgated to your portal. Acknowledge each so DOH has a read-receipt.</div>';
+  h+=list.map(function(b){ var done=!!acks[b.id]; return '<div class="approw"><div><b>'+b.title+'</b>'+(b.cat==='RACI'?' <span class="pill" style="background:#fff;color:#2b5f86">RACI</span>':'')+'<div class="appmeta">'+b.body+'</div><div class="appmeta" style="color:#8a949a">'+(b.cite||'')+' · '+fmtDate(b.at)+'</div></div><div>'+(done?'<span class="status s-approved">Acknowledged</span>':'<button class="btn sm" onclick="ackBulletin(\''+b.id+'\')">Acknowledge</button>')+'</div></div>'; }).join('');
+  h+='</div>';
+  return h;
+}
+/* ---------- licensure renewals + due alert ---------- */
+function renewTerm(a){ return a.type==='patient'?2:1; }
+function renewalInfo(a){ var base=a.renewedAt||a.decidedAt; if(!base||a.status!=='approved') return null; var exp=new Date(new Date(base).getTime()+renewTerm(a)*365*86400000); var days=Math.ceil((exp-Date.now())/86400000); var state=days<=0?'lapsed':(days<=30?'due':(days<=60?'window':'active')); return {exp:exp,days:days,state:state}; }
+function fileRenewal(id){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.renewedAt=new Date().toISOString(); } }); saveApps(apps); try{sessionStorage.removeItem('pk_renewprev');}catch(e){} render(); }
+function approvedFor(role){ var want={producer:'producer',lab:'lab',clinician:'patient',facilitator:'patient'}[role]; return loadApps().filter(function(a){return a.status==='approved' && (role==='doh'||a.type===want);}); }
+function togglingRenewPreview(){ try{ if(sessionStorage.getItem('pk_renewprev')) sessionStorage.removeItem('pk_renewprev'); else sessionStorage.setItem('pk_renewprev','1'); }catch(e){} render(); }
+function renewalAlert(){
+  if(['producer','lab','clinician','facilitator'].indexOf(ROLE)<0) return '';
+  var prev=false; try{ prev=!!sessionStorage.getItem('pk_renewprev'); }catch(e){}
+  var due=approvedFor(ROLE).map(function(a){return {a:a,r:renewalInfo(a)};}).filter(function(x){return x.r && x.r.state!=='active';});
+  var msg, aid;
+  if(due.length){ var w=due.sort(function(a,b){return a.r.days-b.r.days;})[0]; aid=w.a.id; msg=(w.r.state==='lapsed')?('Your '+esc(w.a.typeName)+' LAPSED '+(-w.r.days)+' day'+((-w.r.days)===1?'':'s')+' ago'):('Your '+esc(w.a.typeName)+' renews in '+w.r.days+' day'+(w.r.days===1?'':'s')); }
+  else if(prev){ msg='(preview) A licence would renew in 21 days'; aid=null; }
+  else return '';
+  var onclick = aid? ("fileRenewal('"+aid+"');return false;") : "togglingRenewPreview();return false;";
+  return '<a href="#" onclick="'+onclick+'" style="display:flex;align-items:center;justify-content:center;gap:12px;background:#9a6a00;color:#fff;border-radius:12px;padding:11px 16px;text-decoration:none;margin-bottom:14px;box-shadow:0 6px 18px rgba(154,106,0,.22);text-align:center"><span style="font-size:22px">⏰</span><span><b style="font-size:15px">License renewal due</b> <span style="font-size:12px;opacity:.95">· '+msg+' — tap to file your renewal</span></span><span style="font-size:18px">→</span></a>';
+}
+function renewalsCard(scope){
+  var apps = scope==='doh'? loadApps().filter(function(a){return a.status==='approved';}) : approvedFor(ROLE);
+  if(!apps.length) return '';
+  var LBL={active:['Active','#1c7a4a','#e4f2ea'],window:['Renewal window open','#9a6a00','#fbf1d8'],due:['Due soon','#9a2a1c','#fdecea'],lapsed:['Lapsed','#9a2a1c','#fdecea']};
+  var rows=apps.map(function(a){ var r=renewalInfo(a); if(!r) return ''; var L=LBL[r.state];
+    var when=r.state==='lapsed'?('lapsed '+(-r.days)+'d ago'):(r.days+' day'+(r.days===1?'':'s')+' left');
+    return '<div class="approw"><div><b>'+esc(a.title)+'</b> <span class="pill">'+esc(a.typeName)+'</span><div class="appmeta">'+a.id+' · '+renewTerm(a)+'-yr term · expires '+fmtDate(r.exp.toISOString())+' · '+when+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="status" style="background:'+L[2]+';color:'+L[1]+';border:1px solid '+L[1]+'44">'+L[0]+'</span><button class="btn sm" onclick="fileRenewal(\''+a.id+'\')">'+(r.state==='active'?'Renew early':'File renewal')+'</button></div></div>'; }).join('');
+  var prevLink = scope!=='doh'? '<div class="appmeta" style="margin-top:6px"><a href="#" onclick="togglingRenewPreview();return false;">preview the due alert</a> — see the banner that appears when a renewal is due</div>':'';
+  return '<div class="card"><h3 class="dh">🔁 Licensure renewals'+(scope==='doh'?' — all licensees':'')+'</h3><div class="appmeta" style="margin-bottom:6px">Terms: enrollment 2 yr; permits/certifications annual (DOH sets the final term). The <b>60/30-day</b> window opens automatically and an alert appears at the top of your portal when renewal is due.</div>'+rows+prevLink+'</div>';
+}
 
 /* ---------- chain-of-custody (unique-ID, not RFID) · seeded with the first NM producer ---------- */
 var SEED_PRODUCER='Sacred Alto Spores';
@@ -1046,6 +1116,8 @@ function renderDashboard(){
     _ses.forEach(function(s){ if(s.enrollment_id) _enr[s.enrollment_id]=1; });
     h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 2px">'+mchip(_pend,t('Pending applications','Solicitudes pendientes'))+mchip(_appr,t('Approved','Aprobadas'))+mchip('0',t('Certified labs','Labs certificados'))+mchip(_ae.length,t('Adverse events','Eventos adversos'))+mchip(Object.keys(_enr).length,t('Enrollees (de-id)','Inscritos'))+'</div>';
     h+=regulatorTodo();
+    h+=bulletinsCard('doh');
+    h+=renewalsCard('doh');
     h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">What Parakeet is — and what it optimizes for</h3>'+
       '<div class="kv" style="color:var(--ink)"><b>A free, provider-facing compliance &amp; public-health platform</b> for New Mexico&rsquo;s Medical Psilocybin Program — it turns the three designated systems (<b>licensing &middot; traceability &middot; enrollment/certification</b>) into one low-burden, de-identified backbone that keeps patients safe, helps the Department run the program, and produces honest evidence. A <b>medical program&rsquo;s</b> tool, not a dispensary&rsquo;s.</div>'+
       '<ol style="margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)">'+
@@ -1070,6 +1142,7 @@ function renderDashboard(){
     h+='<h1>'+t('Your compliance dashboard','Su panel de cumplimiento')+'</h1><div class="sub">'+t('Plain-language guidance for your role — no rule-book jargon. Change roles with the “signed in as” switcher in the header.','Orientación en lenguaje sencillo para su función, sin jerga normativa. Cambie de función con el selector de la parte superior.')+'</div>';
   }
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
+  if(p!=='patient'){ h+=bulletinsCard('licensee'); h+=renewalsCard('mine'); }
   if(p==='patient') h+=patientJourney()+patientRights();
   if(p==='provider') h+='<a href="#" onclick="go(\'safety\');return false;" style="display:flex;align-items:center;gap:14px;background:#9a2a1c;color:#fff;border-radius:14px;padding:16px 20px;text-decoration:none;margin-bottom:4px;box-shadow:0 8px 22px rgba(154,42,28,.20)"><span style="font-size:30px;line-height:1">⚠</span><span><b style="font-size:17px">'+t('Report an adverse event','Reportar un evento adverso')+'</b><div style="font-size:12.5px;opacity:.93">'+t('Serious events → report within 24 hours. Open the tiered adverse-event form.','Eventos graves → reportar en 24 horas. Abra el formulario de eventos adversos por niveles.')+'</div></span><span style="margin-left:auto;font-size:22px">→</span></a>';
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
