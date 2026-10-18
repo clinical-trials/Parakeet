@@ -465,6 +465,8 @@ function renderReview(){
   pending.forEach(function(a){
     h+='<div class="rev"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div>'+statusChip(a.status)+'</div>';
     h+='<div class="appmeta">'+a.id+' · '+esc(a.data.email||'')+' · submitted '+fmtDate(a.submittedAt)+'</div>';
+    var _due=new Date(new Date(a.submittedAt).getTime()+30*86400000), _dl=Math.ceil((_due-Date.now())/86400000);
+    h+='<div class="appmeta" style="font-weight:700;color:'+(_dl<0?'#9a2a1c':(_dl<=7?'#9a6a00':'#1f5a54'))+'">⏱ 30-day decision clock (7.35.2/7.35.3): '+(_dl<0?('OVERDUE by '+(-_dl)+' day'+(-_dl===1?'':'s')):(_dl+' day'+(_dl===1?'':'s')+' left'))+' · due '+fmtDate(_due.toISOString())+(a.sitevisit?' · site visit within 30 business days of a complete application':'')+'</div>';
     h+=Object.keys(a.data).slice(0,4).map(function(k){ if(k==='attest'||k==='consent') return ''; return '<div class="kv"><b>'+esc(k)+':</b> '+esc((''+a.data[k]).slice(0,80))+'</div>'; }).join('');
     h+='<div class="revbtns">'+(a.sitevisit&&a.status==='submitted'?'<button class="btn sm" onclick="decide(\''+a.id+'\',\'sitevisit\')">Schedule site visit</button>':'')+'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\')">Approve</button><button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\')">Deny</button></div></div>';
   });
