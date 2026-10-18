@@ -872,6 +872,7 @@ var NEXT3={
   patient:[null,{t:"Find a certifying clinician for your qualifying condition.",a:null},{t:"Prepare for three parts: getting ready, the session, and integration afterward.",a:null}]
 };
 var RESOURCES=[
+  {t:"📊 Parakeet Policy Console — compare NM · CO · OR",u:"index.html"},
   {t:"NM DOH — Medical Psilocybin Program",u:"https://www.nmhealth.org/about/mcpp/mpp/"},
   {t:"Program rules — NMAC Title 7 (7.35.2 & 7.35.3)",u:SRCA},
   {t:"Producer & lab permit portal",u:"https://mpp.nm.btgov.com/"},
@@ -891,33 +892,19 @@ function appStep(p){
 function warmHero(){
   var m=new Date().getMonth();
   var season=(m===11||m<=1)?'winter':(m<=4?'spring':(m<=7?'summer':'fall'));
-  var P={
-    winter:{sky:['#e4eef6','#c7d9e9','#aac3d9'],mesa:['#a2b6c7','#8097ab','#61778b'],sun:'#f7fafd',glow:'#d6e5f3',band:'#fbf5ef',label:'Winter',snow:true},
-    spring:{sky:['#edf4e4','#dcedd2','#cbe7c9'],mesa:['#a1c18a','#7caa6c','#608c57'],sun:'#fff8e3',glow:'#ebe0a8',band:'#f4f7ee',label:'Spring',snow:false},
-    summer:{sky:['#fbe6c4','#f4c889','#e59b63'],mesa:['#cf9262','#b5703f','#8f4b2b'],sun:'#fff6e0',glow:'#f6b457',band:'#fbf3e7',label:'Summer',snow:false},
-    fall:{sky:['#f7e1c1','#edb67a','#d98b52'],mesa:['#c57a3e','#a85a2c','#7e3f22'],sun:'#fff0d0',glow:'#f0a24a',band:'#fbf0e4',label:'Autumn',snow:false}
-  }[season];
-  var R=function(a,b){return a+Math.random()*(b-a);};
-  var sunX=Math.round(R(600,1000)), sunY=Math.round(R(100,160)), sunR=Math.round(R(50,70));
-  function ridge(baseY,amp){ var s='M0 '+Math.round(baseY+R(-amp,amp))+' '; for(var x=150;x<=1200;x+=150){ s+='L'+x+' '+Math.round(baseY+R(-amp,amp))+' '; } return s+'L1200 300 L0 300 Z'; }
-  var r1=ridge(202,15), r2=ridge(236,17), r3=ridge(270,15);
-  var snow=''; if(P.snow){ for(var i=0;i<34;i++){ snow+='<circle class="phsnow" cx="'+Math.round(R(0,1200))+'" cy="'+Math.round(R(-20,250))+'" r="'+R(1.1,2.6).toFixed(1)+'" fill="#ffffff" opacity="'+R(0.5,0.95).toFixed(2)+'" style="animation-duration:'+R(4.5,9).toFixed(1)+'s;animation-delay:-'+R(0,9).toFixed(1)+'s"/>'; } }
-  var clouds=''; for(var c=0;c<2;c++){ var cy=Math.round(R(42,112)), cs=R(0.8,1.5); clouds+='<g class="phcloud" style="animation-duration:'+Math.round(R(62,104))+'s;animation-delay:-'+Math.round(R(0,96))+'s"><ellipse cx="0" cy="'+cy+'" rx="'+Math.round(58*cs)+'" ry="'+Math.round(20*cs)+'" fill="#ffffff" opacity="0.5"/><ellipse cx="'+Math.round(46*cs)+'" cy="'+(cy+6)+'" rx="'+Math.round(40*cs)+'" ry="'+Math.round(16*cs)+'" fill="#ffffff" opacity="0.42"/></g>'; }
-  var style='<style>.phsnow,.phcloud,.phsun{transform-box:fill-box}@media (prefers-reduced-motion:no-preference){.phcloud{animation:phdrift linear infinite}.phsnow{animation:phfall linear infinite}.phsun{animation:phpulse 7s ease-in-out infinite;transform-origin:center}}@keyframes phdrift{from{transform:translateX(-240px)}to{transform:translateX(1440px)}}@keyframes phfall{from{transform:translateY(-30px)}to{transform:translateY(330px)}}@keyframes phpulse{0%,100%{opacity:1}50%{opacity:.82}}</style>';
-  var svg='<svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" style="width:100%;height:148px;display:block" xmlns="http://www.w3.org/2000/svg">'+style+
-    '<defs><linearGradient id="phsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+P.sky[0]+'"/><stop offset="0.55" stop-color="'+P.sky[1]+'"/><stop offset="1" stop-color="'+P.sky[2]+'"/></linearGradient>'+
-    '<radialGradient id="phsun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="'+P.sun+'"/><stop offset="1" stop-color="'+P.glow+'"/></radialGradient></defs>'+
-    '<rect width="1200" height="300" fill="url(#phsky)"/>'+
-    clouds+
-    '<circle class="phsun" cx="'+sunX+'" cy="'+sunY+'" r="'+sunR+'" fill="url(#phsun)"/>'+
-    '<path d="'+r1+'" fill="'+P.mesa[0]+'" opacity="0.5"/>'+
-    '<path d="'+r2+'" fill="'+P.mesa[1]+'" opacity="0.72"/>'+
-    '<path d="'+r3+'" fill="'+P.mesa[2]+'"/>'+
-    (P.snow?'<path d="'+r1+'" fill="#ffffff" opacity="0.22"/>':'')+snow+'</svg>';
-  return '<div style="border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.10)">'+svg+
-    '<div style="background:'+P.band+';padding:14px 18px">'+
-    '<div style="font-size:16px;font-weight:800;color:#8a4a2c">Welcome &middot; Bienvenidos &middot; Yáʼátʼééh <span style="font-size:11px;font-weight:600;color:#a07a52">&middot; '+P.label+' in New Mexico</span></div>'+
+  var L={winter:'Winter',spring:'Spring',summer:'Summer',fall:'Autumn'};
+  var BAND={winter:'#f1f5f8',spring:'#f4f7ee',summer:'#fbf3e7',fall:'#fbf0e4'};
+  var BARC={winter:'#a9c2d7',spring:'#9fb87f',summer:'#e0a86a',fall:'#d18b52'};
+  var IMG=(season==='winter')?'images/nm-winter.jpg':'images/sandia-sunset.jpg';
+  var N=7, bars='';
+  for(var i=0;i<N;i++){ bars+='<div class="phbar" style="left:'+(i*100/N)+'%;width:'+(100/N+0.3)+'%;background:'+BARC[season]+';animation-delay:'+(i*0.08).toFixed(2)+'s"></div>'; }
+  var style='<style>.phwrap{position:relative;width:100%;height:170px;overflow:hidden;background:'+BARC[season]+'}.phimg{width:100%;height:100%;object-fit:cover;display:block}.phsweep{position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);transform:translateX(-130%);pointer-events:none}.phbar{position:absolute;top:0;height:100%;transform-origin:top}@media (prefers-reduced-motion:no-preference){.phbar{animation:phshut .95s cubic-bezier(.76,0,.24,1) forwards}.phsweep{animation:phswp 9s ease-in-out 1.1s infinite}}@media (prefers-reduced-motion:reduce){.phbar{display:none}}@keyframes phshut{0%{transform:scaleY(1)}100%{transform:scaleY(0)}}@keyframes phswp{0%{transform:translateX(-130%)}55%,100%{transform:translateX(130%)}}</style>';
+  return '<div style="border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.10)">'+style+
+    '<div class="phwrap"><img class="phimg" src="'+IMG+'" alt="New Mexico landscape"><div class="phsweep"></div>'+bars+'</div>'+
+    '<div style="background:'+BAND[season]+';padding:14px 18px">'+
+    '<div style="font-size:16px;font-weight:800;color:#8a4a2c">Welcome &middot; Bienvenidos &middot; Yáʼátʼééh <span style="font-size:11px;font-weight:600;color:#a07a52">&middot; '+L[season]+' in New Mexico</span></div>'+
     '<div style="font-size:12.5px;color:#5c4636;margin-top:4px;line-height:1.55">New Mexico is home to many peoples &mdash; the <b>19 Pueblos</b>, the <b>Navajo Nation (Diné)</b>, the <b>Jicarilla &amp; Mescalero Apache</b>, <b>Hispano &amp; Chicano</b> communities, and many others. This program is built to meet each person <b>with respect, in their own language and culture</b>, and to reach those most often left out of care. <i>Human, not clinical.</i></div>'+
+    '<div style="font-size:10px;color:#9a8f80;margin-top:6px">Photo: public domain (CC0) &middot; Wikimedia Commons.</div>'+
     '</div></div>';
 }
 function designatedHero(){
