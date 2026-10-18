@@ -447,6 +447,34 @@ function defaultCustody(){
 function loadCustody(){ try{ var raw=localStorage.getItem('parakeet_custody_v1'); return raw? JSON.parse(raw): defaultCustody(); }catch(e){ return defaultCustody(); } }
 function saveCustody(c){ try{ localStorage.setItem('parakeet_custody_v1', JSON.stringify(c)); }catch(e){} }
 function resetCustody(){ try{ localStorage.removeItem('parakeet_custody_v1'); }catch(e){} render(); }
+/* ---------- waste tracking (CO Waste Tracking template → structured form) ---------- */
+function loadWaste(){ try{ return JSON.parse(localStorage.getItem('parakeet_waste_v1')||'[]'); }catch(e){ return []; } }
+function saveWaste(a){ try{ localStorage.setItem('parakeet_waste_v1', JSON.stringify(a)); }catch(e){} }
+function recordWaste(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  var qty=parseFloat(g('w_qty'))||0; if(!qty){ return; }
+  var rec={ id:'WST-'+Math.random().toString(36).slice(2,6).toUpperCase(), material:g('w_mat'), lot:g('w_lot'), qty:qty, unit:g('w_unit'), method:g('w_method'), reason:g('w_reason'), witness:g('w_wit')||'', at:new Date().toISOString() };
+  var a=loadWaste(); a.unshift(rec); saveWaste(a); render();
+}
+function resetWaste(){ try{ localStorage.removeItem('parakeet_waste_v1'); }catch(e){} render(); }
+function wasteCard(){
+  var w=loadWaste();
+  var h='<div class="card"><h3 style="margin:0 0 10px;color:#1f5a54;font-size:14px">🗑 Waste tracking</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">The required fields from Colorado&rsquo;s <b>Waste Tracking</b> template, as a structured form — rendered unusable before disposal, with a witness, linked to the source lot.</div>'+
+    '<div class="grid">'+
+      '<div class="field"><label>Material</label><select id="w_mat"><option>Whole dried mushrooms</option><option>Ground / homogenized fungi</option><option>Extract</option><option>Edible product</option><option>Cultivation waste (substrate/root)</option></select></div>'+
+      '<div class="field"><label>Source lot / batch ID</label><input id="w_lot" placeholder="e.g. LOT-7F3A"></div>'+
+      '<div class="field"><label>Quantity</label><input id="w_qty" type="number" step="0.1" placeholder="e.g. 120"></div>'+
+      '<div class="field"><label>Unit</label><select id="w_unit"><option>g</option><option>mg</option><option>units</option></select></div>'+
+      '<div class="field"><label>Disposal method (rendered unusable)</label><select id="w_method"><option>Ground &amp; mixed 50:50 with non-consumable</option><option>Incineration</option><option>Compost (approved)</option><option>Licensed hazardous-waste hauler</option></select></div>'+
+      '<div class="field"><label>Reason</label><select id="w_reason"><option>Failed lab test</option><option>Expired</option><option>Damaged / contaminated</option><option>Recalled</option><option>Overproduction</option></select></div>'+
+      '<div class="field"><label>Witness / employee</label><input id="w_wit" placeholder="name or ID"></div>'+
+    '</div>'+
+    '<div class="actions"><span class="note">Auto-assigns a waste ID and timestamp; links to the source lot for a complete chain.</span><button class="btn primary" onclick="recordWaste()">Log waste</button></div>';
+  if(w.length){ h+='<div style="margin-top:8px">'+w.map(function(x){return '<div class="approw"><div><b>'+(+x.qty)+' '+esc(x.unit)+'</b> · '+esc(x.material)+' <span class="appmeta">('+esc(x.lot||'—')+' · '+esc(x.reason)+' · '+esc(x.method)+(x.witness?' · witness '+esc(x.witness):'')+')</span></div><div class="appmeta">'+esc(x.id)+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px">'+w.length+' logged · <a href="#" onclick="resetWaste();return false;">reset</a></div></div>'; }
+  h+='</div>';
+  return h;
+}
 function mchip(n,l){ return '<div style="flex:1;min-width:88px;background:#fff;border:1px solid #dbe1e4;border-radius:8px;padding:8px 10px;text-align:center"><div style="font-size:20px;font-weight:800;color:#1f5a54">'+n+'</div><div class="appmeta">'+l+'</div></div>'; }
 function renderCustody(){
   var c=loadCustody();
@@ -495,6 +523,7 @@ function renderCustody(){
       h+='</div>';
     }
   });
+  h+=wasteCard();
   return h;
 }
 function registerLot(){
@@ -845,6 +874,7 @@ function renderDashboard(){
   }
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+cfg.ico+' '+cfg.name+'</b> — '+cfg.goal+'</div>';
   if(p==='patient') h+=patientRights();
+  if(p==='provider') h+='<a href="#" onclick="go(\'safety\');return false;" style="display:flex;align-items:center;gap:14px;background:#9a2a1c;color:#fff;border-radius:14px;padding:16px 20px;text-decoration:none;margin-bottom:4px;box-shadow:0 8px 22px rgba(154,42,28,.20)"><span style="font-size:30px;line-height:1">⚠</span><span><b style="font-size:17px">'+t('Report an adverse event','Reportar un evento adverso')+'</b><div style="font-size:12.5px;opacity:.93">'+t('Serious events → report within 24 hours. Open the tiered adverse-event form.','Eventos graves → reportar en 24 horas. Abra el formulario de eventos adversos por niveles.')+'</div></span><span style="margin-left:auto;font-size:22px">→</span></a>';
   var steps=[appStep(p),NEXT3[p][1],NEXT3[p][2]];
   h+='<div class="card"><h3 class="dh">Your next 3 steps</h3>'+steps.map(function(st,i){
     var num=st.done?'✓':(i+1);
