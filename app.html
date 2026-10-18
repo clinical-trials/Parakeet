@@ -122,11 +122,11 @@
       <span style="font-size:11px;color:#9fc0bc;text-transform:uppercase;letter-spacing:.06em;font-weight:700">🔐 Role-based access — signed in as</span>
       <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#123532;color:#fff">
         <option value="doh">DOH reviewer</option>
+        <option value="patient">Patient</option>
         <option value="clinician">Certifying clinician</option>
         <option value="facilitator">Facilitator / healing center</option>
         <option value="producer">Producer</option>
         <option value="lab">Testing lab</option>
-        <option value="patient">Patient</option>
       </select>
       <span style="font-size:11px;color:#8fb3ab">least-privilege — you see only what your role permits</span>
     </div>
@@ -248,11 +248,11 @@ var DESIGNATED = [
 /* ---------- role-based access (least-privilege) ---------- */
 var ROLES={
   doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
-  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','research','safety','equity']},
-  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','research','safety','equity']},
-  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','safety']},
-  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','safety']},
-  patient:{name:'Patient', views:['dashboard','chooser','myapps','equity','safety']}
+  patient:{name:'Patient', views:['dashboard','chooser','myapps']},
+  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','safety']},
+  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety']},
+  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab']},
+  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody']}
 };
 var ROLE=(function(){ try{ return localStorage.getItem('parakeet_role_v1')||'doh'; }catch(e){ return 'doh'; } })();
 function roleViews(){ return (ROLES[ROLE]||ROLES.doh).views; }
@@ -684,6 +684,7 @@ function renderReporting(){
      '<div class="appmeta" style="margin-bottom:6px">A tap-friendly rendering of the <b>actual validated items</b> (public-domain instruments). The score computes live — record the total in the §9 session, then re-administer at the 1 / 3 / 6 / 12-month follow-ups.</div>'+
      '<div class="field"><label>Measure</label><select id="m_sel" onchange="pickMeasure()"><option value="PHQ-9">PHQ-9 — depression</option><option value="GAD-7">GAD-7 — anxiety</option><option value="PCL-5">PCL-5 — PTSD</option><option value="WHO-5">WHO-5 — well-being</option></select></div>'+
      '<div id="mForm" style="margin-top:8px"></div></div>';
+  h+=rqCard();
   return h;
 }
 
