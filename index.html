@@ -909,13 +909,17 @@ function render(){
 
   var EVM=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var todayStr=new Date().toISOString().slice(0,10);
-  var upEv=EVENTS.filter(function(e){return e.d>=todayStr;}).sort(function(a,b){return a.d<b.d?-1:1;});
-  document.getElementById("eventsList").innerHTML = (upEv.length?'':'<div class="note">No upcoming dates currently posted — confirm with DOH / Colorado NMD.</div>')+upEv.map(function(e){
+  var evRow=function(e,past){
     var dt=e.d.split("-"); var reg=e.link?' · <a href="'+e.link+'" target="_blank" rel="noopener">register</a>':'';
     var days=Math.round((new Date(e.d+"T00:00:00")-new Date(todayStr+"T00:00:00"))/86400000);
-    var cd=days<=0?'today':(days===1?'tomorrow':'in '+days+' days');
-    return '<div class="ev"><div class="evdate"><div class="m">'+EVM[+dt[1]-1]+'</div><div class="d">'+(+dt[2])+'</div></div><div class="evbody"><div class="evt">'+e.label+'<span class="evtype t-'+e.type+'">'+e.type+'</span></div><div class="evm">'+(e.when||"")+' · <b>'+cd+'</b>'+reg+'</div></div></div>';
-  }).join("");
+    var cd=past?((-days)+' day'+((-days)===1?'':'s')+' ago'):(days<=0?'today':(days===1?'tomorrow':'in '+days+' days'));
+    return '<div class="ev"'+(past?' style="opacity:.45"':'')+'><div class="evdate"><div class="m">'+EVM[+dt[1]-1]+'</div><div class="d">'+(+dt[2])+'</div></div><div class="evbody"><div class="evt">'+e.label+'<span class="evtype t-'+e.type+'">'+e.type+'</span></div><div class="evm">'+(e.when||"")+' · <b>'+cd+'</b>'+reg+'</div></div></div>';
+  };
+  var upEv=EVENTS.filter(function(e){return e.d>=todayStr;}).sort(function(a,b){return a.d<b.d?-1:1;});
+  var pastEv=EVENTS.filter(function(e){return e.d<todayStr;}).sort(function(a,b){return a.d<b.d?1:-1;});
+  document.getElementById("eventsList").innerHTML =
+    (upEv.length? ('<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#17423f;margin:2px 0 6px">Upcoming</div>'+upEv.map(function(e){return evRow(e,false);}).join("")) : '<div class="note">No upcoming dates currently posted — confirm with DOH / Colorado NMD.</div>')+
+    (pastEv.length? ('<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a949a;margin:14px 0 6px;border-top:1px solid var(--line);padding-top:8px">Recently held</div>'+pastEv.map(function(e){return evRow(e,true);}).join("")) : '');
 
   document.getElementById("regBlock").innerHTML =
     row("Regulator", p.regulator) + row("Statute", p.statute) + row("Status", p.status, p.statusCite);
