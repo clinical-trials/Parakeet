@@ -975,7 +975,7 @@ function designatedHero(){
 function renderDashboard(){
   var ROLE2COACH={producer:'producer',lab:'lab',clinician:'provider',facilitator:'provider',patient:'patient',doh:null};
   var p=ROLE2COACH[ROLE];
-  var h=warmHero()+(ROLE==='patient'?'':designatedHero());
+  var h=warmHero()+(ROLE==='doh'?designatedHero():'');
   if(!p){
     h+='<h1>'+t('Regulator dashboard','Panel del regulador')+'</h1><div class="sub">'+t('Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.','Vista de supervisión para el Departamento: revise solicitudes y monitoree los resultados de la §9, las señales de seguridad y el alcance de la equidad. Cambie de función con el selector de la parte superior.')+'</div>';
     var _apps=loadApps(), _pend=_apps.filter(function(a){return a.status==='submitted'||a.status==='sitevisit';}).length, _appr=_apps.filter(function(a){return a.status==='approved';}).length;
