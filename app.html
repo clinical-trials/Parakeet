@@ -135,8 +135,14 @@
 <div class="wrap" id="root"></div>
 <script>
 /* ---------- storage (per-viewer; graceful) ---------- */
-var MEM=[];
-function loadApps(){ try{ return JSON.parse(localStorage.getItem('parakeet_apps_v1')||'[]'); }catch(e){ return MEM.slice(); } }
+var MEM=[
+  {id:'APP-SAS001', type:'producer', typeName:'Producer permit', title:'Sacred Alto Spores', data:{legalName:'Sacred Alto Spores LLC', email:'ops@sacredalto.example', county:'Santa Fe', endorsements:'Cultivation'}, status:'approved', sitevisit:true, submittedAt:'2026-08-20T15:00:00.000Z', decidedAt:'2026-09-30T15:00:00.000Z'},
+  {id:'APP-RAB014', type:'producer', typeName:'Producer permit', title:'Rio Abajo Botanicals', data:{legalName:'Rio Abajo Botanicals LLC', email:'hello@rioabajo.example', county:'Valencia', endorsements:'Cultivation + extraction'}, status:'submitted', sitevisit:true, submittedAt:'2026-10-02T15:00:00.000Z'},
+  {id:'APP-SCM021', type:'producer', typeName:'Producer permit', title:'Sangre de Cristo Mycology', data:{legalName:'Sangre de Cristo Mycology Inc.', email:'grow@sdcmyco.example', county:'Taos', endorsements:'Cultivation'}, status:'submitted', sitevisit:true, submittedAt:'2026-10-07T15:00:00.000Z'},
+  {id:'APP-HDF028', type:'producer', typeName:'Producer permit', title:'High Desert Fungi Co.', data:{legalName:'High Desert Fungi Co.', email:'info@highdesertfungi.example', county:'Doña Ana', endorsements:'Cultivation + edible'}, status:'submitted', sitevisit:true, submittedAt:'2026-10-11T15:00:00.000Z'},
+  {id:'APP-EML033', type:'producer', typeName:'Producer permit', title:'Enchantment Mushroom Labs', data:{legalName:'Enchantment Mushroom Labs LLC', email:'apply@enchantmentmush.example', county:'Bernalillo', endorsements:'Cultivation + extraction'}, status:'submitted', sitevisit:true, submittedAt:'2026-10-14T15:00:00.000Z'}
+];
+function loadApps(){ try{ var raw=localStorage.getItem('parakeet_apps_v1'); return raw? JSON.parse(raw): MEM.slice(); }catch(e){ return MEM.slice(); } }
 function saveApps(a){ MEM=a; try{ localStorage.setItem('parakeet_apps_v1', JSON.stringify(a)); }catch(e){} }
 function loadDraft(t){ try{ return JSON.parse(localStorage.getItem('parakeet_draft_'+t)||'{}'); }catch(e){ return {}; } }
 function saveDraft(t,d){ try{ localStorage.setItem('parakeet_draft_'+t, JSON.stringify(d)); }catch(e){} }
@@ -249,7 +255,7 @@ var DESIGNATED = [
 var ROLES={
   doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
   patient:{name:'Patient', views:['dashboard','chooser','myapps']},
-  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','safety']},
+  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','research','safety']},
   facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety']},
   producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab']},
   lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody']}
@@ -297,6 +303,42 @@ function submitRQ(){
   var a=loadRQ(); a.unshift(rec); saveRQ(a); render();
 }
 function resetRQ(){ try{ localStorage.removeItem('parakeet_rquestions_v1'); }catch(e){} render(); }
+/* ---------- Research Fund (§11(B)) + IRB application → transfers to DOH for administration ---------- */
+function loadRApps(){ try{ return JSON.parse(localStorage.getItem('parakeet_rapps_v1')||'[]'); }catch(e){ return []; } }
+function saveRApps(a){ try{ localStorage.setItem('parakeet_rapps_v1', JSON.stringify(a)); }catch(e){} }
+function submitRApp(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  var title=g('ra_title'); if(!title.trim()){ return; }
+  var rec={ id:'RF-'+Math.random().toString(36).slice(2,6).toUpperCase(), title:title.trim(), inst:g('ra_inst'), cond:g('ra_cond'), amount:parseFloat(g('ra_amt'))||0, irb:g('ra_irb'), aims:g('ra_aims'), status:'Submitted → DOH review', at:new Date().toISOString() };
+  var a=loadRApps(); a.unshift(rec); saveRApps(a); render();
+}
+function setRAppStatus(id,st){ var a=loadRApps(); a.forEach(function(x){ if(x.id===id) x.status=st; }); saveRApps(a); render(); }
+function resetRApps(){ try{ localStorage.removeItem('parakeet_rapps_v1'); }catch(e){} render(); }
+function rappStatusClass(s){ return s.indexOf('Approved')>-1?'s-approved':(s.indexOf('Changes')>-1?'s-denied':'s-review'); }
+function rappCard(){
+  var ra=loadRApps(), isDOH=(ROLE==='doh');
+  var h='<div class="card" style="border-color:#e8d3a0;background:var(--goldbg)"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">🎓 Research Fund (§11(B)) &amp; IRB — '+(isDOH?'application administration':'apply for funding &amp; record IRB')+'</h3>';
+  if(isDOH){
+    h+='<div class="kv" style="color:var(--ink)"><b>DOH research-program administration.</b> Review submitted <b>Medical Psilocybin Research Fund</b> applications (SB219 <b>§11(B)</b>; <b>$300,000</b>; grants to NM state research universities &amp; health care providers studying any facet of medical psilocybin). Confirm IRB status &amp; eligibility before award.</div>';
+    if(!ra.length){ h+='<div class="note">No research-fund applications in the queue yet. Switch to the <b>Certifying clinician</b> role to submit one as a researcher.</div>'; }
+    else { h+=ra.map(function(x){ return '<div class="card" style="background:#fffdf9;margin:6px 0;box-shadow:none"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>'+esc(x.title)+'</b> <span class="appmeta">('+esc(x.id)+')</span><div class="appmeta">'+esc(x.inst||'—')+' · '+esc(x.cond||'')+' · <b>$'+(+x.amount).toLocaleString()+'</b> · IRB: '+esc(x.irb||'—')+'</div>'+(x.aims?'<div class="appmeta" style="margin-top:3px">'+esc(x.aims)+'</div>':'')+'</div><div><span class="status '+rappStatusClass(x.status)+'">'+esc(x.status)+'</span></div></div>'+
+      '<div class="actions" style="margin-top:6px"><span class="note">Eligibility: NM state research university or NM health care provider.</span><span><button class="btn sm ok" onclick="setRAppStatus(\''+x.id+'\',\'Approved for award\')">Approve</button> <button class="btn sm no" onclick="setRAppStatus(\''+x.id+'\',\'Changes requested\')">Request changes</button></span></div></div>'; }).join('')+'<div class="appmeta" style="margin-top:4px"><a href="#" onclick="resetRApps();return false;">reset queue</a></div>'; }
+  } else {
+    h+='<div class="kv" style="color:var(--ink)">Apply for a <b>Medical Psilocybin Research Fund</b> grant (SB219 <b>§11(B)</b>, <b>$300,000</b>) — open to <b>NM state research universities &amp; health care providers</b> studying any facet of medical psilocybin. Record your <b>IRB</b> status; on submit, the application <b>transfers to DOH</b> for research-program administration.</div>'+
+      '<div class="grid">'+
+        '<div class="field" style="grid-column:1/-1"><label>Study title</label><input id="ra_title" placeholder="e.g. Durability of response in treatment-resistant depression (1/3/6/12 mo)"></div>'+
+        '<div class="field"><label>Institution / provider (eligibility)</label><input id="ra_inst" placeholder="e.g. UNM Health Sciences / NM-licensed provider"></div>'+
+        '<div class="field"><label>Condition / focus</label><select id="ra_cond"><option>Treatment-resistant depression</option><option>PTSD</option><option>Substance-use disorder</option><option>End-of-life care</option><option>Durability</option><option>Equity / access</option><option>Safety / adverse events</option><option>Other</option></select></div>'+
+        '<div class="field"><label>Requested amount ($)</label><input id="ra_amt" type="number" placeholder="e.g. 75000"></div>'+
+        '<div class="field"><label>IRB status</label><select id="ra_irb"><option>IRB approved (protocol on file)</option><option>IRB submitted / pending</option><option>IRB not yet applied</option><option>Exempt / QI (no IRB)</option></select></div>'+
+        '<div class="field" style="grid-column:1/-1"><label>Specific aims (brief)</label><textarea id="ra_aims" rows="2" placeholder="One or two sentences on the aims and the opt-in, de-identified data you would use."></textarea></div>'+
+      '</div>'+
+      '<div class="actions"><span class="note">Research stays secondary to patient care &mdash; opt-in, de-identified, IRB-gated. No patient identifiers in this application.</span><button class="btn primary" onclick="submitRApp()">Submit to DOH</button></div>';
+    if(ra.length){ h+='<div style="margin-top:8px"><div class="appmeta" style="margin-bottom:4px"><b>Your submissions</b></div>'+ra.map(function(x){return '<div class="approw"><div><b>'+esc(x.title)+'</b> <span class="appmeta">('+esc(x.id)+' · $'+(+x.amount).toLocaleString()+')</span></div><div><span class="status '+rappStatusClass(x.status)+'">'+esc(x.status)+'</span></div></div>';}).join('')+'<div class="appmeta" style="margin-top:4px"><a href="#" onclick="resetRApps();return false;">reset</a></div></div>'; }
+  }
+  h+='<div class="note">Source: SB219 <b>§11(B)</b> (Medical Psilocybin Research Fund; DOH-administered, subject to legislative appropriation); human-subjects research per <b>45 CFR 46</b>. Educational prototype &mdash; not a live grant portal.</div></div>';
+  return h;
+}
 function rqCard(){
   var rq=loadRQ();
   var h='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">💡 '+t('Submit a research question','Proponga una pregunta de investigación')+'</h3>'+
@@ -1201,6 +1243,7 @@ function renderResearch(){
      '</tbody></table></div>'+
      '<div class="note">The committees <b>advise</b>; the Department administers the <b>two statutory funds</b> (Research <b>$300K</b> §11(B) · Equity <b>$630K</b> §11(A)). Committees have <b>no separate line-item budgets</b>. Source: NMDOH RACI minutes (pub 9727); SB219 §8, §11.</div></div>';
   h+=eventsCard();
+  h+=rappCard();
   h+=rqCard();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Evidence base — building on prior state syntheses (non-duplicative)</h3>'+
      '<div class="kv" style="color:var(--ink)">New Mexico need not re-derive the science from scratch. Oregon&rsquo;s <b>Psilocybin Advisory Board Rapid Evidence Review</b> (OPAB, Jul&nbsp;30&nbsp;2021; <b>2025 addendum</b> of newer references) already synthesized the safety &amp; efficacy literature under ORS&nbsp;475A, concluding psilocybin <b>&ldquo;holds promise as an option to address mental health issues&rdquo;</b> and may reduce problematic alcohol and tobacco use. A companion <b>Cultural &amp; Anthropological Review</b> (Nov&nbsp;2022) covers traditional and Indigenous use.</div>'+
@@ -1587,13 +1630,13 @@ function renderEquity(){
 
 function renderLab(){
   var LABS=[
-    {n:'Rio Grande Analytics', c:'Albuquerque'},
-    {n:'Rio Grande Analytics', c:'Las Cruces'},
-    {n:'Cristo Clear Analytics', c:'Sunland Park'},
-    {n:'Scepter Labs', c:'Santa Fe'},
-    {n:'Pree Laboratories NM', c:'Las Cruces'},
-    {n:'Argon Labs', c:'Albuquerque'},
-    {n:'Scissortail Laboratory', c:'Albuquerque'}
+    {n:'Rio Grande Analytics', c:'Albuquerque', p:'(505) 503-6830', u:'https://www.riograndeanalytics.com/'},
+    {n:'Rio Grande Analytics', c:'Las Cruces', p:'(505) 348-6230', u:'https://www.riograndeanalytics.com/locations'},
+    {n:'Cristo Clear Analytics', c:'Sunland Park', p:'(575) 332-9400', u:'https://cristoclear.com/'},
+    {n:'Scepter Labs', c:'Santa Fe', p:'(505) 216-9484', u:'https://www.scepterlabs.com/'},
+    {n:'Pree Laboratories NM', c:'Las Cruces', p:'(575) 556-9026', u:'https://preenm.com/'},
+    {n:'Argon Labs', c:'Albuquerque', p:'', a:'1412 Broadway Blvd NE'},
+    {n:'Scissortail Laboratory', c:'Albuquerque', p:'', a:'6101 Signal Ave NE'}
   ];
   var PANEL=[
     {t:'Potency', d:'Psilocybin + psilocin, quantified in mg — the COA value that sets the dose'},
@@ -1621,8 +1664,12 @@ function renderLab(){
     '</tbody></table></div><div class="note">NM&rsquo;s panel is the broadest and the <b>only</b> one whose lab data flows <b>COA → chain-of-custody → §9</b>; Oregon is accredited &amp; established; Colorado&rsquo;s testing is not reliably happening and does not feed a state system. <b>To confirm:</b> the exact NM analyte list &amp; HPLC method live in the 7.35.2.19 testing table / lab SOP (the adopted rule text defines potency only as &ldquo;psilocybin and analytes&rdquo;).</div></div>';
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Candidate labs — the fast path to a first COA</h3>'+
     '<div class="appmeta" style="margin-bottom:6px">DOH planning documents name three routes to a certified psilocybin lab: an <b>existing cannabis testing lab</b>, an <b>ISO/IEC 17025-accredited</b> lab, or a lab <b>approved / overseen by the Department</b>. NM already licenses <b>7 cannabis testing lab locations (6 companies)</b> — the realistic near-term pool if the rule recognizes them:</div>';
-  h+=LABS.map(function(l){return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span><div class="appmeta">awaiting psilocybin certification</div></div><span class="status s-submitted">Candidate</span></div>';}).join('');
-  h+='<div class="note"><b>ISO/IEC 17025</b> = the international standard for testing-lab competence. Source: NM RLD Cannabis Control Division approved-testing-labs list (Oct 2026); psilocybin certification scope must still be established under 7.35.2.</div></div>';
+  h+=LABS.map(function(l){
+    var contact = l.p? '<a href="tel:'+l.p.replace(/[^0-9]/g,'')+'">'+esc(l.p)+'</a>' : (l.a? esc(l.a) : 'contact TBD');
+    var site = l.u? ' · <a href="'+l.u+'" target="_blank" rel="noopener">website</a>' : '';
+    return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span><div class="appmeta">📞 '+contact+site+' · awaiting psilocybin certification</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="status s-submitted">Candidate</span><button class="btn sm" onclick="go(\'custody\')">Do a COA →</button></div></div>';
+  }).join('');
+  h+='<div class="note"><b>ISO/IEC 17025</b> = the international standard for testing-lab competence. Source: NM RLD Cannabis Control Division approved-testing-labs list (Oct 2026). Required test panel &amp; lab certification scope: <b>7.35.2.19 NMAC</b> (producer &amp; laboratory rule — <a href="https://www.nmhealth.org/publication/view/rules/9904/" target="_blank" rel="noopener">7.35.2 NMAC on NM DOH</a>). Phone numbers are public-source (lab websites / NM RLD &amp; NMED lists) — confirm before relying.</div></div>';
   h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">How to unblock it faster (for DOH &amp; the committee)</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
     '<li><b>Recognize existing accreditation:</b> accept <b>ISO/IEC 17025</b> scope or an active <b>NM cannabis lab</b> license as the backbone, adding only psilocybin-specific method validation.</li>'+
     '<li><b>Provisional / conditional certification</b> + <b>expedited review</b> so one qualified lab can issue COAs while full certification completes.</li>'+
