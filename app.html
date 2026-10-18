@@ -680,6 +680,24 @@ function appStep(p){
   if(l.status==='denied') return {t:"Application "+l.id+" was denied — review and reapply.",a:"go('chooser')",al:"Reapply"};
   return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
 }
+function warmHero(){
+  var svg='<svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" style="width:100%;height:148px;display:block" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs>'+
+    '<linearGradient id="phsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe6c4"/><stop offset="0.55" stop-color="#f4c889"/><stop offset="1" stop-color="#e59b63"/></linearGradient>'+
+    '<radialGradient id="phsun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff6e0"/><stop offset="1" stop-color="#f6b457"/></radialGradient>'+
+    '</defs>'+
+    '<rect width="1200" height="300" fill="url(#phsky)"/>'+
+    '<circle cx="852" cy="138" r="62" fill="url(#phsun)"/>'+
+    '<path d="M0 206 L190 172 L380 198 L580 162 L800 192 L1010 158 L1200 188 L1200 300 L0 300Z" fill="#cf9262" opacity="0.5"/>'+
+    '<path d="M0 238 L260 203 L520 233 L770 198 L1010 236 L1200 214 L1200 300 L0 300Z" fill="#b5703f" opacity="0.72"/>'+
+    '<path d="M0 274 L320 240 L640 270 L920 242 L1200 274 L1200 300 L0 300Z" fill="#8f4b2b"/>'+
+    '</svg>';
+  return '<div style="border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.10)">'+svg+
+    '<div style="background:#fbf3e7;padding:14px 18px">'+
+    '<div style="font-size:16px;font-weight:800;color:#8a4a2c">Welcome &middot; Bienvenidos &middot; Yáʼátʼééh</div>'+
+    '<div style="font-size:12.5px;color:#5c4636;margin-top:4px;line-height:1.55">New Mexico is home to many peoples &mdash; the <b>19 Pueblos</b>, the <b>Navajo Nation (Diné)</b>, the <b>Jicarilla &amp; Mescalero Apache</b>, <b>Hispano &amp; Chicano</b> communities, and many others. This program is built to meet each person <b>with respect, in their own language and culture</b>, and to reach those most often left out of care. <i>Human, not clinical.</i></div>'+
+    '</div></div>';
+}
 function designatedHero(){
   var rows=DESIGNATED.map(function(d){
     return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,.14)">'+
@@ -712,7 +730,7 @@ function renderDashboard(){
   var ROLE2COACH={producer:'producer',lab:'lab',clinician:'provider',facilitator:'provider',patient:'patient',doh:null};
   var p=ROLE2COACH[ROLE];
   var hero=designatedHero();
-  var h=hero;
+  var h=warmHero()+hero;
   if(!p){
     h+='<h1>Regulator dashboard</h1><div class="sub">Oversight view for the department — review applications and monitor §9 outcomes, safety signals &amp; equity reach. Change roles with the “signed in as” switcher in the header.</div>';
     h+='<div class="card"><h3 class="dh">Oversight — jump to</h3>'+[['review','Review &amp; decide applications (30-day clock)'],['research','§9 outcomes &amp; cross-state analysis'],['safety','Adverse-event signals &amp; recalls'],['equity','Equity Fund reach &amp; disparities'],['lab','Testing-lab certification status'],['custody','Chain-of-custody &amp; COAs']].map(function(x){return '<div class="approw"><div>'+x[1]+'</div><button class="btn sm" onclick="go(\''+x[0]+'\')">Open</button></div>';}).join('')+'</div>';
@@ -918,6 +936,20 @@ function renderResearch(){
      '<div class="kv" style="color:var(--ink)"><b>Outcome measures:</b> aligning to the committee&rsquo;s <b>Recommended Outcome Battery</b> (G. Evans), with deviations &amp; amendments tracked.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>De-identification per committee decisions:</b> <b>year of birth</b> (not DOB) · <b>diagnosed disability yes/no</b> · residency by <b>ZIP code</b>.</div>'+
      '<div class="note">Source: RACI committee meeting minutes, Apr 10, 2026 (NMDOH MCPP; publication 9727). Public hearing Apr 24, 2026; final regulations published ≥30 days after finalization.</div></div>';
+  var GP=[
+    ['Participant-centered throughout','Information capture serves the client first &mdash; structured around the client&rsquo;s path (referral → long-term follow-up), not the system&rsquo;s convenience.'],
+    ['Collect only what you will act on','If we won&rsquo;t do something meaningful with a data point, we don&rsquo;t collect it. <b>Reviewed continuously.</b>'],
+    ['Collect once, use many times (non-duplicative)','The single biggest <b>burden reducer</b> &mdash; less work for the <b>clinician</b>, less paperwork for the <b>patient</b>, and an easier job for the <b>state</b>. No one repeats what they already provided. Because <b>documentation burden is a leading driver of clinician burnout</b>, a non-duplicative design is also a <b>clinician-wellbeing</b> measure.'],
+    ['Make it feel human, not clinical','Even where elements are clinical, the clinician / facilitator carries warmth, set &amp; setting, and therapeutic alliance &mdash; the person feels welcomed, not processed.'],
+    ['Nonviolent communication (feelings &amp; needs)','Client questions are framed in feelings &amp; needs (&ldquo;Did you feel safe, respected, cared for?&rdquo;), not checklists.'],
+    ['Honor the ineffable','Pair validated measures with open narrative space &mdash; &ldquo;yes, and,&rdquo; not &ldquo;either / or.&rdquo;'],
+    ['Capture at the natural point of care','Each element is recorded where it naturally arises, by the best-positioned person &mdash; light burden, accurate information.'],
+    ['Cultural &amp; spiritual humility','Capture the whole person; intentionally reach Indigenous &amp; Medicaid populations often missing from existing data.'],
+    ['Compassionate timing','Nothing beyond the administration on dosing day; the post-session window is protected (no outreach earlier than one week after administration).']
+  ];
+  h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">Research guiding principles (RACI) — a durable reference for policymakers &amp; future contributors</h3>'+
+     GP.map(function(g){return '<div class="kv" style="color:var(--ink)"><b>'+g[0]+'</b> &mdash; '+g[1]+'</div>';}).join('')+
+     '<div class="note">Kept here as a <b>durable reference</b>. These are <b>continuously reviewed</b> &mdash; especially &ldquo;collect only what you will act on.&rdquo; Source: RACI Guiding-Principles consensus.</div></div>';
   var irb=loadIRB();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">Research-ethics gate — QI vs. human-subjects research (IRB)</h3>'+
     '<div class="kv" style="color:var(--ink)"><b>No IRB:</b> mandatory §9 / QI aggregate reporting and internal quality improvement.</div>'+
