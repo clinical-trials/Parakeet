@@ -5,8 +5,8 @@
 <path d="M20 26 C28 20 40 20 46 28 C52 36 50 48 40 52 C28 57 15 50 14 40 C13 33 15 30 20 26 Z" fill="#c0392b"/>
 <circle cx="43" cy="23" r="11.5" fill="#c0392b"/>
 <ellipse cx="40" cy="27" rx="6.5" ry="5.5" fill="#d1503f"/>
-<path d="M51 18 C60 18 63 24 59 28 C57 30 53 30 52 27 C56 26 55 22 51 22 Z" fill="#f2ad3e"/>
-<path d="M52 27 C55 27 56 29 53 30 C54 32 50 32 50 28 Z" fill="#e0902a"/>
+<path d="M49 16 L66 25 C64 29 60 31 57 29 C60 26 57 22 49 22 Z" fill="#f2ad3e"/>
+<path d="M56 29 C60 29 61 32 57 33 C58 34 54 33 54 30 Z" fill="#e0902a"/>
 <circle cx="45" cy="21" r="4" fill="#f0e3d0"/>
 <circle cx="45" cy="21" r="3" fill="#241612"/>
 <circle cx="46.1" cy="20" r="1" fill="#fff"/>
