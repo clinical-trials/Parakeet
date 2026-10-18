@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parakeet Software — NM &amp; Colorado Psilocybin Programs</title>
+<title>Parakeet Policy Console — NM · Colorado · Oregon Psilocybin Programs</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='13'%20fill='%2317423f'/%3E%3Cpath%20d='M22%2042%2010%2055l16-6z'%20fill='%23c0392b'/%3E%3Cellipse%20cx='32'%20cy='35'%20rx='15'%20ry='17'%20fill='%23c0392b'/%3E%3Ccircle%20cx='42'%20cy='22'%20r='11'%20fill='%23c0392b'/%3E%3Cpath%20d='M51%2017l10%205-10%205z'%20fill='%23f3c969'/%3E%3Ccircle%20cx='45'%20cy='20'%20r='2.4'%20fill='%23fff'/%3E%3Ccircle%20cx='45.8'%20cy='20.4'%20r='1.1'%20fill='%2317423f'/%3E%3Ccircle%20cx='28'%20cy='31'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='36'%20cy='39'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='28'%20cy='43'%20r='1.8'%20fill='%23fff'/%3E%3Ccircle%20cx='39'%20cy='31'%20r='1.6'%20fill='%23fff'/%3E%3Ccircle%20cx='24'%20cy='37'%20r='1.5'%20fill='%23fff'/%3E%3C/svg%3E">
 <style>
@@ -228,7 +228,7 @@
 </div>
 <header class="top">
   <div class="wrap">
-    <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET Software <small id="brandSub">NM Medical Psilocybin Program · govtech with regtech awareness</small></div>
+    <div class="brand" id="brand" title="Replay intro">PARA<span>·</span>KEET Policy Console <small id="brandSub">Cross-state psilocybin policy comparison · New Mexico · Colorado · Oregon</small></div>
     <div class="shifter" role="group" aria-label="Shift between state programs" title="Shift the gear to switch states">
       <div class="gate" onclick="shiftFromGate(event)" title="Click or drag to shift">
         <i class="detent" style="left:16.667%"></i><i class="detent" style="left:50%"></i><i class="detent" style="left:83.333%"></i>
@@ -417,6 +417,14 @@
       <tr><td><b>Non-medical &ne; medical</b> (no referral / diagnosis)</td><td>OR &amp; CO</td><td>NM requires a certifying clinician + qualifying diagnosis &mdash; the medical difference.</td></tr>
       </tbody></table></div>
       <div class="note">Synthesis of Oregon (Measure 109 / ORS 475A; OPS fact sheets; OHA §303 data; Korthuis 2026, JAMA Netw Open) and Colorado (Prop 122; 1 CCR 213-1; NMD compliance tools). Educational comparison, not legal advice.</div>
+    </div>
+    <div class="card full"><h3>Primary sources &amp; authoritative citations</h3>
+      <div class="tablescroll"><table><thead><tr><th>State</th><th>Model</th><th>Statute</th><th>Rules (full text)</th></tr></thead><tbody>
+      <tr><td><b>New Mexico</b></td><td>Medical</td><td><a href="https://www.nmlegis.gov/Sessions/25%20Regular/final/SB0219.PDF" target="_blank" rel="noopener">SB219 (2025)</a> — Medical Psilocybin Act</td><td><b>7.35.2 &amp; 7.35.3 NMAC</b> (NM DOH; 7.35.3 in rulemaking)</td></tr>
+      <tr><td><b>Colorado</b></td><td>Non-medical</td><td>Prop 122 / Natural Medicine Health Act — C.R.S. Title 44, Art. 50</td><td><a href="refs/1-CCR-213-1.pdf" target="_blank" rel="noopener"><b>1 CCR 213-1</b> (full text, hosted here)</a> &middot; <a href="https://www.coloradosos.gov/CCR/GenerateRulePdf.do?ruleVersionId=11721&amp;fileName=1%20CCR%20213-1" target="_blank" rel="noopener">SOS source</a> + DOR Natural Medicine Rules</td></tr>
+      <tr><td><b>Oregon</b></td><td>Non-medical</td><td><a href="https://www.oregon.gov/psilocybin" target="_blank" rel="noopener">Measure 109 / ORS 475A</a></td><td><b>OAR 333-333</b> (Oregon Psilocybin Services)</td></tr>
+      </tbody></table></div>
+      <div class="note">Always confirm against the issuing agency&rsquo;s current text. Colorado&rsquo;s <b>1 CCR 213-1</b> governs licensing, <b>fees (Part 2)</b>, and compliance; the Department of Revenue issues the Natural Medicine product &amp; transfer rules. New Mexico&rsquo;s fee schedule is <b>not yet adopted</b> (7.35.2 / 7.35.3 NMAC rulemaking).</div>
     </div>
     <div class="card full"><h3>Annual audit &amp; regulatory oversight</h3><div id="auditBlock"></div></div>
     <div class="card full" id="systemsCard"><h3>The three department-designated systems &mdash; vendor scope (per the rules)</h3><div id="systemsBlock"></div></div>
@@ -961,7 +969,7 @@ function render(){
   ["daiLabel","daiCard","eviLabel","eviCard","eduLabel","eduCard","faqLabel","faqCard"].forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=showDai?"":"none";});
   if(showDai){ dai(); renderEdu(); renderFaq(); }
 
-  var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':ACTIVE==='or'?'OR Psilocybin Services (Measure 109)':'CO Regulated Natural Medicine (Prop 122)')+' · govtech with regtech awareness';
+  var bs=document.getElementById('brandSub'); if(bs) bs.textContent=(ACTIVE==='nm'?'NM Medical Psilocybin Program':ACTIVE==='or'?'OR Psilocybin Services (Measure 109)':'CO Regulated Natural Medicine (Prop 122)')+' · cross-state policy comparison';
   renderExplainer(); renderReadiness(); renderChain(); renderUnique(); renderTribal(); renderSecurity();
 
   // gear shifter
