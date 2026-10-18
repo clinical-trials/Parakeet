@@ -379,6 +379,18 @@
     <div class="card"><h3>Settings &amp; sessions</h3><div id="settingBlock"></div></div>
     <div class="card full"><h3>Qualifying conditions &amp; clinical evidence</h3><div id="conditionsBlock"></div></div>
     <div class="card full"><h3>Supply chain &amp; lab testing &mdash; producer &rarr; lab &rarr; COA</h3><div id="supplyBlock"></div></div>
+    <div class="card full"><h3>Compliance recordkeeping &mdash; manual spreadsheets vs. structured forms</h3>
+      <div class="note" style="font-size:13px;color:var(--ink);margin:0 0 8px">Colorado publishes <b>six Google-Sheet templates</b> for the records licensees must keep &mdash; simple, but <b>manual, re-keyed and disconnected</b>. The templates usefully define <b>which data areas</b> must be captured; Parakeet turns those same fields into <b>integrated, validated web forms</b> (dropdowns, auto-generated IDs) that link across the chain and feed §9 reporting &mdash; no spreadsheet, no re-keying.</div>
+      <div class="tablescroll"><table><thead><tr><th>Colorado template (manual)</th><th>Parakeet (integrated form)</th><th>Status</th></tr></thead><tbody>
+      <tr><td>Cultivation Inventory Tracking</td><td>Chain-of-custody — batch &rarr; lot &rarr; package, unique IDs</td><td><span class="coretag">Built</span></td></tr>
+      <tr><td>Transport Manifest</td><td>Verified transfer record (producer &rarr; lab &rarr; healing center)</td><td><span class="coretag">Built</span></td></tr>
+      <tr><td>Testing Facility Inventory Tracking</td><td>Testing-labs module + COA capture (potency mg, pass/fail)</td><td><span class="coretag">Built</span></td></tr>
+      <tr><td>Administration Session Log</td><td>§9 session record — mg analyte dosed, outcomes, adverse events</td><td><span class="coretag">Built</span></td></tr>
+      <tr><td>Product Manufacturer Inventory Tracking</td><td>Manufacturer lot &amp; product inventory form</td><td><span class="tagnote">On the build list</span></td></tr>
+      <tr><td>Waste Tracking</td><td>Waste disposal log (quantity, method, witness)</td><td><span class="tagnote">On the build list</span></td></tr>
+      </tbody></table></div>
+      <div class="note">Source: Colorado NMD <a href="https://nmd.colorado.gov/compliance-tools" target="_blank" rel="noopener">Compliance Tools</a> (1 CCR 213-1). <b>The design lesson for New Mexico:</b> specify the required fields, but deliver them as <b>structured forms</b>, not spreadsheets &mdash; fewer errors, built-in chain-of-custody, and automatic de-identified §9 reporting.</div>
+    </div>
     <div class="card full"><h3>Annual audit &amp; regulatory oversight</h3><div id="auditBlock"></div></div>
     <div class="card full" id="systemsCard"><h3>The three department-designated systems &mdash; vendor scope (per the rules)</h3><div id="systemsBlock"></div></div>
   </div>
@@ -624,7 +636,7 @@ const RULEPACKS = {
       {name:"Other conditions approved by DOH", ev:[]}
     ], condCite:"7.35.3 NMAC · SB219 §3.I",
     services:{list:"Preparation · Administration · Integration (certified practitioner + facilitator)", setting:"Healing center or other approved location (incl. home)", cite:"7.35.3 NMAC · SB219 §3.D"},
-    fees:{summary:"Application, certification & owner-entity fees set by DOH rulemaking (not fixed in statute)", cite:"7.35.2 / 7.35.3 NMAC"},
+    fees:{summary:"NOT YET DECIDED — application, certification, producer / lab & owner-entity fees will be set by DOH rulemaking. The open question for policymakers: set high ONE-TIME application fees (business-paid → program revenue + the Equity Fund) while keeping RECURRING fees moderate so they do not inflate patient cost. Toggle to Colorado (two-part model) and Oregon to compare.", cite:"7.35.2 / 7.35.3 NMAC (fees TBD)"},
     parakeet:{level:"core", detail:"Runs the certifying-clinician certification + joint patient enrollment: diagnosis capture, controlled-substances-number check, exam-pathway attestation (in-person ≤6 mo or telemedicine-anchored), the 30-day DOH review, EHR (SMART on FHIR), dosage calculator + prospective registry.", cite:"7.35.3 NMAC · SB219 §9"},
     reporting:{kind:"De-identified client + provider data → annual assessment; plus enrollment & certification records and the 30-day review queue", clientData:true, cite:"SB219 §9 · 7.35.3 NMAC"},
     supply:{
@@ -710,7 +722,7 @@ const RULEPACKS = {
     eligibility:{gate:"None — adults 21+", detail:"No diagnosis or prescription. Note: personal cultivation, use & community sharing are separately decriminalized (21+) — a demand caveat for paid regulated services.", cite:"Prop 122"},
     conditions:null,
     services:{list:"Facilitated administration (preparation optional)", setting:"Healing center · approved healthcare facility · participant home", cite:"Prop 122 / 1 CCR 213-1"},
-    fees:{summary:"Micro healing center ~$4,000 → product manufacturing ~$8,000; facilitator training program $10,000 (phased; eff. Oct 2024); new owner-entity fee on the 2026 agenda", cite:"DOR/DORA fee schedule"},
+    fees:{summary:"Two-part fee — Application Fee (at application) + Compliance Fee (before issuance), 2026 schedule: Standard Healing Center $1,000 + $5,000; Standard Cultivation $1,000 + $7,000; Products Manufacturer $1,000 + $7,000 (edible) / $3,500 (other); Testing Facility $1,000 + $5,000; Facilitator $0 + $350–750; Handler $100 + $350; Owner $500 + $750 — plus annual renewal compliance fees.", cite:"1 CCR 213-1 Pt. 2 §2005 (auth. C.R.S. §§44-50-104/202/203/601/602)"},
     parakeet:{level:"light", detail:"No medical gate. Optional Clinical-Facilitator module: track secondary-license scope + capture the referral/clearance record when a participant has a risk-factor diagnosis outside the facilitator's scope.", cite:"4 CCR 755-1"},
     reporting:{kind:"Self-reported inventory forms to the Division (at least monthly) — tightening under the 8000-series. No mandated client-demographic reporting.", clientData:false, cite:"1 CCR 213-1"},
     supply:{
