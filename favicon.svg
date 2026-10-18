@@ -1,20 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="13" fill="#17423f"/>
-  <!-- tail -->
-  <path d="M22 42 10 55l16-6z" fill="#c0392b"/>
-  <!-- body -->
-  <ellipse cx="32" cy="35" rx="15" ry="17" fill="#c0392b"/>
-  <!-- head -->
-  <circle cx="42" cy="22" r="11" fill="#c0392b"/>
-  <!-- beak -->
-  <path d="M51 17l10 5-10 5z" fill="#f3c969"/>
-  <!-- eye -->
-  <circle cx="45" cy="20" r="2.4" fill="#fff"/>
-  <circle cx="45.8" cy="20.4" r="1.1" fill="#17423f"/>
-  <!-- white polka dots -->
-  <circle cx="28" cy="31" r="2" fill="#fff"/>
-  <circle cx="36" cy="39" r="2" fill="#fff"/>
-  <circle cx="28" cy="43" r="1.8" fill="#fff"/>
-  <circle cx="39" cy="31" r="1.6" fill="#fff"/>
-  <circle cx="24" cy="37" r="1.5" fill="#fff"/>
+<rect width="64" height="64" rx="13" fill="#17423f"/>
+<path d="M22 42 9 55l17-6z" fill="#3f7d34"/>
+<ellipse cx="32" cy="35" rx="15" ry="17" fill="#53a33f"/>
+<circle cx="42" cy="22" r="11" fill="#53a33f"/>
+<ellipse cx="30" cy="44" rx="10.5" ry="8.5" fill="#f0d44a"/>
+<path d="M51 17l11 5-11 5z" fill="#f39b2c"/>
+<circle cx="45" cy="20" r="2.6" fill="#fff"/>
+<circle cx="45.9" cy="20.4" r="1.2" fill="#17423f"/>
+<circle cx="26" cy="29" r="2" fill="#fff"/>
+<circle cx="21" cy="35" r="1.6" fill="#fff"/>
+<circle cx="30" cy="26" r="1.6" fill="#fff"/>
+<circle cx="23" cy="41" r="1.4" fill="#fff"/>
 </svg>
