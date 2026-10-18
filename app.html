@@ -366,6 +366,18 @@ var VIEW="dashboard", TYPE=null, STEP=0, DRAFT={};
 function go(v){ VIEW=v; if(v!=='wizard'){TYPE=null;} render(); window.scrollTo(0,0); }
 function startApp(t){ TYPE=t; STEP=0; DRAFT=loadDraft(t); VIEW='wizard'; render(); window.scrollTo(0,0); }
 
+function aeBar(){
+  if(roleViews().indexOf('safety')<0) return '';   // only roles that report/monitor AEs
+  if(VIEW==='safety') return '';                    // already on the AE page
+  var dohMode=(ROLE==='doh');
+  var label=dohMode? t('Monitor adverse-event signals','Monitorear señales de eventos adversos') : t('Report an adverse event','Reportar un evento adverso');
+  var sub=dohMode? t('Tiered surveillance — serious events, timing &amp; denominators.','Vigilancia por niveles — eventos graves, momento y denominadores.') : t('Serious events → report within 24 hours. One tap.','Eventos graves → reportar en 24 horas. Un toque.');
+  return '<a href="#" onclick="go(\'safety\');return false;" aria-label="'+label+'" style="display:flex;align-items:center;justify-content:center;gap:12px;background:#9a2a1c;color:#fff;border-radius:12px;padding:11px 16px;text-decoration:none;margin-bottom:14px;box-shadow:0 6px 18px rgba(154,42,28,.22);text-align:center">'+
+    '<span style="font-size:22px;line-height:1">⚠</span>'+
+    '<span><b style="font-size:15px">'+label+'</b> <span style="font-size:12px;opacity:.92">· '+sub+'</span></span>'+
+    '<span style="font-size:18px">→</span></a>';
+}
+
 /* ---------- render ---------- */
 function render(){
   var allowed=roleViews();
@@ -373,7 +385,7 @@ function render(){
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
   var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   try{ document.documentElement.lang=LANG; }catch(e){}
-  var r=document.getElementById('root'), b=langBanner()+eventBanner();
+  var r=document.getElementById('root'), b=langBanner()+eventBanner()+aeBar();
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
   else if(VIEW==='clinician'){ r.innerHTML=b+renderClinician(); cplan(); qualCheck(); }
