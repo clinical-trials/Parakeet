@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parakeet Software — Application & Review</title>
+<title>Parakeet MPP Software — Application & Review</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -102,7 +102,7 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><img src="favicon.png" alt="" style="height:30px;width:30px;vertical-align:-8px;margin-right:9px;border-radius:7px">PARA<span>·</span>KEET Software <small>Application &amp; Review — NM Medical Psilocybin</small></div>
+    <div class="brand"><img src="favicon.png" alt="" style="height:30px;width:30px;vertical-align:-8px;margin-right:9px;border-radius:7px">PARA<span>·</span>KEET MPP Software <small>Application &amp; Review — NM Medical Psilocybin Program</small></div>
     <nav class="app" id="nav">
       <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
       <button data-view="clinician" onclick="go('clinician')">Clinician</button>
@@ -893,6 +893,40 @@ function appStep(p){
   if(l.status==='denied') return {t:"Application "+l.id+" was denied — review and reapply.",a:"go('chooser')",al:"Reapply"};
   return {t:"Start your "+FORMS[p].name.toLowerCase()+".",a:"startApp('"+p+"')",al:"Apply now"};
 }
+function outcomesDesign(){
+  var M=[
+    {k:'PHQ-9',   label:'Depression',          b:14.2, f:6.1,  max:27, dir:'down'},
+    {k:'GAD-7',   label:'Anxiety',             b:11.8, f:5.4,  max:21, dir:'down'},
+    {k:'PCL-5',   label:'PTSD symptoms',       b:42,   f:21,   max:80, dir:'down'},
+    {k:'QIDS-SR', label:'Depression severity', b:15.3, f:7.2,  max:27, dir:'down'},
+    {k:'WSAS',    label:'Daily functioning',   b:22,   f:11,   max:40, dir:'down'},
+    {k:'WHO-5',   label:'Well-being',          b:44,   f:68,   max:100,dir:'up'},
+    {k:'EQ-5D',   label:'Quality of life',     b:52,   f:74,   max:100,dir:'up'},
+    {k:'C-SSRS',  label:'Suicidality screen',  b:1.4,  f:0.4,  max:5,  dir:'down'}
+  ];
+  function bar(m){
+    var bp=Math.max(2,Math.round(m.b/m.max*100)), fp=Math.max(2,Math.round(m.f/m.max*100));
+    var d=(m.f-m.b), good=(m.dir==='down'?d<0:d>0), col=good?'#1c7a4a':'#9a2a1c', arrow=(m.dir==='down'?'▼':'▲');
+    return '<div style="display:flex;align-items:center;gap:10px;margin:6px 0">'+
+      '<div style="flex:0 0 148px;font-size:11.5px;line-height:1.2"><b style="color:#1f5a54">'+m.k+'</b><br><span style="color:#6b7b74;font-size:10.5px">'+m.label+'</span></div>'+
+      '<div style="flex:1 1 auto;position:relative;height:22px;background:#e9eeeb;border-radius:6px;overflow:hidden" title="baseline '+m.b+' → follow-up '+m.f+' of '+m.max+'">'+
+        '<div style="position:absolute;top:0;bottom:0;left:0;width:'+bp+'%;background:#c7d3cd"></div>'+
+        '<div style="position:absolute;top:0;bottom:0;left:0;width:'+fp+'%;background:'+col+';opacity:.88;border-radius:6px"></div>'+
+      '</div>'+
+      '<div style="flex:0 0 138px;font-size:11px;text-align:right;white-space:nowrap"><span style="color:#8a949a">'+m.b+'</span> <span style="color:#6b7b74">&rarr;</span> <b style="color:'+col+'">'+m.f+'</b> <span style="color:'+col+'">'+arrow+(d>0?'+':'')+d.toFixed(1)+'</span><br><span style="color:#9aa4a0;font-size:9.5px">/ '+m.max+' &middot; n pending</span></div>'+
+    '</div>';
+  }
+  var chips=['<b>'+M.length+'</b> validated measures','by qualifying <b>diagnosis</b>','durability to <b>12 months</b>','<b>response &amp; remission</b> %','<b>dose&ndash;response</b> by mg'];
+  var h='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 4px;color:#2b5f86;font-size:14px">Outcomes &mdash; measure more, and show it clearly</h3>'+
+    '<div class="kv" style="color:var(--ink);margin-bottom:8px">A basic public dashboard reports a <b>handful of aggregate scores at two weeks</b>. New Mexico&rsquo;s <b>medical</b> registry captures a <b>fuller validated battery</b>, reported <b>by qualifying diagnosis</b>, with <b>durability out to 12 months</b> and <b>response / remission</b> rates &mdash; so clinicians and DOH see not just an average, but <b>who improved, by how much, and for how long</b>.</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'+chips.map(function(c){return '<span style="font-size:10.5px;background:#fff;border:1px solid #bcd4e6;color:#2b5f86;border-radius:999px;padding:2px 9px">'+c+'</span>';}).join('')+'</div>'+
+    '<div style="background:#fff;border:1px solid #dbe4ea;border-radius:10px;padding:10px 12px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:10px;color:#9aa4a0;margin-bottom:2px"><span>measure</span><span><span style="display:inline-block;width:9px;height:9px;background:#c7d3cd;border-radius:2px;vertical-align:-1px"></span> baseline &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#1c7a4a;border-radius:2px;vertical-align:-1px"></span> follow-up &nbsp;&middot;&nbsp; change</span></div>'+
+      M.map(bar).join('')+
+    '</div>'+
+    '<div class="note" style="margin-top:8px"><b>Methods &amp; data notes:</b> paired only (same instrument at baseline + follow-up); adaptive administration (full PHQ-9 / GAD-7 after a positive PHQ-2 / GAD-2); <b>de-identified aggregates only</b> &mdash; no individual-level data; response = &ge;50% reduction, remission = below the clinical cutoff; severe adverse events are a <b>subset</b> of AEs, reported with their session denominator. Bars are <b>illustrative placeholders</b> showing the display format, not NM results.</div></div>';
+  return h;
+}
 function regulatorTodo(){
   var apps=loadApps(), pend=apps.filter(function(a){return a.status==='submitted'||a.status==='sitevisit';}).length;
   var items=[
@@ -1267,6 +1301,7 @@ function renderResearch(){
      '<div class="kv" style="color:var(--ink)"><b>H2 · Safety:</b> NM&rsquo;s serious-AE and emergency-contact rates <b>meet or beat</b> Oregon&rsquo;s real-world bar (≤1.2% serious behavioral; ~0.2% emergency; no serious medical events).</div>'+
      '<div class="kv" style="color:var(--ink)"><b>H3 · Equity:</b> with the greatest-need guardrail + Equity Fund, NM&rsquo;s served population is <b>less affluent-skewed</b> than Oregon&rsquo;s (JAMA: 29% &gt;$200k, ~89% White) and better reflects NM (~50% Hispanic, ~11% Native).</div>'+
      '<div class="note"><b>Comparator:</b> Oregon&rsquo;s real-world JAMA cohort (Korthuis 2026) is the benchmark — but it is non-medical, undiagnosed, affluent-skewed, and observational. NM&rsquo;s medical §9 is designed to answer the <b>by-diagnosis, dose-anchored</b> questions it cannot. Hypotheses are pre-specified so analyses are honest (see the IRB gate below).</div></div>';
+  h+=outcomesDesign();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Aligned to the NM RACI committee (Research &amp; Continuous Improvement)</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>Two statutory funds (SB219 §11):</b> the <b>Medical Psilocybin Research Fund</b> — <b>$300,000</b>, grants to <b>state research universities and health care providers studying any facet of the medical use of psilocybin</b> (§11(B)) — and the <b>Treatment Equity Fund</b> — <b>$630,000</b>, patient treatments (§11(A)). Both are nonreverting, DOH-administered, and subject to legislative appropriation. <span class="appmeta">The $300K is a program <b>fund</b>, not a committee budget: RACI <b>advises</b> on research &amp; data-collection guidelines (Chair: Dan Jennings) but does not hold or spend it; the other advisory committees have no separate line-item budgets.</span></div>'+
      '<div class="kv" style="color:var(--ink)"><b>Who&rsquo;s eligible (§11(B)):</b> &ldquo;<b>state research universities</b>&rdquo; means <b>New Mexico public universities</b> (e.g., UNM, NMSU) — a private, out-of-state school like <b>Johns Hopkins (Baltimore) would not qualify as the direct grantee</b>. Out-of-state experts typically join as <b>co-investigators / subawardees under a New Mexico grantee</b>. &ldquo;Health care providers&rdquo; reads in context as NM providers. The Department will set the final eligibility &amp; process by rule.</div>'+
@@ -1728,6 +1763,6 @@ function renderLab(){
 
 render();
 </script>
-<div class="wrap"><footer>Parakeet Software — Application &amp; Review (prototype). NM Medical Psilocybin Program; grounded in 7.35.2 &amp; 7.35.3 NMAC. Data is stored only in your browser on this device and is not transmitted to the state. Not legal advice.</footer></div>
+<div class="wrap"><footer>Parakeet MPP Software — Application &amp; Review (prototype). NM Medical Psilocybin Program; grounded in 7.35.2 &amp; 7.35.3 NMAC. Data is stored only in your browser on this device and is not transmitted to the state. Not legal advice.</footer></div>
 </body>
 </html>

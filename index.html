@@ -245,6 +245,23 @@
 </header>
 
 <div class="wrap">
+  <style>
+  .phero{position:relative;height:150px;border-radius:14px;overflow:hidden;margin:0 0 16px;background:linear-gradient(180deg,#f7e1c1,#d18b52);box-shadow:0 2px 12px rgba(0,0,0,.10)}
+  .phero img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
+  .phero .pcap{position:absolute;left:0;right:0;bottom:0;padding:10px 16px;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .phero .pcap small{display:block;font-weight:600;font-size:10px;opacity:.9;margin-top:2px;letter-spacing:.01em}
+  .phero .pc{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.5),rgba(255,255,255,0));filter:blur(3px);pointer-events:none}
+  .phero .pc1{top:8%;left:-30%;width:40%;height:60%}.phero .pc2{top:-6%;left:-50%;width:30%;height:50%}.phero .pc3{top:20%;left:-40%;width:24%;height:38%}
+  @media (prefers-reduced-motion:no-preference){.phero .pc1{animation:pcd 70s linear infinite}.phero .pc2{animation:pcd 100s linear infinite;animation-delay:-30s}.phero .pc3{animation:pcd 86s linear infinite;animation-delay:-55s}}
+  @keyframes pcd{from{transform:translateX(0)}to{transform:translateX(360%)}}
+  @media (max-width:560px){.phero{height:120px}.phero .pcap{font-size:13px}}
+  </style>
+  <div class="phero" aria-hidden="true">
+    <img id="pheroImg" src="images/sandia-sunset.jpg" alt="New Mexico landscape" loading="lazy" onerror="this.style.display='none'">
+    <span class="pc pc1"></span><span class="pc pc2"></span><span class="pc pc3"></span>
+    <div class="pcap">New Mexico &middot; Bienvenidos &middot; Yáʼátʼééh<small>Open, public-domain imagery (CC0 &middot; Wikimedia Commons) &middot; clouds drift with the seasons</small></div>
+  </div>
+  <script>try{var _m=new Date().getMonth();if(_m===11||_m<=1){var _pi=document.getElementById('pheroImg');if(_pi)_pi.src='images/nm-winter.jpg';}}catch(e){}</script>
   <div class="statehead">
     <div>
       <h1 id="stateName"></h1>
