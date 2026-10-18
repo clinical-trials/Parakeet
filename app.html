@@ -1630,13 +1630,13 @@ function renderEquity(){
 
 function renderLab(){
   var LABS=[
-    {n:'Rio Grande Analytics', c:'Albuquerque', p:'(505) 503-6830', u:'https://www.riograndeanalytics.com/'},
-    {n:'Rio Grande Analytics', c:'Las Cruces', p:'(505) 348-6230', u:'https://www.riograndeanalytics.com/locations'},
-    {n:'Cristo Clear Analytics', c:'Sunland Park', p:'(575) 332-9400', u:'https://cristoclear.com/'},
-    {n:'Scepter Labs', c:'Santa Fe', p:'(505) 216-9484', u:'https://www.scepterlabs.com/'},
-    {n:'Pree Laboratories NM', c:'Las Cruces', p:'(575) 556-9026', u:'https://preenm.com/'},
-    {n:'Argon Labs', c:'Albuquerque', p:'', a:'1412 Broadway Blvd NE'},
-    {n:'Scissortail Laboratory', c:'Albuquerque', p:'', a:'6101 Signal Ave NE'}
+    {n:'Rio Grande Analytics', c:'Albuquerque', p:'(505) 503-6830', a:'524 McKnight Ave NW, Albuquerque, NM 87102', u:'https://www.riograndeanalytics.com/'},
+    {n:'Rio Grande Analytics', c:'Las Cruces', p:'(505) 348-6230', a:'9035 Advancement Ave, Bldg 500, Las Cruces, NM 88007', u:'https://www.riograndeanalytics.com/locations'},
+    {n:'Cristo Clear Analytics', c:'Sunland Park', p:'(575) 332-9400', a:'1580 Appaloosa Dr, Suite C-360, Sunland Park, NM 88063', u:'https://cristoclear.com/'},
+    {n:'Scepter Labs', c:'Santa Fe', p:'(505) 216-9484', a:'Santa Fe, NM (street address — verify)', u:'https://www.scepterlabs.com/'},
+    {n:'Pree Laboratories NM', c:'Las Cruces', p:'(575) 556-9026', a:'2841 N Telshor Blvd, Ste A, Las Cruces, NM 88011', u:'https://preenm.com/'},
+    {n:'Argon Labs', c:'Albuquerque', p:'', a:'1412 Broadway Blvd NE, Albuquerque, NM'},
+    {n:'Scissortail Laboratory', c:'Albuquerque', p:'', a:'6101 Signal Ave NE, Albuquerque, NM'}
   ];
   var PANEL=[
     {t:'Potency', d:'Psilocybin + psilocin, quantified in mg — the COA value that sets the dose'},
@@ -1665,9 +1665,10 @@ function renderLab(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Candidate labs — the fast path to a first COA</h3>'+
     '<div class="appmeta" style="margin-bottom:6px">DOH planning documents name three routes to a certified psilocybin lab: an <b>existing cannabis testing lab</b>, an <b>ISO/IEC 17025-accredited</b> lab, or a lab <b>approved / overseen by the Department</b>. NM already licenses <b>7 cannabis testing lab locations (6 companies)</b> — the realistic near-term pool if the rule recognizes them:</div>';
   h+=LABS.map(function(l){
-    var contact = l.p? '<a href="tel:'+l.p.replace(/[^0-9]/g,'')+'">'+esc(l.p)+'</a>' : (l.a? esc(l.a) : 'contact TBD');
-    var site = l.u? ' · <a href="'+l.u+'" target="_blank" rel="noopener">website</a>' : '';
-    return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span><div class="appmeta">📞 '+contact+site+' · awaiting psilocybin certification</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="status s-submitted">Candidate</span><button class="btn sm" onclick="go(\'custody\')">Do a COA →</button></div></div>';
+    var tel = l.p? '📞 <a href="tel:'+l.p.replace(/[^0-9]/g,'')+'">'+esc(l.p)+'</a>' : '';
+    var site = l.u? '<a href="'+l.u+'" target="_blank" rel="noopener">website</a>' : '';
+    var line1=[tel,site].filter(Boolean).join(' · ');
+    return '<div class="approw"><div><b>'+esc(l.n)+'</b> <span class="appmeta">'+esc(l.c)+'</span>'+(line1?'<div class="appmeta">'+line1+'</div>':'')+(l.a?'<div class="appmeta">📍 '+esc(l.a)+'</div>':'')+'<div class="appmeta">awaiting psilocybin certification</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="status s-submitted">Candidate</span><button class="btn sm" onclick="go(\'custody\')">Do a COA →</button></div></div>';
   }).join('');
   h+='<div class="note"><b>ISO/IEC 17025</b> = the international standard for testing-lab competence. Source: NM RLD Cannabis Control Division approved-testing-labs list (Oct 2026). Required test panel &amp; lab certification scope: <b>7.35.2.19 NMAC</b> (producer &amp; laboratory rule — <a href="https://www.nmhealth.org/publication/view/rules/9904/" target="_blank" rel="noopener">7.35.2 NMAC on NM DOH</a>). Phone numbers are public-source (lab websites / NM RLD &amp; NMED lists) — confirm before relying.</div></div>';
   h+='<div class="card" style="background:var(--goldbg);border-color:#e8d3a0"><h3 style="margin:0 0 8px;color:#8a5f18;font-size:14px">How to unblock it faster (for DOH &amp; the committee)</h3><ul style="margin:0;padding-left:16px;font-size:12.5px">'+
