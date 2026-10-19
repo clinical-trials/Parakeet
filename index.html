@@ -244,7 +244,7 @@
   </div>
 </header>
 
-<a href="app.html" style="display:block;background:linear-gradient(90deg,#e3c173,#d9b25a);color:#1c2227;text-align:center;font-weight:800;padding:11px 16px;text-decoration:none;font-size:13.5px;letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,0,0,.12)">⚡ Try the Parakeet MPP Software — the working New Mexico compliance app &rarr;</a>
+<a id="tryCta" href="app.html" style="display:block;background:linear-gradient(90deg,#e3c173,#d9b25a);color:#1c2227;text-align:center;font-weight:800;padding:11px 16px;text-decoration:none;font-size:13.5px;letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,0,0,.12)">⚡ Try the Parakeet MPP Software — the working New Mexico compliance app &rarr;</a>
 
 <div class="wrap">
   <style>
@@ -868,6 +868,14 @@ function render(){
   const p = pack();
   document.getElementById("stateName").textContent = p.name + " — " + p.program;
   document.getElementById("stateSub").textContent = p.sub;
+
+  // State-aware "try the software" CTA — NM and CO have a Parakeet app; Oregon runs its own state system
+  var _cta=document.getElementById('tryCta');
+  if(_cta){
+    if(ACTIVE==='nm'){ _cta.href='app.html'; _cta.innerHTML='⚡ Try the Parakeet MPP Software — the working New Mexico compliance app &rarr;'; _cta.style.display='block'; }
+    else if(ACTIVE==='co'){ _cta.href='app-co.html'; _cta.innerHTML='⚡ Try Parakeet Colorado — the Regulated Natural Medicine compliance app &rarr;'; _cta.style.display='block'; }
+    else { _cta.style.display='none'; }
+  }
 
   // Per-state hero image + caption + fallback tint — so switching states is unmistakable
   (function(){

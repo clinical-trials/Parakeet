@@ -270,13 +270,25 @@ function setLang(l){ LANG=(l==='es'?'es':'en'); try{ localStorage.setItem('parak
 function t(en, es){ return (LANG==='es' && es) ? es : en; }
 /* ---------- policy / program calendar (keep updated as hearings & deadlines are announced) ---------- */
 var EVENTS=[
-  {d:'2026-10-29', t:'NM committee: End-of-Life Care', note:'Medical Psilocybin Advisory Board subcommittee · 9:00–11:00 AM MT · MS Teams', tag:'NM', hard:true},
-  {d:'2026-10-30', t:'NM committee: Education & Training', note:'Medical Psilocybin Advisory Board subcommittee · 9:00–11:00 AM MT · MS Teams', tag:'NM', hard:true},
-  {d:'2026-12-07', t:'NM committee: Patient Qualification & Safety', note:'Medical Psilocybin Advisory Board subcommittee · 9:00–11:00 AM MT · MS Teams', tag:'NM', hard:true},
-  {d:'2026-11-04', t:'Colorado Natural Medicine Division — final rulemaking hearing', note:'9:30am MT · 1707 Cole Blvd, Lakewood, Ste 300 · written-comment deadline 5pm · implements HB26-1325 (1 CCR 213-1)', tag:'CO', hard:true},
-  {d:'2026-12-01', t:'New Mexico — target for first patients', note:'DOH goal (~December 2026), about a year ahead of the statutory deadline', tag:'NM', hard:false},
-  {d:'2027-12-31', t:'New Mexico — statutory implementation deadline', note:'SB219 backstop; the program must be operational', tag:'NM', hard:true}
+  {d:'2026-10-29', t:'NM committee: End-of-Life Care', when:'9:00–11:00 AM MT', reg:'MS Teams — register via the DOH Medical Psilocybin Program', note:'Medical Psilocybin Advisory Board subcommittee', tag:'NM', hard:true},
+  {d:'2026-10-30', t:'NM committee: Education & Training', when:'9:00–11:00 AM MT', reg:'MS Teams — register via the DOH Medical Psilocybin Program', note:'Medical Psilocybin Advisory Board subcommittee', tag:'NM', hard:true},
+  {d:'2026-12-07', t:'NM committee: Patient Qualification & Safety', when:'9:00–11:00 AM MT', reg:'MS Teams — register via the DOH Medical Psilocybin Program', note:'Medical Psilocybin Advisory Board subcommittee', tag:'NM', hard:true},
+  {d:'2026-11-04', t:'Colorado Natural Medicine Division — final rulemaking hearing', when:'9:30 AM MT', reg:'In person (1707 Cole Blvd, Lakewood, Ste 300) + virtual; written comments due 5 pm', note:'Implements HB26-1325 (1 CCR 213-1)', tag:'CO', hard:true},
+  {d:'2026-12-01', t:'New Mexico — target for first patients', when:'', reg:'', note:'DOH goal (~December 2026), about a year ahead of the statutory deadline', tag:'NM', hard:false},
+  {d:'2027-12-31', t:'New Mexico — statutory implementation deadline', when:'', reg:'', note:'SB219 backstop; the program must be operational', tag:'NM', hard:true}
 ];
+function renderCalendar(){
+  var now=new Date(); now.setHours(0,0,0,0);
+  var up=EVENTS.filter(function(e){return new Date(e.d+'T00:00:00')>=now;}).sort(function(a,b){return a.d<b.d?-1:1;});
+  var past=EVENTS.filter(function(e){return new Date(e.d+'T00:00:00')<now;}).sort(function(a,b){return a.d<b.d?1:-1;});
+  function row(e,isPast){ var n=daysUntil(e.d); var when=isPast?'past':(n<=0?'today':(n===1?'tomorrow':'in '+n+' days'));
+    return '<div class="approw"'+(isPast?' style="opacity:.5"':'')+'><div><b>'+fmtEventDate(e.d)+'</b> &middot; <span style="font-weight:700;color:'+(e.tag==='CO'?'#2b6f6a':'#17423f')+'">'+e.tag+'</span> '+esc(e.t)+'<div class="appmeta">'+(e.when?'🕘 '+esc(e.when)+(e.note?' &middot; ':''):'')+esc(e.note||'')+'</div>'+(e.reg?'<div class="appmeta" style="color:#2b5f86">🔗 '+esc(e.reg)+' <span class="pill" style="background:#eef3f6;color:#2b5f86">registration required</span></div>':'')+'</div><div class="appmeta" style="white-space:nowrap">'+when+'</div></div>';
+  }
+  var h='<h1>📅 Upcoming policy calendar</h1><div class="sub">Meeting dates &amp; times, with how to join or register. NM = DOH Advisory Board committees (MS Teams); CO = Natural Medicine Division. Confirm each against the issuing agency.</div>';
+  h+='<div class="card">'+(up.length?up.map(function(e){return row(e,false);}).join(''):'<div class="appmeta">No upcoming dates posted.</div>')+'</div>';
+  if(past.length) h+='<div class="card"><h3 class="dh">Recently held</h3>'+past.map(function(e){return row(e,true);}).join('')+'</div>';
+  return h;
+}
 function daysUntil(d){ var now=new Date(); now.setHours(0,0,0,0); return Math.round((new Date(d+'T00:00:00')-now)/86400000); }
 function fmtEventDate(d){ var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; var p=d.split('-'); return m[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
 function nextEvent(){ var now=new Date(); now.setHours(0,0,0,0); return EVENTS.filter(function(e){ return new Date(e.d+'T00:00:00')>=now; }).sort(function(a,b){ return a.d<b.d?-1:1; })[0]||null; }
@@ -287,7 +299,7 @@ function eventBanner(){
     '<span style="font-weight:800;letter-spacing:.04em;font-size:10.5px;text-transform:uppercase;background:#d9b25a;color:#1c2227;border-radius:5px;padding:2px 7px">'+t('Next policy event','Próximo evento')+'</span>'+
     '<span><b>'+fmtEventDate(e.d)+'</b> — '+esc(e.t)+'</span>'+
     '<span style="margin-left:auto;background:#123532;border-radius:20px;padding:2px 10px;font-size:12px;white-space:nowrap">'+when+'</span>'+
-    '<a href="#" onclick="go(\'research\');return false;" style="color:#d9b25a;font-weight:700;white-space:nowrap">'+t('full calendar','calendario')+' →</a></div>';
+    '<a href="#" onclick="go(\'calendar\');return false;" style="color:#d9b25a;font-weight:700;white-space:nowrap">'+t('full calendar','calendario')+' →</a></div>';
 }
 function eventsCard(){
   var now=new Date(); now.setHours(0,0,0,0);
@@ -402,6 +414,7 @@ function render(){
   var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   try{ document.documentElement.lang=LANG; }catch(e){}
   var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert()+aeBar();
+  if(VIEW==='calendar'){ r.innerHTML=b+renderCalendar(); return; }
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
   else if(VIEW==='clinician'){ r.innerHTML=b+renderClinician(); cplan(); qualCheck(); }
@@ -749,10 +762,36 @@ function administerPkg(lotId,pkgId){
   c.lots.forEach(function(l){ if(l.id===lotId) l.pkgs.forEach(function(p){ if(p.id===pkgId){ p.status='administered'; var eid='ENR-'+Math.random().toString(36).slice(2,6).toUpperCase(); p.events.push('administered → '+eid+' · '+l.psi+' mg dosed'); p.events.push('§9 outcome logged (de-identified)'); } }); });
   saveCustody(c); render();
 }
-function recallLot(lotId){
+var RECALL_THRESHOLDS=[
+  {k:'Potency out of spec', d:'Measured psilocybin+psilocin deviates beyond the COA/label tolerance (mis-dose risk)'},
+  {k:'Microbial over action limit', d:'Yeast/mold or pathogen counts exceed the 7.35.2.19 action limit'},
+  {k:'Heavy metals over limit', d:'As / Cd / Pb / Hg above the action limit (mushrooms bioaccumulate)'},
+  {k:'Pesticide residue detected', d:'Residue above the screening limit'},
+  {k:'Water content > 10%', d:'Moisture over the 7.35.2 limit — spoilage / stability risk'},
+  {k:'Post-market safety signal', d:'Adverse-event cluster or stability failure after release'}
+];
+function recallLot(lotId, reason){
   var c=loadCustody();
-  c.lots.forEach(function(l){ if(l.id===lotId){ l.recalled=true; l.recallReason='lab fail or safety signal'; l.pkgs.forEach(function(p){ if(p.status!=='administered'){ p.status='recalled'; p.events.push('RECALLED — pulled from supply chain'); } }); } });
+  c.lots.forEach(function(l){ if(l.id===lotId){ l.recalled=true; l.recallReason=reason||'lab fail or safety signal'; l.recallBy='lab'; l.recalledAt=new Date().toISOString(); l.dohStatus='reported'; l.pkgs.forEach(function(p){ if(p.status!=='administered'){ p.status='recalled'; p.events.push('RECALLED ('+(reason||'safety')+') — pulled from supply chain'); } }); } });
   saveCustody(c); render();
+}
+function startRecall(lotId){ var sel=document.getElementById('rc_'+lotId); recallLot(lotId, sel?sel.value:undefined); }
+function dohConfirmRecall(lotId){ var c=loadCustody(); c.lots.forEach(function(l){ if(l.id===lotId){ l.dohStatus='confirmed'; l.dohAt=new Date().toISOString(); } }); saveCustody(c); render(); }
+function goAs(r,v){ setRole(r); go(v); }
+function labRecallCard(){
+  var c=loadCustody();
+  var tested=c.lots.filter(function(l){return l.status!=='awaiting-coa';});
+  var h='<div class="card" style="border-left:4px solid #9a2a1c;background:#fbf1ef;border-color:#e6c3ba"><h3 style="margin:0 0 6px;color:#9a2a1c;font-size:14px">⛔ Batch recall — established thresholds (7.35.2.19 NMAC)</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">A result past any action threshold <b>must</b> trigger a recall. The recall is <b>reported to DOH</b> and pulls every un-administered package from the chain of custody.</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+RECALL_THRESHOLDS.map(function(t){return '<div style="flex:1 1 150px;border:1px solid #e6c3ba;border-radius:8px;padding:6px 9px;background:#fff"><div style="font-size:11px;font-weight:700;color:#9a2a1c">'+t.k+'</div><div class="appmeta">'+t.d+'</div></div>';}).join('')+'</div>';
+  if(tested.length){
+    h+=tested.map(function(l){
+      if(l.recalled){ var ds=l.dohStatus==='confirmed'?'<span class="status s-approved">DOH confirmed</span>':'<span class="status s-submitted">Reported → DOH reviewing</span>'; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">recalled · '+esc(l.recallReason)+'</div></div><div style="display:flex;gap:6px;align-items:center"><span class="status s-denied">Recalled</span>'+ds+'</div></div>'; }
+      return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">'+esc(l.psi||'—')+' mg/'+esc(l.unit)+' · COA '+esc(l.pass)+'</div></div><div style="display:flex;gap:6px;align-items:center"><select id="rc_'+l.id+'" style="font:inherit;font-size:11.5px;padding:4px 6px;border:1px solid var(--line);border-radius:6px">'+RECALL_THRESHOLDS.map(function(t){return '<option>'+t.k+'</option>';}).join('')+'</select><button class="btn sm no" onclick="startRecall(\''+l.id+'\')">Recall batch</button></div></div>';
+    }).join('');
+  } else { h+='<div class="note">No tested lots yet — record a COA in <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> first.</div>'; }
+  h+='<div class="note" style="margin-top:8px">Recalls flow to the regulator. <a href="#" onclick="goAs(\'doh\',\'safety\');return false;"><b>Open the DOH recall queue &rarr;</b></a></div></div>';
+  return h;
 }
 
 /* ---------- §9 de-identified reporting (aggregates administered sessions) ---------- */
@@ -1656,9 +1695,9 @@ function renderSafety(){
       '<div class="appmeta" style="margin-top:6px">Reviewed weekly for signals; relatedness adjudicated before attribution · <a href="#" onclick="resetAE();return false;">reset</a></div></div>';
   }
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Product recall log</h3>';
-  if(recalls.length){ h+=recalls.map(function(l){ var pulled=l.pkgs.filter(function(p){return p.status==='recalled';}).length; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">reason: '+esc(l.recallReason||'safety')+' · '+pulled+' package(s) pulled</div></div><span class="status s-denied">Recalled</span></div>';}).join(''); }
-  else h+='<div class="appmeta">No recalls. Recall a batch from <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> when a lab fails (microbial / heavy-metals / pesticide) or a safety signal arises.</div>';
-  h+='<div class="note">A recall pulls every non-administered package of the lot from the chain; unbroken lot→package IDs make the trace exact.</div></div>';
+  if(recalls.length){ h+=recalls.map(function(l){ var pulled=l.pkgs.filter(function(p){return p.status==='recalled';}).length; var conf=l.dohStatus==='confirmed'; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">reason: '+esc(l.recallReason||'safety')+' · '+pulled+' package(s) pulled · reported by '+esc(l.recallBy||'lab')+(l.recalledAt?' · '+fmtDate(l.recalledAt):'')+'</div></div><div style="display:flex;gap:6px;align-items:center"><span class="status s-denied">Recalled</span>'+(conf?'<span class="status s-approved">DOH confirmed</span>':'<button class="btn sm" onclick="dohConfirmRecall(\''+l.id+'\')">Confirm recall</button>')+'</div></div>';}).join('')+'<div class="note" style="margin-top:6px">Trace a recalled batch in the lab view: <a href="#" onclick="goAs(\'lab\',\'custody\');return false;"><b>Open the lab / chain-of-custody view &rarr;</b></a></div>'; }
+  else h+='<div class="appmeta">No recalls. The lab initiates a threshold-based recall from <a href="#" onclick="goAs(\'lab\',\'lab\');return false;">Testing labs</a> or <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> when a result passes an action limit (potency / microbial / heavy-metals / pesticide / water) or a safety signal arises.</div>';
+  h+='<div class="note">A recall pulls every non-administered package of the lot from the chain; unbroken lot→package IDs make the trace exact. Lab reports → DOH confirms (both directions linked).</div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Bioethics &amp; session safeguards</h3>'+
      '<div class="kv" style="color:var(--ink)"><b>Enhanced informed consent:</b> capacity assessment, plain-language risks/benefits, and <b>explicit consent for physical touch</b> and any recording — obtained <i>before</i> the altered state, with the option to re-affirm.</div>'+
      '<div class="kv" style="color:var(--ink)"><b>Vulnerability &amp; boundaries:</b> clients are <b>highly suggestible</b> during administration. Safeguards: a clear touch/boundary policy, <b>monitoring &amp; chaperone norms</b>, no dual relationships, documented conduct standards, and a channel to report misconduct.</div>'+
@@ -1834,6 +1873,7 @@ function renderLab(){
   h+='<div class="card"><h3 style="margin:0 0 8px;color:#1f5a54;font-size:14px">Required test panel — 7.35.2.19 NMAC (per batch, before transfer)</h3>'+
     PANEL.map(function(p){return '<div class="approw"><div><b>'+esc(p.t)+'</b></div><div class="appmeta" style="max-width:66%;text-align:right">'+p.d+'</div></div>';}).join('')+
     '<div class="note">NM&rsquo;s panel is <b>broader than Oregon&rsquo;s</b> (OR = species + potency + solvents). Every result is carried on the <b>COA</b> and travels with the batch in <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a>.</div></div>';
+  h+=labRecallCard();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">How the dose is calculated — from the COA, not the strain</h3>'+
     '<div class="kv" style="color:var(--ink)">Dose = <b>mg of psilocybin + psilocin analyte measured by the lab</b> (potency test), printed on the label / COA — <b>not grams of mushroom, not the strain name, not &ldquo;total potential psilocin.&rdquo;</b> Strain potency varies <b>&gt;7.8&times;</b>, so only the lab-measured mg is reproducible; booster doses count toward the cumulative total. <span class="appmeta">Oregon operationalizes the same rule (OAR 333-333-7040).</span></div></div>';
   var LABX=[

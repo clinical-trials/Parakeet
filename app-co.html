@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parakeet Colorado Software — Regulated Natural Medicine</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{--ink:#20262b;--muted:#5c6870;--line:#e4ddce;--bg:#f4efe3;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  a{color:var(--blue)}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 70px}
+  header.top{background:linear-gradient(180deg,#5a2d2a,#43201d);color:#fff;padding:14px 0;margin-bottom:0;box-shadow:0 2px 14px rgba(67,32,29,.18)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:0;max-width:900px}
+  .brand{font-weight:800;font-size:19px;letter-spacing:-.01em}
+  .brand span{color:#e3a857}
+  .brand small{display:block;font-weight:500;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#e8c3bb;margin-top:2px}
+  nav.app{display:inline-flex;flex-wrap:wrap;background:rgba(255,255,255,.12);border-radius:10px;padding:4px;gap:4px}
+  @media(max-width:600px){
+    header.top .wrap{flex-direction:column;align-items:flex-start;gap:10px}
+    nav.app{width:100%}
+    nav.app button{flex:1 1 auto;text-align:center}
+    .wrap{padding:0 14px 60px}
+    h1{font-size:20px}
+  }
+  nav.app button{appearance:none;border:0;background:transparent;color:#f1d7d2;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer}
+  nav.app button[aria-current="true"]{background:#fff;color:#5a2d2a}
+  h1{font-size:22px;margin:0 0 2px;letter-spacing:-.015em;color:#163029}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .cbar{display:block;background:linear-gradient(90deg,#1f5a54,#17423f);color:#eafaf4;text-align:center;font-weight:700;padding:8px 16px;text-decoration:none;font-size:12.5px}
+  .cbar b{color:#d9b25a}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .card{background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(23,66,63,.04),0 10px 26px rgba(23,66,63,.05);margin-bottom:14px}
+  .field{margin:0 0 12px}
+  .field label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .field textarea{min-height:58px;resize:vertical}
+  .actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px;align-items:center}
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--pine2);font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:9px;cursor:pointer}
+  .btn.primary{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px}
+  .approw{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-top:1px solid #eef0f1}
+  .approw:first-child{border-top:0}
+  .appmeta{font-size:11.5px;color:var(--muted)}
+  .kv{font-size:12.5px;color:var(--muted);margin:3px 0}
+  .kv b{color:var(--ink)}
+  .status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;border-radius:20px;padding:3px 10px;white-space:nowrap}
+  .s-approved{background:var(--greenbg);color:var(--green);border:1px solid #bfe3cc}
+  .pill{display:inline-block;font-size:11px;font-weight:700;background:var(--slate);border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:#41525a}
+  .dh{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--pine2)}
+  .mchip{display:inline-flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;min-width:84px}
+  .mchip b{font-size:20px;color:var(--pine)}
+  .mchip span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  footer{margin-top:26px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><img src="favicon.png" alt="" style="height:30px;width:30px;vertical-align:-8px;margin-right:9px;border-radius:7px">PARA<span>·</span>KEET Colorado <small>Regulated Natural Medicine — Prop 122 · 1 CCR 213-1</small></div>
+    <nav class="app" id="nav">
+      <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
+      <button data-view="licensing" onclick="go('licensing')">Licensing &amp; renewals</button>
+      <button data-view="requirements" onclick="go('requirements')">Requirements</button>
+      <button data-view="inventory" onclick="go('inventory')">Inventory &amp; custody</button>
+      <button data-view="access" onclick="go('access')">Participant access</button>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:#e8c3bb;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Signed in as</span>
+      <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#3a1a18;color:#fff">
+        <option value="regulator">Natural Medicine Division (DORA)</option>
+        <option value="healing">Healing center</option>
+        <option value="facilitator">Facilitator</option>
+        <option value="cultivator">Cultivator</option>
+        <option value="manufacturer">Products manufacturer</option>
+        <option value="lab">Testing facility</option>
+        <option value="participant">Participant (21+)</option>
+      </select>
+    </div>
+  </div>
+</header>
+<a class="cbar" href="index.html">Colorado is <b>non-medical</b> (adults 21+, licensed facilitator, no diagnosis). Looking for the medical program? &nbsp;Open the <b>Policy Console</b> or the <b>New Mexico MPP Software</b> &rarr;</a>
+
+<div class="wrap" style="padding-top:20px"><div id="root"></div>
+<footer>Parakeet Colorado Software — Regulated Natural Medicine (prototype). Grounded in <b>Proposition 122 / the Natural Medicine Health Act</b>, <b>C.R.S. Title 44, Article 50</b>, Division rules <b>1 CCR 213-1</b>, and facilitator rules <b>4 CCR 755-1 (DORA)</b>. A <b>non-medical</b> program — no diagnosis or prescription. Not affiliated with or endorsed by the State of Colorado or DORA; not legal advice. Fees &amp; terms: verify against 1 CCR 213-1 Part 2. Data is stored only in your browser on this device.</footer>
+</div>
+
+<script>
+var ROLE='regulator', VIEW='dashboard';
+try{ ROLE=localStorage.getItem('parakeet_co_role_v1')||'regulator'; }catch(e){}
+function esc(s){ return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(iso){ try{ var d=new Date(iso); return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }catch(e){ return iso; } }
+function mchip(v,k){ return '<span class="mchip"><b>'+v+'</b><span>'+k+'</span></span>'; }
+
+var CO_ROLES={
+  regulator:{name:'Natural Medicine Division (DORA)', ico:'🏛️', views:['dashboard','licensing','requirements','inventory'], goal:'License &amp; oversee healing centers, facilitators, cultivators, manufacturers and testing — and promulgate requirements to licensees.'},
+  healing:{name:'Healing center', ico:'🏡', views:['dashboard','licensing','requirements','inventory','access'], goal:'Provide supervised administration sessions (prep · administration · integration) to adults 21+, no diagnosis required.'},
+  facilitator:{name:'Facilitator', ico:'🧭', views:['dashboard','licensing','requirements','access'], goal:'Deliver preparation, administration and integration; licensed through DORA (4 CCR 755-1).'},
+  cultivator:{name:'Cultivator', ico:'🍄', views:['dashboard','licensing','requirements','inventory'], goal:'Cultivate natural medicine; track harvest batches and transfers in a seed-to-session chain.'},
+  manufacturer:{name:'Products manufacturer', ico:'⚗️', views:['dashboard','licensing','requirements','inventory'], goal:'Convert source material into regulated products; record potency from the COA.'},
+  lab:{name:'Testing facility', ico:'🧪', views:['dashboard','licensing','requirements','inventory'], goal:'Potency &amp; contaminant testing; issue Certificates of Analysis.'},
+  participant:{name:'Participant (21+)', ico:'🌀', views:['dashboard','access'], goal:'Access natural medicine through a licensed facilitator at a healing center.'}
+};
+var CO_LICENSES={
+  healing:{type:'Healing Center license', cite:'C.R.S. 44-50-301 · 1 CCR 213-1'},
+  facilitator:{type:'Facilitator license (DORA)', cite:'4 CCR 755-1'},
+  cultivator:{type:'Cultivation license', cite:'C.R.S. 44-50-30x · 1 CCR 213-1'},
+  manufacturer:{type:'Products Manufacturer license', cite:'1 CCR 213-1'},
+  lab:{type:'Testing Facility license', cite:'1 CCR 213-1'}
+};
+/* ---------- requirements / bulletins promulgated by NMD → licensees ---------- */
+var CO_DEFAULT_BULLETINS=[
+  {id:'CO-HANDLER', aud:'all', title:'Handler License required to touch product', body:'Anyone who handles, transports or stores natural medicine — including facilitators moving product — needs a <b>Handler License</b>. This is a common compliance gap flagged by the Division.', cite:'1 CCR 213-1', at:'2026-05-01T00:00:00.000Z'},
+  {id:'CO-ADV', aud:'all', title:'Advertising &amp; marketing restrictions', body:'No claims of safety/efficacy, no appeal to minors, required warnings, and audience-age gating. Keep copies of all advertising for the retention period.', cite:'1 CCR 213-1 (advertising)', at:'2026-05-15T00:00:00.000Z'},
+  {id:'CO-AE', aud:'all', title:'Adverse-event reporting bulletin', body:'Report qualifying adverse events to the Division within the required window; keep an internal incident log. Serious events are reported promptly.', cite:'NMD adverse-event bulletin', at:'2026-06-01T00:00:00.000Z'},
+  {id:'CO-SEC', aud:'cultivator', title:'Premises security standard', body:'Locked limited-access storage, monitored alarm &amp; video at access/storage points, visitor logs, and a written security plan reviewed annually.', cite:'1 CCR 213-1 (security)', at:'2026-06-10T00:00:00.000Z'},
+  {id:'CO-INV', aud:'all', title:'Inventory templates — use the structured forms', body:'Harvest batch, transport manifest, product-manufacturer inventory, waste tracking and testing/sampling must be recorded on the Division templates — mis-keyed manual spreadsheets are a frequent finding. Parakeet turns each into a validated form.', cite:'1 CCR 213-1 (inventory)', at:'2026-06-20T00:00:00.000Z'},
+  {id:'CO-RENEW', aud:'all', title:'Renew annually — file within the window', body:'Licenses renew <b>annually</b>. File before expiry to avoid a lapse; you will get an alert at the top of your portal when renewal is due.', cite:'C.R.S. 44-50 · 1 CCR 213-1', at:'2026-07-01T00:00:00.000Z'}
+];
+function loadBul(){ try{ var r=localStorage.getItem('parakeet_co_bul_v1'); return r?JSON.parse(r):CO_DEFAULT_BULLETINS.slice(); }catch(e){ return CO_DEFAULT_BULLETINS.slice(); } }
+function saveBul(a){ try{ localStorage.setItem('parakeet_co_bul_v1', JSON.stringify(a)); }catch(e){} }
+function loadAcks(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_acks_v1')||'{}'); }catch(e){ return {}; } }
+function saveAcks(o){ try{ localStorage.setItem('parakeet_co_acks_v1', JSON.stringify(o)); }catch(e){} }
+function ackBul(id){ var o=loadAcks(); o[id]=1; saveAcks(o); render(); }
+function publishBul(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';}; var t=g('cb_title'); if(!t.trim())return; var a=loadBul(); a.unshift({id:'NMD-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:g('cb_aud')||'all', title:esc(t), body:esc(g('cb_body')), cite:esc(g('cb_cite'))||'NMD bulletin', at:new Date().toISOString()}); saveBul(a); render(); }
+function publishSampleBul(){ var a=loadBul(); a.unshift({id:'NMD-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:'all', title:'Sample bulletin: updated transport-manifest fields (demo)', body:'Add GPS route and sealed-container ID to every transport manifest, effective next cycle.', cite:'1 CCR 213-1 (demo)', at:new Date().toISOString()}); saveBul(a); render(); }
+function resetBul(){ try{ localStorage.removeItem('parakeet_co_bul_v1'); localStorage.removeItem('parakeet_co_acks_v1'); }catch(e){} render(); }
+function bulForRole(role){ var want=(role==='regulator')?null:[ 'all', role ]; var all=loadBul(); return want?all.filter(function(b){return want.indexOf(b.aud)>=0;}):all; }
+
+/* ---------- licensure + renewals ---------- */
+function defaultLicenses(){
+  return [
+    {id:'CO-HC-0001', type:'Healing Center license', holder:'Front Range Healing Collective', issued:'2026-05-02', status:'approved'},
+    {id:'CO-FAC-0007', type:'Facilitator license', holder:'J. Rivera (DORA)', issued:'2026-04-18', status:'approved'},
+    {id:'CO-CUL-0003', type:'Cultivation license', holder:'High Country Mycology', issued:'2026-03-30', status:'approved'}
+  ];
+}
+function loadLic(){ try{ var r=localStorage.getItem('parakeet_co_lic_v1'); return r?JSON.parse(r):defaultLicenses(); }catch(e){ return defaultLicenses(); } }
+function saveLic(a){ try{ localStorage.setItem('parakeet_co_lic_v1', JSON.stringify(a)); }catch(e){} }
+function renewInfo(l){ var base=l.renewedAt||l.issued; var exp=new Date(new Date(base).getTime()+365*86400000); var days=Math.ceil((exp-Date.now())/86400000); var state=days<=0?'lapsed':(days<=30?'due':(days<=60?'window':'active')); return {exp:exp,days:days,state:state}; }
+function fileRenew(id){ var a=loadLic(); a.forEach(function(l){ if(l.id===id) l.renewedAt=new Date().toISOString(); }); saveLic(a); try{sessionStorage.removeItem('co_prev');}catch(e){} render(); }
+function toggleRenewPrev(){ try{ if(sessionStorage.getItem('co_prev')) sessionStorage.removeItem('co_prev'); else sessionStorage.setItem('co_prev','1'); }catch(e){} render(); }
+function renewAlert(){
+  if(ROLE==='regulator'||ROLE==='participant') return '';
+  var prev=false; try{ prev=!!sessionStorage.getItem('co_prev'); }catch(e){}
+  var due=loadLic().map(function(l){return {l:l,r:renewInfo(l)};}).filter(function(x){return x.r.state!=='active';});
+  var msg,id;
+  if(due.length){ var w=due.sort(function(a,b){return a.r.days-b.r.days;})[0]; id=w.l.id; msg=(w.r.state==='lapsed')?('Your '+esc(w.l.type)+' LAPSED '+(-w.r.days)+'d ago'):('Your '+esc(w.l.type)+' renews in '+w.r.days+' day'+(w.r.days===1?'':'s')); }
+  else if(prev){ msg='(preview) A license would renew in 18 days'; id=null; }
+  else return '';
+  return '<a href="#" onclick="'+(id?("fileRenew('"+id+"')"):"toggleRenewPrev()")+';return false;" style="display:flex;align-items:center;justify-content:center;gap:12px;background:#9a6a00;color:#fff;border-radius:12px;padding:11px 16px;text-decoration:none;margin-bottom:14px;text-align:center"><span style="font-size:22px">⏰</span><span><b>License renewal due</b> <span style="font-size:12px;opacity:.95">· '+msg+' — tap to renew</span></span><span>→</span></a>';
+}
+
+function roleViews(){ return (CO_ROLES[ROLE]||CO_ROLES.regulator).views; }
+function setRole(r){ ROLE=r; try{localStorage.setItem('parakeet_co_role_v1',r);}catch(e){} if(roleViews().indexOf(VIEW)<0) VIEW=roleViews()[0]; render(); }
+function go(v){ VIEW=v; render(); window.scrollTo(0,0); }
+
+function renderDashboard(){
+  var c=CO_ROLES[ROLE];
+  var h='<h1>'+c.ico+' '+c.name+'</h1><div class="sub">Colorado Regulated Natural Medicine — a <b>non-medical</b> program for adults 21+ via a licensed facilitator. Prototype; local data.</div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><b>'+c.ico+' '+c.name+'</b> — '+c.goal+'</div>';
+  if(ROLE==='regulator'){
+    var lic=loadLic();
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 12px">'+mchip(lic.length,'Active licenses')+mchip(loadBul().length,'Requirements posted')+mchip(lic.filter(function(l){return renewInfo(l).state!=='active';}).length,'Renewals due')+'</div>';
+    h+=bulletinsCard('regulator');
+    h+=renewalsCard('all');
+  } else if(ROLE==='participant'){
+    h+=accessCard();
+  } else {
+    h+=renewAlertCardNote();
+    h+=bulletinsCard('licensee');
+    h+=renewalsCard('mine');
+  }
+  h+='<div class="card"><h3 class="dh">How Colorado differs from New Mexico</h3><div class="kv"><b>Colorado (here):</b> non-medical (Prop 122); any adult 21+; no diagnosis/prescription; supervised at healing centers; <b>inventory-based</b> reporting. <b>New Mexico:</b> medical (SB219); qualifying diagnosis + certifying clinician; §9 outcome reporting. The compliance backbone (licensing, chain-of-custody, testing, renewals) is shared. <a href="index.html">Compare in the Policy Console →</a></div></div>';
+  return h;
+}
+function renewAlertCardNote(){ return ''; }
+function licensingView(){
+  var h='<h1>Licensing &amp; renewals</h1><div class="sub">Colorado natural-medicine license types, with annual renewal tracking. Fees &amp; exact terms: verify against <b>1 CCR 213-1 Part 2</b>.</div>';
+  h+='<div class="card"><h3 class="dh">License types (C.R.S. Title 44, Art. 50 · 1 CCR 213-1)</h3>'+
+    [['Healing Center','Supervised administration premises','C.R.S. 44-50-301'],
+     ['Facilitator','Delivers prep · administration · integration (DORA)','4 CCR 755-1'],
+     ['Cultivation','Grows natural medicine','1 CCR 213-1'],
+     ['Products Manufacturer','Makes regulated products','1 CCR 213-1'],
+     ['Testing Facility','Potency &amp; contaminant testing + COAs','1 CCR 213-1'],
+     ['Handler / Owner-Employee','Any person handling product or with financial interest','1 CCR 213-1']].map(function(x){return '<div class="approw"><div><b>'+x[0]+'</b><div class="appmeta">'+x[1]+'</div></div><span class="pill">'+x[2]+'</span></div>';}).join('')+
+    '<div class="note">Colorado also <b>decriminalizes</b> personal cultivation, use &amp; community sharing for adults 21+ (separate from this regulated-access program). Fees are set in <b>1 CCR 213-1 Part 2 §2005</b> (cites C.R.S. §§44-50-104/202/203/601/602) — verify current amounts.</div></div>';
+  h+=renewalsCard(ROLE==='regulator'?'all':'mine');
+  return h;
+}
+function renewalsCard(scope){
+  var lic=loadLic(); if(!lic.length) return '';
+  var LBL={active:['Active','#1c7a4a','#e4f2ea'],window:['Renewal window open','#9a6a00','#fbf1d8'],due:['Due soon','#9a2a1c','#fdecea'],lapsed:['Lapsed','#9a2a1c','#fdecea']};
+  var rows=lic.map(function(l){ var r=renewInfo(l); var L=LBL[r.state];
+    var when=r.state==='lapsed'?('lapsed '+(-r.days)+'d ago'):(r.days+' day'+(r.days===1?'':'s')+' left');
+    return '<div class="approw"><div><b>'+esc(l.type)+'</b> <span class="pill">'+esc(l.holder)+'</span><div class="appmeta">'+l.id+' · annual term · expires '+fmtDate(r.exp.toISOString())+' · '+when+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="status" style="background:'+L[2]+';color:'+L[1]+';border:1px solid '+L[1]+'44">'+L[0]+'</span><button class="btn sm" onclick="fileRenew(\''+l.id+'\')">'+(r.state==='active'?'Renew early':'File renewal')+'</button></div></div>'; }).join('');
+  var prev=(scope!=='all')?'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="toggleRenewPrev();return false;">preview the due alert</a></div>':'';
+  return '<div class="card"><h3 class="dh">🔁 Licensure renewals'+(scope==='all'?' — all licensees':'')+'</h3><div class="appmeta" style="margin-bottom:6px">Colorado licenses renew <b>annually</b>. The window opens at 60 days; an alert appears at the top of your portal when renewal is due.</div>'+rows+prev+'</div>';
+}
+function bulletinsCard(mode){
+  var AUD={all:'All licensees',healing:'Healing centers',facilitator:'Facilitators',cultivator:'Cultivators',manufacturer:'Manufacturers',lab:'Labs'};
+  if(mode==='regulator'){
+    var all=loadBul(), acks=loadAcks();
+    var h='<div class="card" style="border-left:4px solid #5a2d2a;background:#fbf1ef;border-color:#e6c3ba"><h3 class="dh" style="color:#5a2d2a">📢 Requirements &amp; bulletins — promulgate to licensees</h3>'+
+      '<div class="appmeta" style="margin-bottom:6px">Publish once; it appears in the matching <b>healing-center / facilitator / cultivator / manufacturer / lab portal</b> with read-receipts.</div>'+
+      '<div class="field"><label>Audience</label><select id="cb_aud"><option value="all">All licensees</option><option value="healing">Healing centers</option><option value="facilitator">Facilitators</option><option value="cultivator">Cultivators</option><option value="manufacturer">Manufacturers</option><option value="lab">Labs</option></select></div>'+
+      '<div class="field"><label>Title</label><input id="cb_title" placeholder="e.g. Updated advertising rule"></div>'+
+      '<div class="field"><label>Requirement text</label><textarea id="cb_body" placeholder="What licensees must do"></textarea></div>'+
+      '<div class="field"><label>Citation</label><input id="cb_cite" placeholder="e.g. 1 CCR 213-1"></div>'+
+      '<div class="actions"><span class="note">Prototype: shared on this device. <a href="#" onclick="publishSampleBul();return false;">▶ publish a sample (demo)</a></span><button class="btn primary" onclick="publishBul()">Publish to licensees</button></div>';
+    h+=all.map(function(b){ return '<div class="approw"><div><b>'+b.title+'</b> <span class="pill">'+AUD[b.aud]+'</span><div class="appmeta">'+(b.cite||'')+' · posted '+fmtDate(b.at)+(acks[b.id]?' · ✓ acknowledged':'')+'</div></div></div>'; }).join('');
+    h+='<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetBul();return false;">reset</a></div></div>';
+    return h;
+  }
+  var list=bulForRole(ROLE), acks=loadAcks(), unack=list.filter(function(b){return !acks[b.id];}).length;
+  if(!list.length) return '';
+  var h='<div class="card" style="border-color:#e6c3ba;background:#fbf1ef"><h3 class="dh" style="color:#5a2d2a">📋 Requirements from the Division'+(unack?' <span class="pill" style="background:#fdecea;color:#9a2a1c">'+unack+' new</span>':'')+'</h3>';
+  h+=list.map(function(b){ var done=!!acks[b.id]; return '<div class="approw"><div><b>'+b.title+'</b><div class="appmeta">'+b.body+'</div><div class="appmeta" style="color:#8a949a">'+(b.cite||'')+' · '+fmtDate(b.at)+'</div></div><div>'+(done?'<span class="status s-approved">Acknowledged</span>':'<button class="btn sm" onclick="ackBul(\''+b.id+'\')">Acknowledge</button>')+'</div></div>'; }).join('');
+  return h+'</div>';
+}
+function requirementsView(){
+  var h='<h1>Requirements &amp; bulletins</h1><div class="sub">What the Natural Medicine Division has promulgated to your portal. '+(ROLE==='regulator'?'Publish new requirements below.':'Acknowledge each so the Division has a read-receipt.')+'</div>';
+  h+=bulletinsCard(ROLE==='regulator'?'regulator':'licensee');
+  return h;
+}
+/* ---------- inventory & chain-of-custody ---------- */
+function loadInv(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_inv_v1')||'[]'); }catch(e){ return []; } }
+function saveInv(a){ try{ localStorage.setItem('parakeet_co_inv_v1', JSON.stringify(a)); }catch(e){} }
+function addInv(kind){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
+  var rec; if(kind==='harvest'){ var b=g('h_batch'); if(!b.trim())return; rec={kind:'Harvest batch', id:'HB-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:b, info:g('h_strain')+' · '+g('h_wt')+' g · '+g('h_date')}; }
+  else if(kind==='manifest'){ var fr=g('m_from'); if(!fr.trim())return; rec={kind:'Transport manifest', id:'TM-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:fr+' → '+g('m_to'), info:g('m_item')+' · '+g('m_qty')+' · sealed '+g('m_seal')}; }
+  else if(kind==='coa'){ var lot=g('c_lot'); if(!lot.trim())return; rec={kind:'COA', id:'COA-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:lot, info:'potency '+g('c_pot')+' mg/unit · '+g('c_pass')}; }
+  else if(kind==='waste'){ var w=g('w_mat'); if(!w.trim())return; rec={kind:'Waste', id:'WST-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:w, info:g('w_qty')+' · '+g('w_method')+' · witness '+g('w_wit')}; }
+  rec.at=new Date().toISOString(); var a=loadInv(); a.unshift(rec); saveInv(a); render();
+}
+function resetInv(){ try{ localStorage.removeItem('parakeet_co_inv_v1'); }catch(e){} render(); }
+function inventoryView(){
+  var h='<h1>Inventory &amp; chain-of-custody</h1><div class="sub">Colorado inventory templates as validated forms — harvest, transport manifest, COA and waste — so the records match the Division templates (1 CCR 213-1).</div>';
+  h+='<div class="card"><h3 class="dh">🌱 Harvest batch</h3><div class="grid"><div class="field"><label>Batch ref</label><input id="h_batch" placeholder="e.g. HC-2026-014"></div><div class="field"><label>Strain / cultivar</label><input id="h_strain" placeholder="Golden Teacher"></div><div class="field"><label>Wet weight (g)</label><input id="h_wt" type="number" placeholder="500"></div><div class="field"><label>Harvest date</label><input id="h_date" type="date"></div></div><div class="actions"><span class="note">Starts the seed-to-session chain.</span><button class="btn primary" onclick="addInv(\'harvest\')">Record harvest</button></div></div>';
+  h+='<div class="card"><h3 class="dh">🚚 Transport manifest</h3><div class="grid"><div class="field"><label>From (licensee)</label><input id="m_from" placeholder="Cultivator"></div><div class="field"><label>To (licensee)</label><input id="m_to" placeholder="Healing center"></div><div class="field"><label>Item / lot</label><input id="m_item" placeholder="Lot ID"></div><div class="field"><label>Quantity</label><input id="m_qty" placeholder="e.g. 60 units"></div><div class="field"><label>Sealed container ID</label><input id="m_seal" placeholder="SEAL-…"></div></div><div class="actions"><span class="note">Locked, manifested transfer with chain-of-custody.</span><button class="btn primary" onclick="addInv(\'manifest\')">Record manifest</button></div></div>';
+  h+='<div class="card"><h3 class="dh">🧪 Certificate of Analysis (COA)</h3><div class="grid"><div class="field"><label>Lot ID</label><input id="c_lot" placeholder="Lot ID"></div><div class="field"><label>Potency (mg/unit)</label><input id="c_pot" type="number" placeholder="25"></div><div class="field"><label>Result</label><select id="c_pass"><option>Pass</option><option>Fail</option></select></div></div><div class="actions"><span class="note">Potency flows to products &amp; sessions.</span><button class="btn primary" onclick="addInv(\'coa\')">Record COA</button></div></div>';
+  h+='<div class="card"><h3 class="dh">♻️ Waste tracking</h3><div class="grid"><div class="field"><label>Material</label><input id="w_mat" placeholder="trim / failed lot"></div><div class="field"><label>Quantity</label><input id="w_qty" placeholder="e.g. 40 g"></div><div class="field"><label>Method</label><input id="w_method" placeholder="rendered unusable"></div><div class="field"><label>Witness</label><input id="w_wit" placeholder="name"></div></div><div class="actions"><span class="note">Render unusable &amp; log before disposal.</span><button class="btn primary" onclick="addInv(\'waste\')">Record waste</button></div></div>';
+  var inv=loadInv();
+  if(inv.length){ h+='<div class="card"><h3 class="dh">Records on file ('+inv.length+')</h3>'+inv.map(function(r){return '<div class="approw"><div><b>'+r.kind+'</b> <span class="pill">'+r.id+'</span><div class="appmeta">'+esc(r.ref)+' · '+esc(r.info)+'</div></div><div class="appmeta">'+fmtDate(r.at)+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetInv();return false;">reset</a></div></div>'; }
+  return h;
+}
+function accessCard(){
+  return '<div class="card"><h3 class="dh">How access works (21+)</h3>'+
+    '<div class="kv"><b>No diagnosis, prescription or referral — and no residency requirement.</b> Any adult 21+ may take part.</div>'+
+    '<div class="kv">1 · Book with a <b>licensed facilitator</b> at a licensed <b>healing center</b> (or an approved location).</div>'+
+    '<div class="kv">2 · <b>Preparation</b> meeting → supervised <b>administration</b> session → <b>integration</b>.</div>'+
+    '<div class="kv">3 · Product is tested (COA) and tracked from cultivation to your session.</div>'+
+    '<div class="note">Colorado is <b>non-medical</b> (Prop 122). This is a supervised natural-medicine service, not a prescription. Personal cultivation, use &amp; sharing are separately decriminalized for adults 21+.</div></div>';
+}
+function accessView(){ var h='<h1>Participant access</h1><div class="sub">Plain-language guide for adults 21+ seeking natural-medicine services in Colorado.</div>'; return h+accessCard(); }
+
+function render(){
+  var allowed=roleViews();
+  document.querySelectorAll('#nav button').forEach(function(b){ var v=b.dataset.view; b.style.display=allowed.indexOf(v)>=0?'':'none'; b.setAttribute('aria-current', v===VIEW?'true':'false'); });
+  var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
+  if(allowed.indexOf(VIEW)<0) VIEW=allowed[0];
+  var b=renewAlert();
+  var r=document.getElementById('root');
+  if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
+  else if(VIEW==='licensing') r.innerHTML=b+licensingView();
+  else if(VIEW==='requirements') r.innerHTML=b+requirementsView();
+  else if(VIEW==='inventory') r.innerHTML=b+inventoryView();
+  else if(VIEW==='access') r.innerHTML=b+accessView();
+}
+render();
+</script>
+</body>
+</html>
