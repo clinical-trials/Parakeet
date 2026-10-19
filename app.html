@@ -415,6 +415,7 @@ function render(){
   try{ document.documentElement.lang=LANG; }catch(e){}
   var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert()+aeBar();
   if(VIEW==='calendar'){ r.innerHTML=b+renderCalendar(); return; }
+  if(VIEW==='inspect'){ r.innerHTML=b+(ROLE==='doh'?renderInspection():lockView()); return; }
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
   else if(VIEW==='clinician'){ r.innerHTML=b+renderClinician(); cplan(); qualCheck(); }
@@ -510,12 +511,60 @@ function renderReview(){
     var _due=new Date(new Date(a.submittedAt).getTime()+30*86400000), _dl=Math.ceil((_due-Date.now())/86400000);
     h+='<div class="appmeta" style="font-weight:700;color:'+(_dl<0?'#9a2a1c':(_dl<=7?'#9a6a00':'#1f5a54'))+'">⏱ 30-day decision clock (7.35.2/7.35.3): '+(_dl<0?('OVERDUE by '+(-_dl)+' day'+(-_dl===1?'':'s')):(_dl+' day'+(_dl===1?'':'s')+' left'))+' · due '+fmtDate(_due.toISOString())+(a.sitevisit?' · site visit within 30 business days of a complete application':'')+'</div>';
     h+=Object.keys(a.data).slice(0,4).map(function(k){ if(k==='attest'||k==='consent') return ''; return '<div class="kv"><b>'+esc(k)+':</b> '+esc((''+a.data[k]).slice(0,80))+'</div>'; }).join('');
-    h+='<div class="revbtns">'+(a.sitevisit&&a.status==='submitted'?'<button class="btn sm" onclick="decide(\''+a.id+'\',\'sitevisit\')">Schedule site visit</button>':'')+'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\')">Approve</button><button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\')">Deny</button></div></div>';
+    var _is=inspSummary(a.id,a); if(_is) h+='<div class="appmeta" style="font-weight:700;color:'+(_is.fail?'#9a2a1c':(_is.complete?'#1c7a4a':'#9a6a00'))+'">🔎 Inspection: '+_is.pass+' pass / '+_is.fail+' fail'+(_is.complete?' · complete':' · in progress')+'</div>';
+    h+='<div class="revbtns">'+(a.sitevisit?'<button class="btn sm" onclick="openInspect(\''+a.id+'\')">🔎 Site-visit inspection</button>':'')+(a.sitevisit&&a.status==='submitted'?'<button class="btn sm" onclick="decide(\''+a.id+'\',\'sitevisit\')">Schedule site visit</button>':'')+'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\')">Approve</button><button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\')">Deny</button></div></div>';
   });
   if(decided.length){ h+='<h3 style="font-size:13px;color:var(--pine2);margin:18px 0 6px;text-transform:uppercase;letter-spacing:.04em">Decided</h3><div class="card">'+decided.map(function(a){return '<div class="approw"><div><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div><div class="appmeta">'+a.id+'</div></div>'+statusChip(a.status)+'</div>';}).join('')+'</div>'; }
   return h;
 }
 function decide(id,status){ var apps=loadApps(); apps.forEach(function(a){ if(a.id===id){ a.status=status; a.decidedAt=new Date().toISOString(); } }); saveApps(apps); render(); }
+
+/* ---------- DOH site-visit inspection (7.35.2) → feeds the decision ---------- */
+var INSPECT_APP=null;
+var PROD_INSP=[
+  'Written security plan on file; product stored in a locked, limited-access area or vault',
+  'Monitored alarm + video surveillance covering entry &amp; storage points',
+  'Chain-of-custody SOPs — unbroken batch → lot → package IDs',
+  'Waste rendered unusable &amp; logged before disposal',
+  'Cultivation / extraction / edible processes match the endorsements applied for',
+  'Inventory reconciled on a set schedule; discrepancies investigated',
+  'Staff background attestations &amp; access controls in place',
+  'Premises &amp; equipment consistent with the application'
+];
+var LAB_INSP=[
+  'ISO/IEC 17025 (or DOH-approved) accreditation &amp; current scope',
+  'Validated 7.35.2.19 panel — potency (psilocybin+psilocin), microbial, heavy metals, pesticides, water',
+  'Established action limits &amp; an out-of-spec / recall SOP',
+  'Standardized COA format with required fields &amp; retention',
+  'Sample intake, chain-of-custody &amp; retention handling',
+  'Instrument calibration &amp; QA/QC records',
+  'Secure storage of samples &amp; data; access controls',
+  'Premises &amp; equipment consistent with the application'
+];
+function inspItems(a){ return a && a.type==='lab'? LAB_INSP : PROD_INSP; }
+function loadInsp(){ try{ return JSON.parse(localStorage.getItem('parakeet_inspections_v1')||'{}'); }catch(e){ return {}; } }
+function saveInsp(o){ try{ localStorage.setItem('parakeet_inspections_v1', JSON.stringify(o)); }catch(e){} }
+function openInspect(appId){ INSPECT_APP=appId; go('inspect'); }
+function setInspItem(appId,i,v){ var o=loadInsp(); o[appId]=o[appId]||{items:{}}; o[appId].items[i]=v; saveInsp(o); render(); }
+function completeInspection(appId){ var o=loadInsp(); if(!o[appId])return; o[appId].done=true; o[appId].at=new Date().toISOString(); saveInsp(o); render(); }
+function inspSummary(appId,a){ var o=loadInsp()[appId]; if(!o) return null; var items=inspItems(a); var pass=0,fail=0,na=0,done=0; items.forEach(function(_,i){ var v=o.items[i]; if(v==='pass')pass++; else if(v==='fail')fail++; else if(v==='na')na++; if(v)done++; }); return {pass:pass,fail:fail,na:na,done:done,total:items.length,complete:!!o.done,at:o.at}; }
+function renderInspection(){
+  var a=loadApps().filter(function(x){return x.id===INSPECT_APP;})[0];
+  if(!a) return '<h1>Site-visit inspection</h1><div class="empty">No application selected. <a href="#" onclick="go(\'review\');return false;">Back to the review queue</a>.</div>';
+  var items=inspItems(a), o=loadInsp()[a.id]||{items:{}};
+  var h='<h1>🔎 Site-visit inspection</h1><div class="sub">On-site verification against 7.35.2 before a decision — a complete application triggers a DOH site visit within 30 business days.</div>';
+  h+='<div class="card"><div class="apptitle">'+esc(a.title)+' <span class="pill">'+esc(a.typeName)+'</span></div><div class="appmeta">'+a.id+' · '+esc((a.data&&a.data.county)||'')+' · submitted '+fmtDate(a.submittedAt)+'</div></div>';
+  h+='<div class="card"><h3 class="dh">Inspection checklist ('+(a.type==='lab'?'laboratory — 7.35.2.19':'producer — 7.35.2')+')</h3>';
+  h+=items.map(function(it,i){ var v=o.items[i]||''; function bt(val,lbl,cls){ return '<button class="btn sm'+(v===val?' '+cls:'')+'" onclick="setInspItem(\''+a.id+'\','+i+',\''+val+'\')" style="'+(v===val?'':'opacity:.65')+'">'+lbl+'</button>'; }
+    return '<div class="approw"><div style="max-width:60%">'+it+'</div><div style="display:flex;gap:6px">'+bt('pass','Pass','ok')+bt('fail','Fail','no')+bt('na','N/A','')+'</div></div>'; }).join('');
+  var s=inspSummary(a.id,a);
+  h+='<div class="note" style="margin-top:8px">'+(s?('Recorded: '+s.pass+' pass · '+s.fail+' fail · '+s.na+' N/A ('+s.done+'/'+s.total+')'):'Mark each item Pass / Fail / N/A.')+'</div>';
+  h+='<div class="actions"><a href="#" onclick="go(\'review\');return false;" class="slink">← Back to review queue</a><button class="btn primary" onclick="completeInspection(\''+a.id+'\')">Complete inspection</button></div></div>';
+  if(s&&s.complete){ var ok=s.fail===0;
+    h+='<div class="card" style="border-color:'+(ok?'#bfe3cc':'#f1c3bd')+';background:'+(ok?'var(--greenbg)':'var(--redbg)')+'"><h3 class="dh" style="color:'+(ok?'var(--green)':'var(--red)')+'">'+(ok?'✓ Inspection passed — no deficiencies':'⚠ '+s.fail+' deficiency(ies) found')+'</h3><div class="kv" style="color:var(--ink)">'+(ok?'All applicable items verified on site. You can approve the application.':'Record the deficiencies and request changes before approval.')+'</div><div class="revbtns">'+(ok?'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\');go(\'review\')">Approve application</button>':'<button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\');go(\'review\')">Request changes / deny</button>')+'<button class="btn sm" onclick="go(\'review\')">Back to queue</button></div></div>';
+  }
+  return h;
+}
 
 /* ---------- DOH-promulgated licensing requirements & bulletins → licensee portal ---------- */
 var DEFAULT_BULLETINS=[
