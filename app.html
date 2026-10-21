@@ -10,7 +10,7 @@
 <style>
   :root{--ink:#20262b;--muted:#5c6870;--line:#e4ddce;--bg:#f4efe3;--pine:#17423f;--pine2:#1f5a54;--gold:#a8792b;--goldbg:#faf3e3;--green:#1c7a4a;--greenbg:#e8f5ec;--amber:#9a6a00;--amberbg:#fbf1d8;--blue:#2b5f86;--bluebg:#eef3f6;--red:#9a2a1c;--redbg:#fdecea;--slate:#eef1f2}
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;font-size:15.5px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   a{color:var(--blue)}
   .wrap{max-width:900px;margin:0 auto;padding:0 20px 70px}
   header.top{background:linear-gradient(180deg,#1b4b47,#143d39);color:#fff;padding:14px 0;margin-bottom:20px;box-shadow:0 2px 14px rgba(23,66,63,.18)}
@@ -29,7 +29,7 @@
   nav.app button{appearance:none;border:0;background:transparent;color:#cfe0dd;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:7px;cursor:pointer}
   nav.app button[aria-current="true"]{background:#fff;color:var(--pine)}
   h1{font-size:22px;margin:0 0 2px;letter-spacing:-.015em;color:#163029}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
   .card{background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(23,66,63,.04),0 10px 26px rgba(23,66,63,.05)}
@@ -45,9 +45,9 @@
   .stepchip.active{background:var(--pine);color:#fff;border-color:var(--pine)}
   .stepchip.done{background:var(--greenbg);color:var(--green);border-color:#bfe3cc}
   .field{margin:0 0 12px}
-  .field label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+  .field label{display:block;font-weight:600;font-size:14.5px;margin-bottom:5px}
   .field .req{color:var(--red)}
-  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:15px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
   .field textarea{min-height:64px;resize:vertical}
   .field.err input,.field.err select,.field.err textarea{border-color:var(--red);background:#fff7f6}
   .field .errmsg{color:var(--red);font-size:11.5px;margin-top:3px;display:none}
@@ -55,7 +55,7 @@
   .cbline{display:flex;gap:9px;align-items:flex-start}
   .cbline input{width:auto;margin-top:3px}
   .actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
-  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--pine2);font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:9px;cursor:pointer}
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--pine2);font-weight:700;font-size:14.5px;padding:11px 19px;border-radius:9px;cursor:pointer}
   .btn.primary{background:var(--pine);color:#fff;border-color:var(--pine)}
   .btn.primary:hover{background:var(--pine2)}
   .btn:disabled{opacity:.5;cursor:default}
@@ -65,7 +65,7 @@
   .approw{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-top:1px solid #eef0f1}
   .approw:first-child{border-top:0}
   .apptitle{font-weight:700}
-  .appmeta{font-size:11.5px;color:var(--muted)}
+  .appmeta{font-size:12.5px;color:var(--muted)}
   .status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;border-radius:20px;padding:3px 10px;white-space:nowrap}
   .s-submitted{background:var(--amberbg);color:var(--amber);border:1px solid #e6cf94}
   .s-approved{background:var(--greenbg);color:var(--green);border:1px solid #bfe3cc}
@@ -76,10 +76,10 @@
   .okbanner{background:var(--greenbg);border:1px solid #bfe3cc;color:var(--green);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-weight:600}
   .rev{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 10px}
   .revbtns{display:flex;gap:8px;margin-top:9px}
-  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn.sm{padding:7px 13px;font-size:13px}
   .btn.ok{background:var(--green);color:#fff;border-color:var(--green)}
   .btn.no{background:#fff;color:var(--red);border-color:#f1c3bd}
-  .kv{font-size:12px;color:var(--muted);margin:2px 0}
+  .kv{font-size:13.5px;color:var(--muted);margin:3px 0}
   .kv b{color:var(--ink)}
   footer{margin-top:26px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
   /* dashboard / coach */
@@ -432,25 +432,88 @@ function render(){
   reflowView();
 }
 
+function hasDraft(t){ try{ var d=loadDraft(t); return Object.keys(d).some(function(k){ return k.charAt(0)!=='_' && d[k]!=null && (''+d[k]).trim()!==''; }); }catch(e){ return false; } }
 function renderChooser(){
-  var tiles=Object.keys(FORMS).map(function(k){var f=FORMS[k];
-    return '<div class="tile" onclick="startApp(\''+k+'\')"><div class="ico">'+f.ico+'</div><h3>'+f.name+'</h3><p>'+f.blurb+'</p><span class="cite">'+f.cite+'</span></div>';
+  var tiles=Object.keys(FORMS).map(function(k){var f=FORMS[k]; var ip=hasDraft(k);
+    return '<div class="tile" onclick="startApp(\''+k+'\')"><div class="ico">'+f.ico+'</div><h3>'+f.name+'</h3><p>'+f.blurb+'</p><span class="cite">'+f.cite+'</span>'+(ip?'<div style="margin-top:8px"><span class="status s-submitted">⏳ In progress — tap to resume</span></div>':'')+'</div>';
   }).join('');
-  return '<h1>Start an application</h1><div class="sub">Simple, guided intake — your progress is saved automatically on this device. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>'+
+  return '<h1>Start an application</h1><div class="sub"><b>Guided intake — your progress saves automatically</b> on this device, so you can close this and finish later. Replaces manual forms; feeds the DOH review queue.</div><div class="grid">'+tiles+'</div>'+
     '<div class="note" style="margin-top:10px"><b>Decision clocks (7.35.2 / 7.35.3):</b> new applications → DOH decision within <b>30 days</b>; renewals → file within the <b>60/30-day renewal window</b>. One intake covers producers, labs, certifying clinicians, practitioners, facilitators, healing centers &amp; educational programs. The state&rsquo;s designated application system today is <b>mpp.nm.btgov.com</b>; this provides the same function.</div>';
 }
 
+/* ---------- NM rule-referenced acknowledgements + regs check (per application type) ---------- */
+var NM_ACKS={
+ producer:[
+  {t:'A complete producer application triggers a <b>DOH site visit within 30 business days</b>.', c:'7.35.2 NMAC', r:'Producers are permitted under 7.35.2; a complete application prompts an on-site inspection.'},
+  {t:'Operate only the <b>cultivation / extraction / edible endorsements</b> you applied for.', c:'7.35.2 NMAC', r:'Your permitted activities are limited to the endorsements on your permit.'},
+  {t:'Maintain a <b>written security plan</b> with locked, limited-access storage.', c:'7.35.2 NMAC', r:'Premises security is required for the regulated product.'},
+  {t:'Keep an <b>unbroken chain of custody</b>: batch → lot → package; the chain ends at <b>administration to an enrolled patient (§9)</b>, not a retail sale.', c:'SB219 §3', r:'New Mexico traceability ends at administration and feeds the §9 record — there is no retail sale.'},
+  {t:'<b>No transfer</b> until the product passes the <b>7.35.2.19 testing panel</b> (Certificate of Analysis).', c:'7.35.2.19 NMAC', r:'Potency and contaminant testing must pass before transfer.'},
+  {t:'<b>Waste</b> rendered unusable and logged before disposal.', c:'7.35.2 NMAC', r:'Waste is documented and made unusable before disposal.'},
+  {t:'<b>Renew</b> within the 60/30-day renewal window.', c:'7.35.2 NMAC', r:'Permits renew on a term; file within the window.'}
+ ],
+ lab:[
+  {t:'Run the <b>validated 7.35.2.19 panel</b>: psilocybin + psilocin potency (mg), microbial, heavy metals, pesticides, water &lt; 10%.', c:'7.35.2.19 NMAC', r:'The per-batch panel is broader than Oregon’s.'},
+  {t:'Be <b>ISO/IEC 17025</b> accredited or DOH-approved.', c:'7.35.2 NMAC', r:'Accreditation or department approval is required.'},
+  {t:'Issue a <b>COA per batch before transfer</b>; results flow to the chain of custody and §9.', c:'7.35.2.19 NMAC', r:'Every batch carries a Certificate of Analysis.'},
+  {t:'Establish <b>action limits</b> and an out-of-spec / recall procedure.', c:'7.35.2.19 NMAC', r:'Define limits and the recall path when a result exceeds them.'},
+  {t:'A complete application triggers a <b>DOH site visit within 30 business days</b>.', c:'7.35.2 NMAC', r:'On-site inspection before certification.'},
+  {t:'<b>Renew</b> within the 60/30-day renewal window.', c:'7.35.2 NMAC', r:'File renewal within the window.'}
+ ],
+ provider:[
+  {t:'A <b>certifying clinician</b> holds an active <b>NM controlled-substances registration</b>.', c:'7.35.3.9 NMAC', r:'The certifying clinician must be a controlled-substances registrant.'},
+  {t:'Complete the <b>certifying-clinician training</b> module.', c:'7.35.3.18 NMAC', r:'Training is required before certifying patients.'},
+  {t:'Enroll patients <b>jointly</b> with the patient via the department’s <b>electronic system</b>; DOH decides within <b>30 calendar days</b>.', c:'7.35.3.8 NMAC', r:'A joint patient + clinician application with a 30-day decision.'},
+  {t:'Deliver <b>preparation, administration &amp; integration</b> at a healing center or approved setting; facilitation is <b>non-directive</b>.', c:'7.35.3 NMAC', r:'Services are delivered in approved settings; facilitators work non-directively.'},
+  {t:'Report <b>adverse events</b> and <b>de-identified §9</b> outcomes.', c:'SB219 §9', r:'Adverse-event and §9 reporting are built in.'},
+  {t:'<b>Renew</b> within the 60/30-day renewal window.', c:'7.35.3 NMAC', r:'Certification renewal window.'}
+ ],
+ patient:[
+  {t:'A <b>qualifying condition</b> is certified by a <b>certifying clinician</b>.', c:'7.35.3.8 NMAC', r:'Enrollment requires a certified qualifying diagnosis.'},
+  {t:'The patient and clinician file a <b>joint application</b> via the department’s electronic system; DOH decides within <b>30 calendar days</b>; enrollment is valid <b>2 years</b>.', c:'7.35.3.8 NMAC', r:'Joint application, 30-day decision, 2-year enrollment.'},
+  {t:'Only the <b>minimal §9 data</b> is mandatory and is <b>de-identified</b> (year of birth, disability yes/no, ZIP); research use is <b>opt-in</b>.', c:'SB219 §9', r:'Mandatory reporting is minimal and de-identified; research use is opt-in.'},
+  {t:'You choose your <b>provider and healing center</b>, and may withdraw at any time.', c:'7.35.3 NMAC', r:'Patient choice and the right to withdraw.'}
+ ]
+};
+var NM_QUIZ=[
+  {q:'A complete producer or laboratory application triggers…', a:['An immediate license','A DOH site visit within 30 business days','A public hearing'], correct:1},
+  {q:'Before product may be administered to a patient, it must…', a:['Be advertised','Pass the 7.35.2.19 testing panel (a Certificate of Analysis)','Be grown in New Mexico'], correct:1},
+  {q:'New Mexico’s program requires…', a:['Any adult 21+, no diagnosis','A qualifying condition certified by a certifying clinician','Residency only'], correct:1},
+  {q:'§9 outcome data is reported…', a:['With full names','De-identified (year of birth · disability yes/no · ZIP)','Not at all'], correct:1}
+];
+function nmRuleLink(c){ if(c.indexOf('SB219')>=0) return 'https://www.nmlegis.gov/Sessions/25%20Regular/bills/senate/SB0219.HTML'; if(c.indexOf('7.35.3')>=0) return 'https://www.nmhealth.org/publication/view/rules/9904/'; return 'https://www.nmhealth.org/publication/view/rules/9692/'; }
+function wizSteps(){ return FORMS[TYPE].steps.concat([{name:'Acknowledgements',kind:'acks'},{name:'Regs check',kind:'quiz'}]); }
+function nmAck(i,v){ DRAFT._acks=DRAFT._acks||{}; DRAFT._acks[i]=v; saveDraft(TYPE,DRAFT); render(); }
+function nmTogAck(i){ DRAFT._open=DRAFT._open||{}; DRAFT._open[i]=!DRAFT._open[i]; render(); }
+function nmQuiz(i,v){ DRAFT._quiz=DRAFT._quiz||{}; DRAFT._quiz[i]=v; saveDraft(TYPE,DRAFT); render(); }
+function nmAcksAll(){ var a=NM_ACKS[TYPE]||[]; return a.length>0 && a.every(function(_,i){return DRAFT._acks&&DRAFT._acks[i];}); }
+function nmQuizScore(){ var c=0; NM_QUIZ.forEach(function(q,i){ if(DRAFT._quiz&&DRAFT._quiz[i]===q.correct) c++; }); return c; }
 function renderWizard(){
-  var f=FORMS[TYPE], steps=f.steps, s=steps[STEP];
+  var f=FORMS[TYPE], steps=wizSteps(), s=steps[STEP];
+  DRAFT._acks=DRAFT._acks||{}; DRAFT._open=DRAFT._open||{}; DRAFT._quiz=DRAFT._quiz||{};
   var chips=steps.map(function(st,i){var cls=i===STEP?'active':(i<STEP?'done':'');return '<span class="stepchip '+cls+'">'+(i+1)+'. '+st.name+'</span>';}).join('');
-  var fields=s.fields.map(function(fl){ return fieldHTML(fl, DRAFT[fl.id]); }).join('');
   var last=STEP===steps.length-1;
   var h='<h1>'+f.ico+' '+f.name+'</h1><div class="sub">'+f.cite+' · step '+(STEP+1)+' of '+steps.length+'</div>';
   h+='<div class="steps">'+chips+'</div>';
-  h+='<div class="card"><h3 style="margin:0 0 12px;color:var(--pine2);font-size:14px">'+s.name+'</h3>'+fields+'</div>';
-  h+='<div class="draftnote" id="draftnote">✓ Draft saved on this device</div>';
+  if(s.kind==='acks'){
+    var acks=NM_ACKS[TYPE]||[];
+    h+='<div class="card"><h3 style="margin:0 0 6px;color:var(--pine2);font-size:16px">Required acknowledgements</h3><div class="note" style="margin:0 0 4px">Attest to each — tap <b>📖 the citation</b> to read the rule. Check all to continue.</div>'+
+      acks.map(function(ak,i){ var open=DRAFT._open[i];
+        return '<div style="border-top:1px solid #eef0f1;padding:9px 0"><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" '+(DRAFT._acks[i]?'checked':'')+' onchange="nmAck('+i+',this.checked)" style="margin-top:4px;width:18px;height:18px;flex:0 0 auto"><span>'+ak.t+' <a href="#" onclick="nmTogAck('+i+');return false;" style="white-space:nowrap;font-size:12px;font-weight:700">📖 '+esc(ak.c)+(open?' ▲':' ▾')+'</a></span></label>'+(open?'<div class="note" style="margin:6px 0 0 30px;background:#fffdf9;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px">'+ak.r+' <a href="'+nmRuleLink(ak.c)+'" target="_blank" rel="noopener">Open the rule ↗</a></div>':'')+'</div>';
+      }).join('')+'</div>';
+  } else if(s.kind==='quiz'){
+    h+='<div class="card"><h3 style="margin:0 0 6px;color:var(--pine2);font-size:16px">Regs check</h3><div class="note" style="margin:0 0 4px">A short check so you understand the rules. Answer all correctly to submit.</div>'+
+      NM_QUIZ.map(function(q,i){return '<div style="padding:9px 0;border-top:1px solid #eef0f1"><div style="font-weight:700;margin-bottom:5px">'+(i+1)+'. '+q.q+'</div>'+q.a.map(function(opt,j){var sel=DRAFT._quiz[i]===j;return '<label style="display:flex;gap:9px;align-items:center;padding:4px 0"><input type="radio" name="nmq'+i+'" '+(sel?'checked':'')+' onchange="nmQuiz('+i+','+j+')" style="width:17px;height:17px"><span>'+esc(opt)+(sel?(j===q.correct?' <b style="color:#1c7a4a">✓</b>':' <b style="color:#9a2a1c">✗ try again</b>'):'')+'</span></label>';}).join('')+'</div>';}).join('')+
+      '<div class="note">Score: <b>'+nmQuizScore()+' / '+NM_QUIZ.length+'</b></div></div>';
+  } else {
+    var fields=s.fields.map(function(fl){ return fieldHTML(fl, DRAFT[fl.id]); }).join('');
+    h+='<div class="card"><h3 style="margin:0 0 12px;color:var(--pine2);font-size:16px">'+s.name+'</h3>'+fields+'</div>';
+  }
+  h+='<div class="draftnote" id="draftnote">✓ Progress saved on this device — you can close this and finish later</div>';
+  var blocked=(s.kind==='acks' && !nmAcksAll()) || (s.kind==='quiz' && nmQuizScore()!==NM_QUIZ.length);
+  var nextLabel = last?'Submit application':(s.kind==='acks'?(nmAcksAll()?'Continue →':'Check all to continue'):'Save & continue →');
   h+='<div class="actions"><button class="btn" onclick="'+(STEP===0?'go(\'chooser\')':'prevStep()')+'">'+(STEP===0?'Cancel':'← Back')+'</button>';
-  h+='<button class="btn primary" onclick="'+(last?'submitApp()':'nextStep()')+'">'+(last?'Submit application':'Save & continue →')+'</button></div>';
+  h+='<button class="btn primary" '+(blocked?'disabled':'')+' onclick="'+(last?'submitApp()':'nextStep()')+'">'+nextLabel+'</button></div>';
   return h;
 }
 function fieldHTML(fl,val){
@@ -464,15 +527,16 @@ function fieldHTML(fl,val){
   else inner='<input type="'+(fl.t==='number'?'number':fl.t==='date'?'date':fl.t==='email'?'email':'text')+'" id="f_'+fl.id+'" value="'+esc(val)+'" oninput="onField()">';
   return '<div class="field" id="fld_'+fl.id+'"><label for="f_'+fl.id+'">'+fl.label+req+'</label>'+inner+'<div class="errmsg">Required.</div>'+hint+'</div>';
 }
-function readStep(){ var f=FORMS[TYPE], s=f.steps[STEP]; s.fields.forEach(function(fl){ var el=document.getElementById('f_'+fl.id); if(!el) return; DRAFT[fl.id]= fl.t==='checkbox'? el.checked : el.value; }); }
+function readStep(){ var s=wizSteps()[STEP]; if(!s||!s.fields) return; s.fields.forEach(function(fl){ var el=document.getElementById('f_'+fl.id); if(!el) return; DRAFT[fl.id]= fl.t==='checkbox'? el.checked : el.value; }); }
 function onField(){ readStep(); saveDraft(TYPE,DRAFT); }
-function validStep(){ var f=FORMS[TYPE], s=f.steps[STEP], ok=true; s.fields.forEach(function(fl){ var fld=document.getElementById('fld_'+fl.id); var v=DRAFT[fl.id]; var bad=fl.req && (fl.t==='checkbox'? !v : (v==null||(''+v).trim()==='')); if(fld) fld.classList.toggle('err',bad); if(bad) ok=false; }); return ok; }
+function validStep(){ var s=wizSteps()[STEP]; if(s.kind==='acks') return nmAcksAll(); if(s.kind==='quiz') return nmQuizScore()===NM_QUIZ.length; var ok=true; s.fields.forEach(function(fl){ var fld=document.getElementById('fld_'+fl.id); var v=DRAFT[fl.id]; var bad=fl.req && (fl.t==='checkbox'? !v : (v==null||(''+v).trim()==='')); if(fld) fld.classList.toggle('err',bad); if(bad) ok=false; }); return ok; }
 function nextStep(){ readStep(); saveDraft(TYPE,DRAFT); if(!validStep()) return; STEP++; render(); window.scrollTo(0,0); }
 function prevStep(){ readStep(); saveDraft(TYPE,DRAFT); STEP--; render(); window.scrollTo(0,0); }
 function submitApp(){ readStep(); if(!validStep()) return;
   var f=FORMS[TYPE];
   var apps=loadApps();
-  var rec={id:uid(), type:TYPE, typeName:f.name, title:DRAFT.legalName||DRAFT.fullName||DRAFT.ptName||f.name, data:JSON.parse(JSON.stringify(DRAFT)), status:'submitted', sitevisit:!!f.sitevisit, submittedAt:new Date().toISOString()};
+  var data={}; Object.keys(DRAFT).forEach(function(k){ if(k.charAt(0)!=='_') data[k]=DRAFT[k]; });
+  var rec={id:uid(), type:TYPE, typeName:f.name, title:data.legalName||data.fullName||data.ptName||f.name, data:data, status:'submitted', sitevisit:!!f.sitevisit, attested:nmAcksAll(), quizPassed:(nmQuizScore()===NM_QUIZ.length), submittedAt:new Date().toISOString()};
   apps.unshift(rec); saveApps(apps); clearDraft(TYPE);
   VIEW='submitted'; window._lastId=rec.id; renderSubmitted(rec); window.scrollTo(0,0);
 }
@@ -511,6 +575,7 @@ function renderReview(){
     var _due=new Date(new Date(a.submittedAt).getTime()+30*86400000), _dl=Math.ceil((_due-Date.now())/86400000);
     h+='<div class="appmeta" style="font-weight:700;color:'+(_dl<0?'#9a2a1c':(_dl<=7?'#9a6a00':'#1f5a54'))+'">⏱ 30-day decision clock (7.35.2/7.35.3): '+(_dl<0?('OVERDUE by '+(-_dl)+' day'+(-_dl===1?'':'s')):(_dl+' day'+(_dl===1?'':'s')+' left'))+' · due '+fmtDate(_due.toISOString())+(a.sitevisit?' · site visit within 30 business days of a complete application':'')+'</div>';
     h+=Object.keys(a.data).slice(0,4).map(function(k){ if(k==='attest'||k==='consent') return ''; return '<div class="kv"><b>'+esc(k)+':</b> '+esc((''+a.data[k]).slice(0,80))+'</div>'; }).join('');
+    if(a.attested&&a.quizPassed) h+='<div class="appmeta" style="color:#1c7a4a;font-weight:700;margin-top:3px">✓ Acknowledgements attested &amp; regs check passed via the application wizard</div>';
     var _is=inspSummary(a.id,a); if(_is) h+='<div class="appmeta" style="font-weight:700;color:'+(_is.fail?'#9a2a1c':(_is.complete?'#1c7a4a':'#9a6a00'))+'">🔎 Inspection: '+_is.pass+' pass / '+_is.fail+' fail'+(_is.complete?' · complete':' · in progress')+'</div>';
     h+='<div class="revbtns">'+(a.sitevisit?'<button class="btn sm" onclick="openInspect(\''+a.id+'\')">🔎 Site-visit inspection</button>':'')+(a.sitevisit&&a.status==='submitted'?'<button class="btn sm" onclick="decide(\''+a.id+'\',\'sitevisit\')">Schedule site visit</button>':'')+'<button class="btn sm ok" onclick="decide(\''+a.id+'\',\'approved\')">Approve</button><button class="btn sm no" onclick="decide(\''+a.id+'\',\'denied\')">Deny</button></div></div>';
   });
