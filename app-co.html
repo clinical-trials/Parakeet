@@ -51,6 +51,8 @@
   .kv b{color:var(--ink)}
   .status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;border-radius:20px;padding:3px 10px;white-space:nowrap}
   .s-approved{background:var(--greenbg);color:var(--green);border:1px solid #bfe3cc}
+  .s-submitted{background:#fbf1d8;color:#9a6a00;border:1px solid #e6cf94}
+  .s-denied{background:#fdecea;color:#9a2a1c;border:1px solid #f1c3bd}
   .pill{display:inline-block;font-size:11px;font-weight:700;background:var(--slate);border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:#41525a}
   .dh{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--pine2)}
   .mchip{display:inline-flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 12px;min-width:84px}
@@ -65,6 +67,7 @@
     <div class="brand"><img src="favicon.png" alt="" style="height:30px;width:30px;vertical-align:-8px;margin-right:9px;border-radius:7px">PARA<span>·</span>KEET Colorado <small>Regulated Natural Medicine — Prop 122 · 1 CCR 213-1</small></div>
     <nav class="app" id="nav">
       <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
+      <button data-view="review" onclick="go('review')">Review</button>
       <button data-view="licensing" onclick="go('licensing')">Licensing &amp; renewals</button>
       <button data-view="requirements" onclick="go('requirements')">Requirements</button>
       <button data-view="inventory" onclick="go('inventory')">Inventory &amp; custody</button>
@@ -73,7 +76,7 @@
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span style="font-size:11px;color:#e8c3bb;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Signed in as</span>
       <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#3a1a18;color:#fff">
-        <option value="regulator">Natural Medicine Division (DOR)</option>
+        <option value="regulator">Colorado Natural Medicine Division (Department of Revenue)</option>
         <option value="healing">Healing Center</option>
         <option value="facilitator">Facilitator</option>
         <option value="cultivator">Cultivation Facility</option>
@@ -87,7 +90,7 @@
 <a class="cbar" href="index.html">Colorado is <b>non-medical</b> (adults 21+, licensed facilitator, no diagnosis). Looking for the medical program? &nbsp;Open the <b>Policy Console</b> or the <b>New Mexico MPP Software</b> &rarr;</a>
 
 <div class="wrap" style="padding-top:20px"><div id="root"></div>
-<footer>Parakeet Colorado Software — Regulated Natural Medicine (prototype). Grounded in <b>Proposition 122 / the Natural Medicine Health Act</b>, <b>C.R.S. Title 44, Article 50</b>, Division rules <b>1 CCR 213-1</b>, and facilitator rules <b>4 CCR 755-1 (DORA)</b>. A <b>non-medical</b> program — no diagnosis or prescription. Not affiliated with or endorsed by the State of Colorado or DORA; not legal advice. Fees &amp; terms: verify against 1 CCR 213-1 Part 2. Data is stored only in your browser on this device.</footer>
+<footer>Parakeet Colorado Software — Regulated Natural Medicine (prototype). Grounded in <b>Proposition 122 / the Natural Medicine Health Act</b>, <b>C.R.S. Title 44, Article 50</b>, Division rules <b>1 CCR 213-1</b>, and facilitator rules <b>4 CCR 755-1</b> (Colorado Department of Regulatory Agencies). A <b>non-medical</b> program — no diagnosis or prescription. Not affiliated with or endorsed by the State of Colorado, its Department of Revenue, or its Department of Regulatory Agencies; not legal advice. Fees &amp; terms: verify against 1 CCR 213-1 Part 2. Data is stored only in your browser on this device.</footer>
 </div>
 
 <script>
@@ -98,9 +101,9 @@ function fmtDate(iso){ try{ var d=new Date(iso); return d.toLocaleDateString('en
 function mchip(v,k){ return '<span class="mchip"><b>'+v+'</b><span>'+k+'</span></span>'; }
 
 var CO_ROLES={
-  regulator:{name:'Natural Medicine Division (DOR)', ico:'🏛️', views:['dashboard','licensing','requirements','inventory'], goal:'License &amp; oversee healing centers, cultivation, products manufacturers and testing facilities (Dept. of Revenue), and promulgate requirements to licensees. Facilitators are licensed by DORA.'},
+  regulator:{name:'Colorado Natural Medicine Division', ico:'🏛️', views:['dashboard','review','licensing','requirements','inventory'], goal:'License and oversee healing centers, cultivation facilities, products manufacturers and testing facilities (Colorado Department of Revenue, Natural Medicine Division), and promulgate requirements to licensees. Facilitators are licensed by the Colorado Department of Regulatory Agencies.'},
   healing:{name:'Healing Center', ico:'🏡', views:['dashboard','licensing','requirements','inventory','access'], goal:'Provide supervised administration sessions (prep · administration · integration) to adults 21+, no diagnosis required.'},
-  facilitator:{name:'Facilitator', ico:'🧭', views:['dashboard','licensing','requirements','access'], goal:'Deliver preparation, administration and integration; licensed through DORA (4 CCR 755-1).'},
+  facilitator:{name:'Facilitator', ico:'🧭', views:['dashboard','licensing','requirements','access'], goal:'Deliver preparation, administration and integration; licensed through the Colorado Department of Regulatory Agencies (4 CCR 755-1).'},
   cultivator:{name:'Cultivation Facility', ico:'🍄', views:['dashboard','licensing','cultapply','requirements','inventory'], goal:'Cultivate natural medicine; track harvest batches and transfers through the regulated chain.'},
   manufacturer:{name:'Products Manufacturer', ico:'⚗️', views:['dashboard','licensing','requirements','inventory'], goal:'Convert source material into regulated products; record potency from the COA.'},
   lab:{name:'Testing Facility', ico:'🧪', views:['dashboard','licensing','requirements','inventory'], goal:'Potency &amp; contaminant testing; issue Certificates of Analysis.'},
@@ -108,12 +111,12 @@ var CO_ROLES={
 };
 var CO_LICENSES={
   healing:{type:'Healing Center license', cite:'C.R.S. 44-50-301 · 1 CCR 213-1'},
-  facilitator:{type:'Facilitator license (DORA)', cite:'4 CCR 755-1'},
+  facilitator:{type:'Facilitator license (Colorado Department of Regulatory Agencies)', cite:'4 CCR 755-1'},
   cultivator:{type:'Cultivation license', cite:'C.R.S. 44-50-30x · 1 CCR 213-1'},
   manufacturer:{type:'Products Manufacturer license', cite:'1 CCR 213-1'},
   lab:{type:'Testing Facility license', cite:'1 CCR 213-1'}
 };
-/* ---------- requirements / bulletins promulgated by NMD → licensees ---------- */
+/* ---------- requirements / bulletins promulgated by the Natural Medicine Division → licensees ---------- */
 var CO_DEFAULT_BULLETINS=[
   {id:'CO-HANDLER', aud:'all', title:'Handler License required to touch product', body:'Anyone who handles, transports or stores natural medicine — including facilitators moving product — needs a <b>Handler License</b>. This is a common compliance gap flagged by the Division.', cite:'1 CCR 213-1', at:'2026-05-01T00:00:00.000Z'},
   {id:'CO-ADV', aud:'all', title:'Advertising &amp; marketing restrictions', body:'No claims of safety/efficacy, no appeal to minors, required warnings, and audience-age gating. Keep copies of all advertising for the retention period.', cite:'1 CCR 213-1 (advertising)', at:'2026-05-15T00:00:00.000Z'},
@@ -127,8 +130,8 @@ function saveBul(a){ try{ localStorage.setItem('parakeet_co_bul_v1', JSON.string
 function loadAcks(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_acks_v1')||'{}'); }catch(e){ return {}; } }
 function saveAcks(o){ try{ localStorage.setItem('parakeet_co_acks_v1', JSON.stringify(o)); }catch(e){} }
 function ackBul(id){ var o=loadAcks(); o[id]=1; saveAcks(o); render(); }
-function publishBul(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';}; var t=g('cb_title'); if(!t.trim())return; var a=loadBul(); a.unshift({id:'NMD-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:g('cb_aud')||'all', title:esc(t), body:esc(g('cb_body')), cite:esc(g('cb_cite'))||'NMD bulletin', at:new Date().toISOString()}); saveBul(a); render(); }
-function publishSampleBul(){ var a=loadBul(); a.unshift({id:'NMD-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:'all', title:'Sample bulletin: updated transport-manifest fields (demo)', body:'Add GPS route and sealed-container ID to every transport manifest, effective next cycle.', cite:'1 CCR 213-1 (demo)', at:new Date().toISOString()}); saveBul(a); render(); }
+function publishBul(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';}; var t=g('cb_title'); if(!t.trim())return; var a=loadBul(); a.unshift({id:'CO-REQ-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:g('cb_aud')||'all', title:esc(t), body:esc(g('cb_body')), cite:esc(g('cb_cite'))||'Natural Medicine Division bulletin', at:new Date().toISOString()}); saveBul(a); render(); }
+function publishSampleBul(){ var a=loadBul(); a.unshift({id:'CO-REQ-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:'all', title:'Sample bulletin: updated transport-manifest fields (demo)', body:'Add GPS route and sealed-container ID to every transport manifest, effective next cycle.', cite:'1 CCR 213-1 (demo)', at:new Date().toISOString()}); saveBul(a); render(); }
 function resetBul(){ try{ localStorage.removeItem('parakeet_co_bul_v1'); localStorage.removeItem('parakeet_co_acks_v1'); }catch(e){} render(); }
 function bulForRole(role){ var want=(role==='regulator')?null:[ 'all', role ]; var all=loadBul(); return want?all.filter(function(b){return want.indexOf(b.aud)>=0;}):all; }
 
@@ -136,7 +139,7 @@ function bulForRole(role){ var want=(role==='regulator')?null:[ 'all', role ]; v
 function defaultLicenses(){
   return [
     {id:'CO-HC-0001', type:'Healing Center license', holder:'Front Range Healing Collective', issued:'2026-05-02', status:'approved'},
-    {id:'CO-FAC-0007', type:'Facilitator license', holder:'J. Rivera (DORA)', issued:'2026-04-18', status:'approved'},
+    {id:'CO-FAC-0007', type:'Facilitator license', holder:'J. Rivera', issued:'2026-04-18', status:'approved'},
     {id:'CO-CUL-0003', type:'Cultivation license', holder:'High Country Mycology', issued:'2026-03-30', status:'approved'}
   ];
 }
@@ -164,14 +167,16 @@ function coComplianceMonitor(){
   var lic=loadLic();
   var dueRenew=lic.filter(function(l){return renewInfo(l).state!=='active';});
   var bl=loadBul(), acks=loadAcks(); var unacked=bl.filter(function(b){return !acks[b.id];}).length;
+  var pend=(typeof loadCoApps==='function'?loadCoApps().filter(function(a){return a.status==='pending';}).length:0);
   var rows=[
+    {n:pend, t:'Application(s) awaiting review', col:'#9a2a1c', v:'review'},
     {n:dueRenew.length, t:'Licence renewal(s) in the 60/30-day window or lapsed', col:'#9a6a00'},
     {n:unacked, t:'Requirement bulletin(s) awaiting licensee acknowledgment', col:'#2b5f86'}
   ];
-  var total=dueRenew.length;
+  var total=dueRenew.length+pend;
   var h='<div class="card" style="border-left:4px solid #5a2d2a;background:#fbf1ef;border-color:#e6c3ba"><h3 class="dh" style="color:#5a2d2a">🛡 Compliance monitor — action queue</h3>'+
     '<div class="appmeta" style="margin-bottom:6px">Live oversight across Colorado licensees — '+(total?('<b>'+total+'</b> item(s) need attention'):'nothing time-critical right now')+'.</div>';
-  h+=rows.map(function(r){ var urgent=r.n>0; return '<div class="approw"><div><b style="font-size:16px;color:'+(urgent?r.col:'#8a949a')+'">'+r.n+'</b> &middot; '+r.t+'</div>'+(urgent?'<span class="pill">review</span>':'<span class="status s-approved">clear</span>')+'</div>'; }).join('');
+  h+=rows.map(function(r){ var urgent=r.n>0; var act=urgent?(r.v?'<button class="btn sm" onclick="go(\''+r.v+'\')">Open</button>':'<span class="pill">review</span>'):'<span class="status s-approved">clear</span>'; return '<div class="approw"><div><b style="font-size:16px;color:'+(urgent?r.col:'#8a949a')+'">'+r.n+'</b> &middot; '+r.t+'</div>'+act+'</div>'; }).join('');
   h+='<div class="note" style="margin:8px 0 4px"><b>Licensee compliance snapshot</b></div>';
   h+=lic.map(function(l){ var r=renewInfo(l); var st=r.state==='active'?'<span class="status s-approved">Active</span>':'<span class="status s-submitted">Renewal '+r.state+'</span>'; return '<div class="approw"><div><b>'+esc(l.type)+'</b> <span class="pill">'+esc(l.holder)+'</span><div class="appmeta">'+l.id+' · expires '+fmtDate(r.exp.toISOString())+'</div></div>'+st+'</div>'; }).join('');
   h+='</div>';
@@ -185,14 +190,14 @@ function coDirectoryCard(){
     {n:'Psychedelic Growth', c:'Boulder', note:'Among Boulder&rsquo;s first healing centers (opened late 2025)'}
   ];
   var h='<div class="card"><h3 class="dh">🔎 Licensed healing centers &amp; facilitators — verify before you book</h3>'+
-    '<div class="kv"><b>Two state agencies license the program.</b> The <b>Dept. of Revenue — Natural Medicine Division</b> licenses <b>healing centers, cultivation, manufacturing &amp; testing</b>. <b>DORA</b> (Dept. of Regulatory Agencies) licenses <b>facilitators</b>. Confirm a current licence before booking.</div>'+
+    '<div class="kv"><b>Two state agencies license the program.</b> The <b>Colorado Department of Revenue — Natural Medicine Division</b> licenses <b>healing centers, cultivation, manufacturing &amp; testing</b>. the <b>Colorado Department of Regulatory Agencies</b> licenses <b>facilitators</b>. Confirm a current licence before booking.</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">'+
-      '<a class="btn sm" href="https://dnm.colorado.gov/accessing-regulated-natural-medicine" target="_blank" rel="noopener">Healing centers — DOR Natural Medicine Division ↗</a>'+
-      '<a class="btn sm" href="https://dpo.colorado.gov/NaturalMedicine/LicensingServices" target="_blank" rel="noopener">Facilitators — DORA licensee search ↗</a>'+
+      '<a class="btn sm" href="https://dnm.colorado.gov/accessing-regulated-natural-medicine" target="_blank" rel="noopener">Healing centers — Colorado Natural Medicine Division ↗</a>'+
+      '<a class="btn sm" href="https://dpo.colorado.gov/NaturalMedicine/LicensingServices" target="_blank" rel="noopener">Facilitators — Colorado Department of Regulatory Agencies search ↗</a>'+
     '</div>'+
     '<div class="appmeta" style="margin-bottom:4px"><b>Verified healing centers (examples — the official lookup has the complete, current list):</b></div>'+
     CENTERS.map(function(x){return '<div class="approw"><div><b>'+esc(x.n)+'</b> <span class="pill">'+esc(x.c)+'</span><div class="appmeta">'+x.note+'</div></div><span class="status s-approved">Licensed</span></div>';}).join('')+
-    '<div class="note">By early 2026 Colorado had roughly <b>34 licensed healing centers</b> (about 9 standard + 25 micro) with more pending — figure from third-party reporting (Feb 2026); the <b>authoritative, current</b> list is the state lookup above, and facilitators (hundreds) are in the DORA search. Sources: CPR, Boulder Reporting Lab, Axios; dnm.colorado.gov.</div></div>';
+    '<div class="note">By early 2026 Colorado had roughly <b>34 licensed healing centers</b> (about 9 standard + 25 micro) with more pending — figure from third-party reporting (Feb 2026); the <b>authoritative, current</b> list is the state lookup above, and facilitators (hundreds) are in the Colorado Department of Regulatory Agencies search. Sources: CPR, Boulder Reporting Lab, Axios; dnm.colorado.gov.</div></div>';
   return h;
 }
 function renderDashboard(){
@@ -225,7 +230,7 @@ function licensingView(){
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>🍄 Apply for a Cultivation license</b><div class="appmeta">Quick application — basics, required acknowledgements &amp; a short regs check.</div></div><button class="btn primary" onclick="openCultWizard()">Start application</button></div></div>';
   h+='<div class="card"><h3 class="dh">License types (C.R.S. Title 44, Art. 50 · 1 CCR 213-1)</h3>'+
     [['Healing Center','Licensed facility where a Facilitator provides &amp; supervises Natural Medicine Services for a Participant (incl. micro-Healing Center ≤ 750 mg Total Psilocin)','C.R.S. 44-50 · 1 CCR 213-1'],
-     ['Facilitator','Licensed by DORA to provide &amp; supervise Natural Medicine Services','4 CCR 755-1'],
+     ['Facilitator','Licensed by the Colorado Department of Regulatory Agencies to provide &amp; supervise Natural Medicine Services','4 CCR 755-1'],
      ['Natural Medicine Cultivation Facility','Cultivates natural medicine — micro or standard tier','1 CCR 213-1'],
      ['Natural Medicine Products Manufacturer','Makes Regulated Natural Medicine Products','1 CCR 213-1'],
      ['Natural Medicine Testing Facility','Tests potency (Total Psilocin) &amp; contaminants; issues COAs','1 CCR 213-1'],
@@ -326,7 +331,22 @@ function cwQuiz(i,v){ CW.quiz[i]=v; render(); }
 function cwAllAck(){ return CW_ACKS.every(function(_,i){return CW.acks[i];}); }
 function cwQuizScore(){ var c=0; CW_QUIZ.forEach(function(q,i){ if(CW.quiz[i]===q.correct) c++; }); return c; }
 function cwReset(){ CW={step:0,data:{},acks:{},quiz:{},done:false}; render(); }
-function cwSubmit(){ var name=CW.data.name||'(applicant)'; var a=loadLic(); a.unshift({id:'CO-CUL-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:'Cultivation license', holder:name, issued:new Date().toISOString().slice(0,10), status:'approved', viaWizard:true}); saveLic(a); CW.done=true; render(); window.scrollTo(0,0); }
+function loadCoApps(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_apps_v1')||'[]'); }catch(e){ return []; } }
+function saveCoApps(a){ try{ localStorage.setItem('parakeet_co_apps_v1', JSON.stringify(a)); }catch(e){} }
+function cwSubmit(){ var d=CW.data; var a=loadCoApps(); a.unshift({id:'CO-APP-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:'Natural Medicine Cultivation Facility', holder:d.name||'(applicant)', email:d.email||'', county:d.county||'', site:d.site||'', status:'pending', at:new Date().toISOString()}); saveCoApps(a); CW.done=true; render(); window.scrollTo(0,0); }
+function approveCoApp(id){ var apps=loadCoApps(), app=null; apps.forEach(function(a){ if(a.id===id){ a.status='approved'; app=a; } }); saveCoApps(apps); if(app){ var lic=loadLic(); lic.unshift({id:'CO-CUL-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:app.type, holder:app.holder, issued:new Date().toISOString().slice(0,10), status:'approved'}); saveLic(lic); } render(); }
+function denyCoApp(id){ var apps=loadCoApps(); apps.forEach(function(a){ if(a.id===id) a.status='denied'; }); saveCoApps(apps); render(); }
+function resetCoApps(){ try{ localStorage.removeItem('parakeet_co_apps_v1'); }catch(e){} render(); }
+function coStatusChip(s){ var m={approved:['var(--greenbg)','var(--green)','#bfe3cc'],denied:['#fdecea','#9a2a1c','#f1c3bd'],pending:['#fbf1d8','#9a6a00','#e6cf94']}; var c=m[s]||m.pending; return '<span class="status" style="background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+'">'+s+'</span>'; }
+function coReviewView(){
+  var apps=loadCoApps(), pending=apps.filter(function(a){return a.status==='pending';}), decided=apps.filter(function(a){return a.status!=='pending';});
+  var h='<h1>Application review</h1><div class="sub">Natural Medicine Division queue — review submitted applications and approve into a license. Prototype; local data.</div>';
+  h+='<div class="card" style="margin-bottom:14px"><div style="display:flex;gap:18px;flex-wrap:wrap"><div><b style="font-size:22px;color:var(--pine)">'+pending.length+'</b><div class="appmeta">pending</div></div><div><b style="font-size:22px;color:var(--green)">'+decided.filter(function(a){return a.status==='approved';}).length+'</b><div class="appmeta">approved</div></div><div><b style="font-size:22px;color:var(--red)">'+decided.filter(function(a){return a.status==='denied';}).length+'</b><div class="appmeta">denied</div></div></div></div>';
+  if(!pending.length) h+='<div class="card"><div class="appmeta">No applications awaiting review. Switch to a licensee role and submit one from <a href="#" onclick="openCultWizard();return false;">the cultivator application</a> to see it arrive here.</div></div>';
+  h+=pending.map(function(a){ return '<div class="card"><div><b>'+esc(a.holder)+'</b> <span class="pill">'+esc(a.type)+'</span><div class="appmeta">'+a.id+' · '+esc(a.county)+(a.site?' · '+esc(a.site):'')+(a.email?' · '+esc(a.email):'')+' · submitted '+fmtDate(a.at)+'</div></div><div class="appmeta" style="color:#1c7a4a;margin-top:4px">✓ Acknowledgements attested &amp; regs check passed via the application wizard</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm" style="background:var(--green);color:#fff;border-color:var(--green)" onclick="approveCoApp(\''+a.id+'\')">Approve → license</button><button class="btn sm" style="color:var(--red);border-color:#f1c3bd" onclick="denyCoApp(\''+a.id+'\')">Deny</button></div></div>'; }).join('');
+  if(decided.length){ h+='<div class="card"><h3 class="dh">Decided</h3>'+decided.map(function(a){return '<div class="approw"><div><b>'+esc(a.holder)+'</b> <span class="pill">'+esc(a.type)+'</span><div class="appmeta">'+a.id+'</div></div>'+coStatusChip(a.status)+'</div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetCoApps();return false;">reset applications</a></div></div>'; }
+  return h;
+}
 function cultWizard(){
   if(CW.done){ return '<h1>✓ Cultivator application submitted</h1><div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div class="kv"><b>Thank you.</b> Your cultivation application is recorded and now appears in <a href="#" onclick="go(\'licensing\');return false;">Licensing &amp; renewals</a> with annual-renewal tracking. In production it routes to the Natural Medicine Division for review.</div></div><div class="actions"><a href="#" onclick="go(\'licensing\');return false;" class="slink">← Licensing &amp; renewals</a><button class="btn" onclick="cwReset()">Start another</button></div>'; }
   var steps=['Basics','Acknowledgements','Regs check','Review'];
@@ -364,6 +384,7 @@ function render(){
   else if(VIEW==='requirements') r.innerHTML=b+requirementsView();
   else if(VIEW==='inventory') r.innerHTML=b+inventoryView();
   else if(VIEW==='cultapply') r.innerHTML=b+cultWizard();
+  else if(VIEW==='review') r.innerHTML=b+coReviewView();
   else if(VIEW==='access') r.innerHTML=b+accessView();
 }
 render();

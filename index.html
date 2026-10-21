@@ -285,7 +285,7 @@
   <div class="card full" id="boardCard"><div id="committees"></div><div class="note" id="boardNote"></div></div>
 
   <div class="sectlabel">Upcoming events &mdash; calendar</div>
-  <div class="card full"><div id="eventsList"></div><div class="note">Committee meetings (MS Teams), regulatory hearings, and program milestones. Times as posted; confirm with DOH / Colorado NMD.</div></div>
+  <div class="card full"><div id="eventsList"></div><div class="note">Committee meetings (MS Teams), regulatory hearings, and program milestones. Times as posted; confirm with DOH / Colorado Natural Medicine Division.</div></div>
 
   <div class="sectlabel" id="daiLabel">Dose-individualization decision aid &mdash; clinical decision support</div>
   <div class="card full" id="daiCard">
@@ -403,7 +403,7 @@
       <tr><td>Product Manufacturer Inventory Tracking</td><td>Manufacturer lot &amp; product inventory form</td><td><span class="coretag">Built</span></td></tr>
       <tr><td>Waste Tracking</td><td>Waste disposal log (quantity, method, witness)</td><td><span class="coretag">Built</span></td></tr>
       </tbody></table></div>
-      <div class="note">Source: Colorado NMD <a href="https://nmd.colorado.gov/compliance-tools" target="_blank" rel="noopener">Compliance Tools</a> (1 CCR 213-1). <b>The design lesson for New Mexico:</b> specify the required fields, but deliver them as <b>structured forms</b>, not spreadsheets &mdash; fewer errors, built-in chain-of-custody, and automatic de-identified §9 reporting.</div>
+      <div class="note">Source: Colorado Natural Medicine Division <a href="https://nmd.colorado.gov/compliance-tools" target="_blank" rel="noopener">Compliance Tools</a> (1 CCR 213-1). <b>The design lesson for New Mexico:</b> specify the required fields, but deliver them as <b>structured forms</b>, not spreadsheets &mdash; fewer errors, built-in chain-of-custody, and automatic de-identified §9 reporting.</div>
     </div>
     <div class="card full"><h3>Colorado compliance tips &mdash; a reference library New Mexico can learn from</h3>
       <div class="note" style="font-size:13px;color:var(--ink);margin:0 0 8px">Colorado&rsquo;s Natural Medicine Division publishes plain-language <b>compliance tips &amp; bulletins</b> that flag the real-world trouble spots &mdash; NM can design around them from day one, building the guidance <b>into</b> the software:</div>
@@ -928,7 +928,7 @@ function render(){
   var upEv=EVENTS.filter(function(e){return e.d>=todayStr;}).sort(function(a,b){return a.d<b.d?-1:1;});
   var pastEv=EVENTS.filter(function(e){return e.d<todayStr;}).sort(function(a,b){return a.d<b.d?1:-1;});
   document.getElementById("eventsList").innerHTML =
-    (upEv.length? ('<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#17423f;margin:2px 0 6px">Upcoming</div>'+upEv.map(function(e){return evRow(e,false);}).join("")) : '<div class="note">No upcoming dates currently posted — confirm with DOH / Colorado NMD.</div>')+
+    (upEv.length? ('<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#17423f;margin:2px 0 6px">Upcoming</div>'+upEv.map(function(e){return evRow(e,false);}).join("")) : '<div class="note">No upcoming dates currently posted — confirm with DOH / Colorado Natural Medicine Division.</div>')+
     (pastEv.length? ('<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a949a;margin:14px 0 6px;border-top:1px solid var(--line);padding-top:8px">Recently held</div>'+pastEv.map(function(e){return evRow(e,true);}).join("")) : '');
 
   document.getElementById("regBlock").innerHTML =
