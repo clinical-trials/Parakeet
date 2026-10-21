@@ -227,7 +227,7 @@ function renderDashboard(){
 function renewAlertCardNote(){ return ''; }
 function licensingView(){
   var h='<h1>Licensing &amp; renewals</h1><div class="sub">Colorado natural-medicine license types, with annual renewal tracking. Fees &amp; exact terms: verify against <b>1 CCR 213-1 Part 2</b>.</div>';
-  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>🍄 Apply for a Cultivation license</b><div class="appmeta">Quick application — basics, required acknowledgements &amp; a short regs check.</div></div><button class="btn primary" onclick="openCultWizard()">Start application</button></div></div>';
+  h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>📝 Apply for a Colorado license</b><div class="appmeta">Any license type — healing center, cultivation, products manufacturer, testing facility, or facilitator. Basics, rule-referenced acknowledgements &amp; a short regs check.</div></div><button class="btn primary" onclick="openCultWizard()">Start application</button></div></div>';
   h+='<div class="card"><h3 class="dh">License types (C.R.S. Title 44, Art. 50 · 1 CCR 213-1)</h3>'+
     [['Healing Center','Licensed facility where a Facilitator provides &amp; supervises Natural Medicine Services for a Participant (incl. micro-Healing Center ≤ 750 mg Total Psilocin)','C.R.S. 44-50 · 1 CCR 213-1'],
      ['Facilitator','Licensed by the Colorado Department of Regulatory Agencies to provide &amp; supervise Natural Medicine Services','4 CCR 755-1'],
@@ -306,34 +306,74 @@ function accessCard(){
 function accessView(){ var h='<h1>Participant access</h1><div class="sub">Plain-language guide for adults 21+ seeking natural-medicine services in Colorado.</div>'; return h+accessCard()+coDirectoryCard(); }
 
 /* ---------- cultivator application wizard (form + acknowledgements + regs quiz) ---------- */
-var CW={step:0,data:{},acks:{},quiz:{},done:false};
-var CW_ACKS=[
-  'A <b>Handler License</b> is required for anyone who handles, transports or stores natural medicine.',
-  'I will keep a <b>written security plan</b> with locked, limited-access storage and monitored alarm / video.',
-  'I will maintain an <b>unbroken chain of custody</b>: harvest batch → lot → package IDs.',
-  'No product transfers until it <b>passes required testing</b> (a Certificate of Analysis).',
-  'Waste will be <b>rendered unusable and logged</b> before disposal.',
-  'Inventory will be recorded on the <b>Division templates</b> and reconciled on a set schedule.',
-  'Advertising will carry <b>no safety/efficacy claims, no appeal to minors</b>, and required warnings.',
-  'I will <b>renew annually</b>, filing within the 60/30-day window to avoid a lapse.'
-];
+var CW={step:0,type:'Natural Medicine Cultivation Facility',data:{},acks:{},open:{},quiz:{},done:false};
+var CO_WIZ={
+ 'Healing Center':{ico:'🏡', cite:'C.R.S. 44-50 · 1 CCR 213-1', person:false, acks:[
+   {t:'A Facilitator must <b>provide and supervise</b> Natural Medicine Services for each Participant.', c:'1 CCR 213-1', r:'Only a licensed Facilitator may deliver and supervise the administration session with a Participant.'},
+   {t:'Obtain Regulated Natural Medicine only from a licensed <b>Cultivation Facility, Products Manufacturer, or another Healing Center</b>.', c:'1 CCR 213-1 §8005', r:'License-privilege rules limit where a Healing Center may source product — never from unlicensed sources.'},
+   {t:'A <b>micro-Healing Center</b> stores no more than <b>750 mg Total Psilocin</b> on site.', c:'1 CCR 213-1 §1025', r:'The micro tier is defined by this on-site storage cap on Total Psilocin.'},
+   {t:'Maintain a <b>written security plan</b> with limited-access storage and monitored alarm / video.', c:'1 CCR 213-1', r:'Premises-security provisions require controlled access and monitoring of storage points.'},
+   {t:'Report qualifying <b>adverse events</b> to the Division; keep an incident log.', c:'Advisory Bulletin', r:'Adverse-event reporting follows the Natural Medicine Division bulletin plus your internal log.'},
+   {t:'<b>Advertising</b> carries no safety/efficacy claims, no appeal to minors, and required warnings.', c:'1 CCR 213-1', r:'Advertising rules restrict claims, protect minors, and require warnings.'},
+   {t:'<b>Renew annually</b>, filing within the 60/30-day window.', c:'C.R.S. 44-50', r:'Licenses are annual; the renewal window opens at 60 days and tightens inside 30.'}
+ ]},
+ 'Natural Medicine Cultivation Facility':{ico:'🍄', cite:'1 CCR 213-1', person:false, acks:[
+   {t:'A <b>Handler License</b> is required for anyone who handles, transports or stores natural medicine.', c:'1 CCR 213-1', r:'Each individual who touches product must be individually licensed as a Handler.'},
+   {t:'Indicate your <b>cultivation tier</b> — micro or standard — on the application.', c:'1 CCR 213-1 §2125', r:'Initial application requirements include selecting the micro or standard cultivation tier.'},
+   {t:'Maintain a <b>written security plan</b> with locked, limited-access storage and monitored alarm / video.', c:'1 CCR 213-1', r:'Premises-security provisions require controlled access and monitoring.'},
+   {t:'Keep an <b>unbroken chain of custody</b>: harvest batch → lot → package IDs.', c:'1 CCR 213-1', r:'Inventory/tracking rules require continuous custody records.'},
+   {t:'<b>No transfer</b> until product passes required testing (a Certificate of Analysis).', c:'1 CCR 213-1', r:'Testing must occur before product moves to the next licensee.'},
+   {t:'<b>Waste</b> rendered unusable and logged before disposal.', c:'1 CCR 213-1', r:'Waste must be made unusable and documented before disposal.'},
+   {t:'<b>Advertising</b> carries no safety/efficacy claims, no appeal to minors, required warnings.', c:'1 CCR 213-1', r:'Advertising rules restrict claims and protect minors.'},
+   {t:'<b>Renew annually</b>, within the 60/30-day window.', c:'C.R.S. 44-50', r:'Annual renewal with a 60/30-day window.'}
+ ]},
+ 'Natural Medicine Products Manufacturer':{ico:'⚗️', cite:'1 CCR 213-1', person:false, acks:[
+   {t:'Make only <b>Regulated Natural Medicine Products</b> from licensed source material.', c:'1 CCR 213-1', r:'Products must be made from licensed, tracked source material.'},
+   {t:'<b>Total Psilocin</b> potency comes from the Testing Facility COA and is labeled accurately.', c:'1 CCR 213-1', r:'The potency on the label must match the Certificate of Analysis.'},
+   {t:'Keep an <b>unbroken chain of custody</b>: source lot → product lot → package IDs.', c:'1 CCR 213-1', r:'Continuous custody from source material to finished product.'},
+   {t:'A <b>Handler License</b> is required for anyone who handles product.', c:'1 CCR 213-1', r:'Handlers must be individually licensed.'},
+   {t:'<b>Written security plan</b>; waste rendered unusable and logged.', c:'1 CCR 213-1', r:'Security and waste provisions apply.'},
+   {t:'<b>Advertising</b> restrictions apply (no claims, no appeal to minors, warnings).', c:'1 CCR 213-1', r:'Advertising rules restrict claims and protect minors.'},
+   {t:'<b>Renew annually</b>, within the 60/30-day window.', c:'C.R.S. 44-50', r:'Annual renewal.'}
+ ]},
+ 'Natural Medicine Testing Facility':{ico:'🧪', cite:'1 CCR 213-1', person:false, acks:[
+   {t:'Maintain the <b>validated panel</b>: Total Psilocin potency, microbial, heavy metals, pesticides.', c:'1 CCR 213-1', r:'Run the validated panel on each batch before it may be released.'},
+   {t:'<b>No Financial Interest</b> in a Healing Center, Cultivation Facility, or Products Manufacturer.', c:'1 CCR 213-1', r:'A Testing Facility owner may not hold a financial interest in the businesses it tests.'},
+   {t:'Established <b>action limits</b> and an out-of-spec / recall procedure.', c:'1 CCR 213-1', r:'Define the action limits and what happens when a result exceeds them.'},
+   {t:'Standardized <b>COA</b> format and retention; secure sample &amp; data handling.', c:'1 CCR 213-1', r:'Certificate-of-Analysis format, retention, and data security.'},
+   {t:'Instrument <b>calibration</b> and QA/QC records.', c:'1 CCR 213-1', r:'Maintain calibration and quality-control records.'},
+   {t:'<b>Renew annually</b>, within the 60/30-day window.', c:'C.R.S. 44-50', r:'Annual renewal.'}
+ ]},
+ 'Facilitator':{ico:'🧭', cite:'4 CCR 755-1', person:true, acks:[
+   {t:'Licensed by the <b>Colorado Department of Regulatory Agencies</b> to provide and supervise Natural Medicine Services.', c:'4 CCR 755-1', r:'Facilitators are licensed by the Department of Regulatory Agencies, not the Natural Medicine Division.'},
+   {t:'Hold a <b>Handler License</b> if handling product within a business.', c:'1 CCR 213-1', r:'A facilitator who handles product also needs a Handler License from the Natural Medicine Division.'},
+   {t:'Serve <b>adults 21+</b>; no diagnosis — deliver preparation, administration &amp; integration.', c:'C.R.S. 44-50', r:'Access is for adults 21 and older with no diagnosis requirement.'},
+   {t:'Work <b>non-directively</b>; stay present through the administration session.', c:'4 CCR 755-1', r:'Facilitator scope of practice is supportive and non-directive.'},
+   {t:'Report <b>adverse events</b>; complete required <b>continuing education</b>.', c:'4 CCR 755-1', r:'Reporting plus continuing education is required to renew.'},
+   {t:'<b>Renew annually</b>, within the 60/30-day window.', c:'4 CCR 755-1', r:'Annual renewal.'}
+ ]}
+};
 var CW_QUIZ=[
   {q:'Who may handle or transport natural-medicine product?', a:['Any adult 21+','Only Handler-License holders','Anyone with a healing-center booking'], correct:1},
-  {q:'Before product can transfer to the next licensee, it must…', a:['Be advertised','Pass required testing (a COA)','Be at least 30 days old'], correct:1},
-  {q:'Colorado’s regulated access is open to…', a:['Patients with a diagnosis','Any adult 21+, no diagnosis','Colorado residents only'], correct:1},
-  {q:'A cultivation license renews…', a:['Every 5 years','Annually, within the 60/30-day window','Only if the Division asks'], correct:1}
+  {q:'Before product can transfer to the next licensee, it must…', a:['Be advertised','Pass required testing (a Certificate of Analysis)','Be at least 30 days old'], correct:1},
+  {q:'Colorado’s regulated access is open to…', a:['Participants with a diagnosis','Any adult 21+, no diagnosis','Colorado residents only'], correct:1},
+  {q:'A Colorado natural-medicine license renews…', a:['Every 5 years','Annually, within the 60/30-day window','Only if the Division asks'], correct:1}
 ];
-function openCultWizard(){ CW={step:0,data:{},acks:{},quiz:{},done:false}; go('cultapply'); }
+function ruleLink(c){ if(c.indexOf('755-1')>=0) return 'https://dpo.colorado.gov/NaturalMedicine/LicensingServices'; if(c.indexOf('Bulletin')>=0) return 'https://dnm.colorado.gov/'; return 'refs/1-CCR-213-1.pdf'; }
+function cwAcksArr(){ return (CO_WIZ[CW.type]||CO_WIZ['Natural Medicine Cultivation Facility']).acks; }
+function openCultWizard(type){ CW={step:0,type:type||'Natural Medicine Cultivation Facility',data:{},acks:{},open:{},quiz:{},done:false}; go('cultapply'); }
+function cwSetType(v){ CW.type=v; CW.acks={}; CW.open={}; render(); }
 function cwGo(s){ CW.step=s; render(); window.scrollTo(0,0); }
 function cwSave0(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';}; CW.data.name=g('cw_name'); CW.data.email=g('cw_email'); CW.data.county=g('cw_county'); CW.data.site=g('cw_site'); }
 function cwAck(i,v){ CW.acks[i]=v; render(); }
+function cwTogAck(i){ CW.open[i]=!CW.open[i]; render(); }
 function cwQuiz(i,v){ CW.quiz[i]=v; render(); }
-function cwAllAck(){ return CW_ACKS.every(function(_,i){return CW.acks[i];}); }
+function cwAllAck(){ return cwAcksArr().every(function(_,i){return CW.acks[i];}); }
 function cwQuizScore(){ var c=0; CW_QUIZ.forEach(function(q,i){ if(CW.quiz[i]===q.correct) c++; }); return c; }
-function cwReset(){ CW={step:0,data:{},acks:{},quiz:{},done:false}; render(); }
+function cwReset(){ openCultWizard(CW.type); }
 function loadCoApps(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_apps_v1')||'[]'); }catch(e){ return []; } }
 function saveCoApps(a){ try{ localStorage.setItem('parakeet_co_apps_v1', JSON.stringify(a)); }catch(e){} }
-function cwSubmit(){ var d=CW.data; var a=loadCoApps(); a.unshift({id:'CO-APP-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:'Natural Medicine Cultivation Facility', holder:d.name||'(applicant)', email:d.email||'', county:d.county||'', site:d.site||'', status:'pending', at:new Date().toISOString()}); saveCoApps(a); CW.done=true; render(); window.scrollTo(0,0); }
+function cwSubmit(){ var d=CW.data; var a=loadCoApps(); a.unshift({id:'CO-APP-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:CW.type, holder:d.name||'(applicant)', email:d.email||'', county:d.county||'', site:d.site||'', status:'pending', at:new Date().toISOString()}); saveCoApps(a); CW.done=true; render(); window.scrollTo(0,0); }
 function approveCoApp(id){ var apps=loadCoApps(), app=null; apps.forEach(function(a){ if(a.id===id){ a.status='approved'; app=a; } }); saveCoApps(apps); if(app){ var lic=loadLic(); lic.unshift({id:'CO-CUL-'+Math.random().toString(36).slice(2,5).toUpperCase(), type:app.type, holder:app.holder, issued:new Date().toISOString().slice(0,10), status:'approved'}); saveLic(lic); } render(); }
 function denyCoApp(id){ var apps=loadCoApps(); apps.forEach(function(a){ if(a.id===id) a.status='denied'; }); saveCoApps(apps); render(); }
 function resetCoApps(){ try{ localStorage.removeItem('parakeet_co_apps_v1'); }catch(e){} render(); }
@@ -348,27 +388,33 @@ function coReviewView(){
   return h;
 }
 function cultWizard(){
-  if(CW.done){ return '<h1>✓ Cultivator application submitted</h1><div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div class="kv"><b>Thank you.</b> Your cultivation application is recorded and now appears in <a href="#" onclick="go(\'licensing\');return false;">Licensing &amp; renewals</a> with annual-renewal tracking. In production it routes to the Natural Medicine Division for review.</div></div><div class="actions"><a href="#" onclick="go(\'licensing\');return false;" class="slink">← Licensing &amp; renewals</a><button class="btn" onclick="cwReset()">Start another</button></div>'; }
-  var steps=['Basics','Acknowledgements','Regs check','Review'];
+  var cfg=CO_WIZ[CW.type]||CO_WIZ['Natural Medicine Cultivation Facility'];
+  var acks=cfg.acks;
+  if(CW.done){ return '<h1>✓ Application submitted</h1><div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div class="kv"><b>Thank you.</b> Your <b>'+esc(CW.type)+'</b> application is recorded and now awaits review by the Colorado Natural Medicine Division (switch to the regulator role → <b>Review</b> to act on it). Once approved it appears in <a href="#" onclick="go(\'licensing\');return false;">Licensing &amp; renewals</a> with annual-renewal tracking.</div></div><div class="actions"><a href="#" onclick="go(\'licensing\');return false;" class="slink">← Licensing &amp; renewals</a><button class="btn" onclick="cwReset()">Start another</button></div>'; }
+  var steps=['License type','Basics','Acknowledgements','Regs check','Review'];
   var chips='<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px">'+steps.map(function(s,i){return '<span class="pill" style="'+(i===CW.step?'background:#5a2d2a;color:#fff;border-color:#5a2d2a':(i<CW.step?'background:#e4f2ea;color:#1c7a4a;border-color:#bfe3cc':''))+'">'+(i<CW.step?'✓ ':'')+s+'</span>';}).join('')+'</div>';
-  var h='<h1>🍄 Cultivator application</h1><div class="sub">Quick application for a Colorado <b>Cultivation license</b> (1 CCR 213-1) — basics, the acknowledgements the application requires, and a short regs check so you know the rules before you grow.</div>'+chips;
+  var h='<h1>'+cfg.ico+' '+esc(CW.type)+' application</h1><div class="sub">Colorado license application (<b>'+cfg.cite+'</b>) — pick the license, give the basics, attest to each acknowledgement (every one links to the rule), then pass a short regs check.</div>'+chips;
   if(CW.step===0){
-    h+='<div class="card"><h3 class="dh">Business basics</h3>'+
-      '<div class="field"><label>Legal business name</label><input id="cw_name" value="'+esc(CW.data.name||'')+'" placeholder="e.g. High Country Mycology LLC"></div>'+
-      '<div class="grid"><div class="field"><label>Contact email</label><input id="cw_email" value="'+esc(CW.data.email||'')+'" placeholder="ops@example.com"></div><div class="field"><label>County</label><input id="cw_county" value="'+esc(CW.data.county||'')+'" placeholder="Boulder"></div></div>'+
-      '<div class="field"><label>Cultivation site address</label><input id="cw_site" value="'+esc(CW.data.site||'')+'" placeholder="Street, city, ZIP"></div>'+
-      '<div class="actions"><a href="#" onclick="go(\'licensing\');return false;" class="slink">← Cancel</a><button class="btn primary" onclick="cwSave0();cwGo(1)">Next: acknowledgements →</button></div></div>';
+    h+='<div class="card"><h3 class="dh">Which license are you applying for?</h3><div class="field"><label>License type</label><select onchange="cwSetType(this.value)">'+Object.keys(CO_WIZ).map(function(k){return '<option value="'+esc(k)+'" '+(k===CW.type?'selected':'')+'>'+esc(k)+'</option>';}).join('')+'</select></div><div class="note">Governing rule: <b>'+cfg.cite+'</b>. '+(cfg.person?'Facilitators are licensed by the Colorado Department of Regulatory Agencies.':'Business licenses are issued by the Colorado Department of Revenue, Natural Medicine Division.')+'</div><div class="actions"><a href="#" onclick="go(\'licensing\');return false;" class="slink">← Cancel</a><button class="btn primary" onclick="cwGo(1)">Next: basics →</button></div></div>';
   } else if(CW.step===1){
-    h+='<div class="card"><h3 class="dh">Required acknowledgements</h3><div class="appmeta" style="margin-bottom:6px">The cultivation application requires you to attest to each obligation — check all to continue.</div>'+
-      CW_ACKS.map(function(t,i){return '<label style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid #eef0f1"><input type="checkbox" '+(CW.acks[i]?'checked':'')+' onchange="cwAck('+i+',this.checked)" style="margin-top:3px"><span>'+t+'</span></label>';}).join('')+
-      '<div class="actions"><button class="btn" onclick="cwGo(0)">← Back</button><button class="btn primary" '+(cwAllAck()?'':'disabled')+' onclick="cwGo(2)">'+(cwAllAck()?'Next: regs check →':'Check all to continue')+'</button></div></div>';
+    h+='<div class="card"><h3 class="dh">'+(cfg.person?'Applicant':'Business')+' basics</h3>'+
+      '<div class="field"><label>'+(cfg.person?'Full legal name':'Legal business name')+'</label><input id="cw_name" value="'+esc(CW.data.name||'')+'" placeholder="'+(cfg.person?'First Last':'e.g. High Country Mycology LLC')+'"></div>'+
+      '<div class="grid"><div class="field"><label>Contact email</label><input id="cw_email" value="'+esc(CW.data.email||'')+'" placeholder="you@example.com"></div><div class="field"><label>County</label><input id="cw_county" value="'+esc(CW.data.county||'')+'" placeholder="Boulder"></div></div>'+
+      '<div class="field"><label>'+(cfg.person?'Primary practice location':'Premises / site address')+'</label><input id="cw_site" value="'+esc(CW.data.site||'')+'" placeholder="Street, city, ZIP"></div>'+
+      '<div class="actions"><button class="btn" onclick="cwGo(0)">← Back</button><button class="btn primary" onclick="cwSave0();cwGo(2)">Next: acknowledgements →</button></div></div>';
   } else if(CW.step===2){
-    h+='<div class="card"><h3 class="dh">Regs check</h3><div class="appmeta" style="margin-bottom:6px">A short check so you understand the rules. Answer all correctly to submit.</div>'+
+    h+='<div class="card"><h3 class="dh">Required acknowledgements</h3><div class="appmeta" style="margin-bottom:6px">Attest to each — tap <b>📖 the citation</b> to read the rule it comes from. Check all to continue.</div>'+
+      acks.map(function(ak,i){ var open=CW.open[i];
+        return '<div style="border-top:1px solid #eef0f1;padding:8px 0"><label style="display:flex;gap:9px;align-items:flex-start"><input type="checkbox" '+(CW.acks[i]?'checked':'')+' onchange="cwAck('+i+',this.checked)" style="margin-top:3px"><span>'+ak.t+' <a href="#" onclick="cwTogAck('+i+');return false;" style="white-space:nowrap;font-size:11px;font-weight:700">📖 '+esc(ak.c)+(open?' ▲':' ▾')+'</a></span></label>'+(open?'<div class="appmeta" style="margin:5px 0 0 28px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 9px">'+ak.r+' <a href="'+ruleLink(ak.c)+'" target="_blank" rel="noopener">Open the rule ↗</a></div>':'')+'</div>';
+      }).join('')+
+      '<div class="actions"><button class="btn" onclick="cwGo(1)">← Back</button><button class="btn primary" '+(cwAllAck()?'':'disabled')+' onclick="cwGo(3)">'+(cwAllAck()?'Next: regs check →':'Check all to continue')+'</button></div></div>';
+  } else if(CW.step===3){
+    h+='<div class="card"><h3 class="dh">Regs check</h3><div class="appmeta" style="margin-bottom:6px">A short check so you understand the rules before you operate. Answer all correctly to submit.</div>'+
       CW_QUIZ.map(function(q,i){return '<div style="padding:8px 0;border-top:1px solid #eef0f1"><div style="font-weight:600;margin-bottom:4px">'+(i+1)+'. '+q.q+'</div>'+q.a.map(function(opt,j){var sel=CW.quiz[i]===j; return '<label style="display:flex;gap:8px;align-items:center;padding:3px 0"><input type="radio" name="cwq'+i+'" '+(sel?'checked':'')+' onchange="cwQuiz('+i+','+j+')"><span>'+esc(opt)+(sel?(j===q.correct?' <b style="color:#1c7a4a">✓</b>':' <b style="color:#9a2a1c">✗ try again</b>'):'')+'</span></label>';}).join('')+'</div>';}).join('')+
       '<div class="note">Score: <b>'+cwQuizScore()+' / '+CW_QUIZ.length+'</b></div>'+
-      '<div class="actions"><button class="btn" onclick="cwGo(1)">← Back</button><button class="btn primary" '+(cwQuizScore()===CW_QUIZ.length?'':'disabled')+' onclick="cwGo(3)">'+(cwQuizScore()===CW_QUIZ.length?'Next: review →':'Answer all correctly')+'</button></div></div>';
+      '<div class="actions"><button class="btn" onclick="cwGo(2)">← Back</button><button class="btn primary" '+(cwQuizScore()===CW_QUIZ.length?'':'disabled')+' onclick="cwGo(4)">'+(cwQuizScore()===CW_QUIZ.length?'Next: review →':'Answer all correctly')+'</button></div></div>';
   } else {
-    h+='<div class="card"><h3 class="dh">Review &amp; submit</h3><div class="kv"><b>'+esc(CW.data.name||'(applicant)')+'</b> · '+esc(CW.data.county||'')+(CW.data.site?' · '+esc(CW.data.site):'')+'</div><div class="kv">✓ All '+CW_ACKS.length+' acknowledgements attested · ✓ Regs check passed ('+cwQuizScore()+'/'+CW_QUIZ.length+')</div><div class="note">By submitting you attest the information is accurate. Prototype: recorded locally and added to Licensing &amp; renewals.</div><div class="actions"><button class="btn" onclick="cwGo(2)">← Back</button><button class="btn primary" onclick="cwSubmit()">Submit application</button></div></div>';
+    h+='<div class="card"><h3 class="dh">Review &amp; submit</h3><div class="kv"><b>'+esc(CW.type)+'</b></div><div class="kv"><b>'+esc(CW.data.name||'(applicant)')+'</b> · '+esc(CW.data.county||'')+(CW.data.site?' · '+esc(CW.data.site):'')+'</div><div class="kv">✓ All '+acks.length+' acknowledgements attested · ✓ Regs check passed ('+cwQuizScore()+'/'+CW_QUIZ.length+')</div><div class="note">By submitting you attest the information is accurate. Prototype: recorded locally and sent to the Natural Medicine Division review queue.</div><div class="actions"><button class="btn" onclick="cwGo(3)">← Back</button><button class="btn primary" onclick="cwSubmit()">Submit application</button></div></div>';
   }
   return h;
 }
@@ -376,7 +422,7 @@ function render(){
   var allowed=roleViews();
   document.querySelectorAll('#nav button').forEach(function(b){ var v=b.dataset.view; b.style.display=allowed.indexOf(v)>=0?'':'none'; b.setAttribute('aria-current', v===VIEW?'true':'false'); });
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
-  if(allowed.indexOf(VIEW)<0) VIEW=allowed[0];
+  if(VIEW!=='cultapply' && allowed.indexOf(VIEW)<0) VIEW=allowed[0];
   var b=renewAlert();
   var r=document.getElementById('root');
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
