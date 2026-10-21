@@ -1193,6 +1193,28 @@ function designatedHero(){
     beyond+
     '</div>';
 }
+function complianceMonitor(){
+  var apps=loadApps();
+  var pendingInsp=apps.filter(function(a){ if(!((a.status==='submitted'||a.status==='sitevisit') && a.sitevisit)) return false; var s=inspSummary(a.id,a); return !(s&&s.complete); }).length;
+  var approved=apps.filter(function(a){return a.status==='approved';});
+  var dueRenew=approved.filter(function(a){ var r=renewalInfo(a); return r&&r.state!=='active'; });
+  var bl=(typeof loadBulletins==='function'?loadBulletins():[]), acks=(typeof loadAcks==='function'?loadAcks():{});
+  var unacked=bl.filter(function(b){return !acks[b.id];}).length;
+  var openRecalls=(typeof loadCustody==='function'?loadCustody().lots.filter(function(l){return l.recalled && l.dohStatus!=='reviewed';}):[]).length;
+  var rows=[
+    {n:pendingInsp, t:'Site-visit inspection(s) to complete before a decision', v:'review', col:'#9a6a00'},
+    {n:dueRenew.length, t:'Licence renewal(s) in the 60/30-day window or lapsed', v:'dashboard', col:'#9a6a00'},
+    {n:unacked, t:'Requirement bulletin(s) awaiting licensee acknowledgment', v:'dashboard', col:'#2b5f86'},
+    {n:openRecalls, t:'Recall(s) flagged by a lab — notified, pending your review', v:'safety', col:'#9a2a1c'}
+  ];
+  var total=pendingInsp+dueRenew.length+openRecalls;
+  var h='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">🛡 Compliance monitor — your action queue</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">Live oversight across the licensee population — '+(total?('<b>'+total+'</b> item(s) need attention'):'nothing time-critical right now')+'. Updates as applications, renewals, acknowledgments and recalls change.</div>';
+  h+=rows.map(function(r){ var urgent=r.n>0; return '<div class="approw"><div><b style="font-size:16px;color:'+(urgent?r.col:'#8a949a')+'">'+r.n+'</b> &middot; '+r.t+'</div>'+(urgent?'<button class="btn sm" onclick="go(\''+r.v+'\')">Open</button>':'<span class="status s-approved">clear</span>')+'</div>'; }).join('');
+  if(approved.length){ h+='<div class="note" style="margin:8px 0 4px"><b>Licensee compliance snapshot</b></div>'; h+=approved.map(function(a){ var r=renewalInfo(a); var st=r?(r.state==='active'?'<span class="status s-approved">Active</span>':'<span class="status s-submitted">Renewal '+r.state+'</span>'):''; return '<div class="approw"><div><b>'+esc(a.title)+'</b> <span class="pill">'+esc(a.typeName)+'</span><div class="appmeta">'+a.id+(r?' · expires '+fmtDate(r.exp.toISOString()):'')+'</div></div>'+st+'</div>'; }).join(''); }
+  h+='</div>';
+  return h;
+}
 function renderDashboard(){
   var ROLE2COACH={producer:'producer',lab:'lab',clinician:'provider',facilitator:'provider',patient:'patient',doh:null};
   var p=ROLE2COACH[ROLE];
@@ -1204,6 +1226,7 @@ function renderDashboard(){
     _ses.forEach(function(s){ if(s.enrollment_id) _enr[s.enrollment_id]=1; });
     var _rec=(typeof loadCustody==='function'?loadCustody().lots.filter(function(l){return l.recalled;}).length:0);
     h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 2px">'+mchip(_pend,t('Pending applications','Solicitudes pendientes'))+mchip(_appr,t('Approved','Aprobadas'))+mchip('0',t('Certified labs','Labs certificados'))+mchip(_ae.length,t('Adverse events','Eventos adversos'))+mchip(_rec,t('Flagged / recalled batches','Lotes retirados'))+mchip(Object.keys(_enr).length,t('Enrollees (de-id)','Inscritos'))+'</div>';
+    h+=complianceMonitor();
     h+=regulatorTodo();
     h+=bulletinsCard('doh');
     h+=renewalsCard('doh');

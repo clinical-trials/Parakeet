@@ -160,6 +160,23 @@ function roleViews(){ return (CO_ROLES[ROLE]||CO_ROLES.regulator).views; }
 function setRole(r){ ROLE=r; try{localStorage.setItem('parakeet_co_role_v1',r);}catch(e){} if(roleViews().indexOf(VIEW)<0) VIEW=roleViews()[0]; render(); }
 function go(v){ VIEW=v; render(); window.scrollTo(0,0); }
 
+function coComplianceMonitor(){
+  var lic=loadLic();
+  var dueRenew=lic.filter(function(l){return renewInfo(l).state!=='active';});
+  var bl=loadBul(), acks=loadAcks(); var unacked=bl.filter(function(b){return !acks[b.id];}).length;
+  var rows=[
+    {n:dueRenew.length, t:'Licence renewal(s) in the 60/30-day window or lapsed', col:'#9a6a00'},
+    {n:unacked, t:'Requirement bulletin(s) awaiting licensee acknowledgment', col:'#2b5f86'}
+  ];
+  var total=dueRenew.length;
+  var h='<div class="card" style="border-left:4px solid #5a2d2a;background:#fbf1ef;border-color:#e6c3ba"><h3 class="dh" style="color:#5a2d2a">🛡 Compliance monitor — action queue</h3>'+
+    '<div class="appmeta" style="margin-bottom:6px">Live oversight across Colorado licensees — '+(total?('<b>'+total+'</b> item(s) need attention'):'nothing time-critical right now')+'.</div>';
+  h+=rows.map(function(r){ var urgent=r.n>0; return '<div class="approw"><div><b style="font-size:16px;color:'+(urgent?r.col:'#8a949a')+'">'+r.n+'</b> &middot; '+r.t+'</div>'+(urgent?'<span class="pill">review</span>':'<span class="status s-approved">clear</span>')+'</div>'; }).join('');
+  h+='<div class="note" style="margin:8px 0 4px"><b>Licensee compliance snapshot</b></div>';
+  h+=lic.map(function(l){ var r=renewInfo(l); var st=r.state==='active'?'<span class="status s-approved">Active</span>':'<span class="status s-submitted">Renewal '+r.state+'</span>'; return '<div class="approw"><div><b>'+esc(l.type)+'</b> <span class="pill">'+esc(l.holder)+'</span><div class="appmeta">'+l.id+' · expires '+fmtDate(r.exp.toISOString())+'</div></div>'+st+'</div>'; }).join('');
+  h+='</div>';
+  return h;
+}
 function renderDashboard(){
   var c=CO_ROLES[ROLE];
   var h='<h1>'+c.ico+' '+c.name+'</h1><div class="sub">Colorado Regulated Natural Medicine — a <b>non-medical</b> program for adults 21+ via a licensed facilitator. Prototype; local data.</div>';
@@ -167,6 +184,7 @@ function renderDashboard(){
   if(ROLE==='regulator'){
     var lic=loadLic();
     h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 12px">'+mchip(lic.length,'Active licenses')+mchip(loadBul().length,'Requirements posted')+mchip(lic.filter(function(l){return renewInfo(l).state!=='active';}).length,'Renewals due')+'</div>';
+    h+=coComplianceMonitor();
     h+=bulletinsCard('regulator');
     h+=renewalsCard('all');
   } else if(ROLE==='participant'){
