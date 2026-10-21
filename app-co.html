@@ -74,11 +74,11 @@
       <span style="font-size:11px;color:#e8c3bb;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Signed in as</span>
       <select id="roleSel" onchange="setRole(this.value)" aria-label="Active role" style="font:inherit;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:#3a1a18;color:#fff">
         <option value="regulator">Natural Medicine Division (DOR)</option>
-        <option value="healing">Healing center</option>
+        <option value="healing">Healing Center</option>
         <option value="facilitator">Facilitator</option>
-        <option value="cultivator">Cultivator</option>
-        <option value="manufacturer">Products manufacturer</option>
-        <option value="lab">Testing facility</option>
+        <option value="cultivator">Cultivation Facility</option>
+        <option value="manufacturer">Products Manufacturer</option>
+        <option value="lab">Testing Facility</option>
         <option value="participant">Participant (21+)</option>
       </select>
     </div>
@@ -99,11 +99,11 @@ function mchip(v,k){ return '<span class="mchip"><b>'+v+'</b><span>'+k+'</span><
 
 var CO_ROLES={
   regulator:{name:'Natural Medicine Division (DOR)', ico:'🏛️', views:['dashboard','licensing','requirements','inventory'], goal:'License &amp; oversee healing centers, cultivation, products manufacturers and testing facilities (Dept. of Revenue), and promulgate requirements to licensees. Facilitators are licensed by DORA.'},
-  healing:{name:'Healing center', ico:'🏡', views:['dashboard','licensing','requirements','inventory','access'], goal:'Provide supervised administration sessions (prep · administration · integration) to adults 21+, no diagnosis required.'},
+  healing:{name:'Healing Center', ico:'🏡', views:['dashboard','licensing','requirements','inventory','access'], goal:'Provide supervised administration sessions (prep · administration · integration) to adults 21+, no diagnosis required.'},
   facilitator:{name:'Facilitator', ico:'🧭', views:['dashboard','licensing','requirements','access'], goal:'Deliver preparation, administration and integration; licensed through DORA (4 CCR 755-1).'},
-  cultivator:{name:'Cultivation', ico:'🍄', views:['dashboard','licensing','cultapply','requirements','inventory'], goal:'Cultivate natural medicine; track harvest batches and transfers through the regulated chain.'},
-  manufacturer:{name:'Products manufacturer', ico:'⚗️', views:['dashboard','licensing','requirements','inventory'], goal:'Convert source material into regulated products; record potency from the COA.'},
-  lab:{name:'Testing facility', ico:'🧪', views:['dashboard','licensing','requirements','inventory'], goal:'Potency &amp; contaminant testing; issue Certificates of Analysis.'},
+  cultivator:{name:'Cultivation Facility', ico:'🍄', views:['dashboard','licensing','cultapply','requirements','inventory'], goal:'Cultivate natural medicine; track harvest batches and transfers through the regulated chain.'},
+  manufacturer:{name:'Products Manufacturer', ico:'⚗️', views:['dashboard','licensing','requirements','inventory'], goal:'Convert source material into regulated products; record potency from the COA.'},
+  lab:{name:'Testing Facility', ico:'🧪', views:['dashboard','licensing','requirements','inventory'], goal:'Potency &amp; contaminant testing; issue Certificates of Analysis.'},
   participant:{name:'Participant (21+)', ico:'🌀', views:['dashboard','access'], goal:'Access natural medicine through a licensed facilitator at a healing center.'}
 };
 var CO_LICENSES={
@@ -224,12 +224,12 @@ function licensingView(){
   var h='<h1>Licensing &amp; renewals</h1><div class="sub">Colorado natural-medicine license types, with annual renewal tracking. Fees &amp; exact terms: verify against <b>1 CCR 213-1 Part 2</b>.</div>';
   h+='<div class="card" style="border-color:#bfe3cc;background:var(--greenbg)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>🍄 Apply for a Cultivation license</b><div class="appmeta">Quick application — basics, required acknowledgements &amp; a short regs check.</div></div><button class="btn primary" onclick="openCultWizard()">Start application</button></div></div>';
   h+='<div class="card"><h3 class="dh">License types (C.R.S. Title 44, Art. 50 · 1 CCR 213-1)</h3>'+
-    [['Healing Center','Supervised administration premises','C.R.S. 44-50-301'],
-     ['Facilitator','Delivers prep · administration · integration (DORA)','4 CCR 755-1'],
-     ['Cultivation','Grows natural medicine','1 CCR 213-1'],
-     ['Products Manufacturer','Makes regulated products','1 CCR 213-1'],
-     ['Testing Facility','Potency &amp; contaminant testing + COAs','1 CCR 213-1'],
-     ['Handler / Owner-Employee','Any person handling product or with financial interest','1 CCR 213-1']].map(function(x){return '<div class="approw"><div><b>'+x[0]+'</b><div class="appmeta">'+x[1]+'</div></div><span class="pill">'+x[2]+'</span></div>';}).join('')+
+    [['Healing Center','Licensed facility where a Facilitator provides &amp; supervises Natural Medicine Services for a Participant (incl. micro-Healing Center ≤ 750 mg Total Psilocin)','C.R.S. 44-50 · 1 CCR 213-1'],
+     ['Facilitator','Licensed by DORA to provide &amp; supervise Natural Medicine Services','4 CCR 755-1'],
+     ['Natural Medicine Cultivation Facility','Cultivates natural medicine — micro or standard tier','1 CCR 213-1'],
+     ['Natural Medicine Products Manufacturer','Makes Regulated Natural Medicine Products','1 CCR 213-1'],
+     ['Natural Medicine Testing Facility','Tests potency (Total Psilocin) &amp; contaminants; issues COAs','1 CCR 213-1'],
+     ['Handler / Owner / Employee','Handles Regulated Natural Medicine or holds a Financial Interest','1 CCR 213-1']].map(function(x){return '<div class="approw"><div><b>'+x[0]+'</b><div class="appmeta">'+x[1]+'</div></div><span class="pill">'+x[2]+'</span></div>';}).join('')+
     '<div class="note">Colorado also <b>decriminalizes</b> personal cultivation, use &amp; community sharing for adults 21+ (separate from this regulated-access program). Fees are set in <b>1 CCR 213-1 Part 2 §2005</b> (cites C.R.S. §§44-50-104/202/203/601/602) — verify current amounts.</div></div>';
   h+=renewalsCard(ROLE==='regulator'?'all':'mine');
   return h;
@@ -275,7 +275,7 @@ function saveInv(a){ try{ localStorage.setItem('parakeet_co_inv_v1', JSON.string
 function addInv(kind){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';};
   var rec; if(kind==='harvest'){ var b=g('h_batch'); if(!b.trim())return; rec={kind:'Harvest batch', id:'HB-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:b, info:g('h_strain')+' · '+g('h_wt')+' g · '+g('h_date')}; }
   else if(kind==='manifest'){ var fr=g('m_from'); if(!fr.trim())return; rec={kind:'Transport manifest', id:'TM-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:fr+' → '+g('m_to'), info:g('m_item')+' · '+g('m_qty')+' · sealed '+g('m_seal')}; }
-  else if(kind==='coa'){ var lot=g('c_lot'); if(!lot.trim())return; rec={kind:'COA', id:'COA-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:lot, info:'potency '+g('c_pot')+' mg/unit · '+g('c_pass')}; }
+  else if(kind==='coa'){ var lot=g('c_lot'); if(!lot.trim())return; rec={kind:'COA', id:'COA-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:lot, info:'Total Psilocin '+g('c_pot')+' mg/unit · '+g('c_pass')}; }
   else if(kind==='waste'){ var w=g('w_mat'); if(!w.trim())return; rec={kind:'Waste', id:'WST-'+Math.random().toString(36).slice(2,6).toUpperCase(), ref:w, info:g('w_qty')+' · '+g('w_method')+' · witness '+g('w_wit')}; }
   rec.at=new Date().toISOString(); var a=loadInv(); a.unshift(rec); saveInv(a); render();
 }
@@ -284,7 +284,7 @@ function inventoryView(){
   var h='<h1>Inventory &amp; chain-of-custody</h1><div class="sub">Colorado inventory templates as validated forms — harvest, transport manifest, COA and waste — so the records match the Division templates (1 CCR 213-1).</div>';
   h+='<div class="card"><h3 class="dh">🌱 Harvest batch</h3><div class="grid"><div class="field"><label>Batch ref</label><input id="h_batch" placeholder="e.g. HC-2026-014"></div><div class="field"><label>Strain / cultivar</label><input id="h_strain" placeholder="Golden Teacher"></div><div class="field"><label>Wet weight (g)</label><input id="h_wt" type="number" placeholder="500"></div><div class="field"><label>Harvest date</label><input id="h_date" type="date"></div></div><div class="actions"><span class="note">Starts the seed-to-session chain.</span><button class="btn primary" onclick="addInv(\'harvest\')">Record harvest</button></div></div>';
   h+='<div class="card"><h3 class="dh">🚚 Transport manifest</h3><div class="grid"><div class="field"><label>From (licensee)</label><input id="m_from" placeholder="Cultivator"></div><div class="field"><label>To (licensee)</label><input id="m_to" placeholder="Healing center"></div><div class="field"><label>Item / lot</label><input id="m_item" placeholder="Lot ID"></div><div class="field"><label>Quantity</label><input id="m_qty" placeholder="e.g. 60 units"></div><div class="field"><label>Sealed container ID</label><input id="m_seal" placeholder="SEAL-…"></div></div><div class="actions"><span class="note">Locked, manifested transfer with chain-of-custody.</span><button class="btn primary" onclick="addInv(\'manifest\')">Record manifest</button></div></div>';
-  h+='<div class="card"><h3 class="dh">🧪 Certificate of Analysis (COA)</h3><div class="grid"><div class="field"><label>Lot ID</label><input id="c_lot" placeholder="Lot ID"></div><div class="field"><label>Potency (mg/unit)</label><input id="c_pot" type="number" placeholder="25"></div><div class="field"><label>Result</label><select id="c_pass"><option>Pass</option><option>Fail</option></select></div></div><div class="actions"><span class="note">Potency flows to products &amp; sessions.</span><button class="btn primary" onclick="addInv(\'coa\')">Record COA</button></div></div>';
+  h+='<div class="card"><h3 class="dh">🧪 Certificate of Analysis (COA)</h3><div class="grid"><div class="field"><label>Lot ID</label><input id="c_lot" placeholder="Lot ID"></div><div class="field"><label>Total Psilocin (mg/unit)</label><input id="c_pot" type="number" placeholder="25"></div><div class="field"><label>Result</label><select id="c_pass"><option>Pass</option><option>Fail</option></select></div></div><div class="actions"><span class="note">Potency flows to products &amp; sessions.</span><button class="btn primary" onclick="addInv(\'coa\')">Record COA</button></div></div>';
   h+='<div class="card"><h3 class="dh">♻️ Waste tracking</h3><div class="grid"><div class="field"><label>Material</label><input id="w_mat" placeholder="trim / failed lot"></div><div class="field"><label>Quantity</label><input id="w_qty" placeholder="e.g. 40 g"></div><div class="field"><label>Method</label><input id="w_method" placeholder="rendered unusable"></div><div class="field"><label>Witness</label><input id="w_wit" placeholder="name"></div></div><div class="actions"><span class="note">Render unusable &amp; log before disposal.</span><button class="btn primary" onclick="addInv(\'waste\')">Record waste</button></div></div>';
   var inv=loadInv();
   if(inv.length){ h+='<div class="card"><h3 class="dh">Records on file ('+inv.length+')</h3>'+inv.map(function(r){return '<div class="approw"><div><b>'+r.kind+'</b> <span class="pill">'+r.id+'</span><div class="appmeta">'+esc(r.ref)+' · '+esc(r.info)+'</div></div><div class="appmeta">'+fmtDate(r.at)+'</div></div>';}).join('')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetInv();return false;">reset</a></div></div>'; }
