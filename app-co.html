@@ -226,6 +226,16 @@ function renderCoResearch(){
   if(irb && irb.no) h+='<div style="background:var(--greenbg);border:1px solid #bfe3cc;color:#1c5a3a;border-radius:8px;padding:8px 10px;margin-top:6px"><b>✓ IRB on file:</b> COMIRB protocol '+esc(irb.no)+' &mdash; research use unlocked. <a href="#" onclick="clearCoIRB();return false;">clear</a></div>';
   else h+='<div class="actions" style="margin-top:6px"><input id="co_irb" placeholder="COMIRB protocol # (e.g. 24-1234)" style="flex:1;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:8px"><button class="btn primary" onclick="recordCoIRB()">Record IRB approval</button></div>';
   h+='<div class="note" style="margin-top:6px">Prototype &mdash; records the protocol locally. Submit through the official COMIRB / CDPHE process. Human-subjects research per 45 CFR 46.</div></div>';
+  h+='<div class="card" style="border-left:4px solid #2f6f4f"><h3 class="dh" style="color:#2f6f4f">Already happening &mdash; a live CU Anschutz study</h3>'+
+    '<div class="kv">This is not hypothetical. A naturalistic psilocybin study is <b>enrolling right now</b> at CU Anschutz under COMIRB oversight &mdash; the same IRB pathway described above.</div>'+
+    '<div style="background:#fff;border:1px solid #cfe3d6;border-radius:8px;padding:10px 12px;margin:4px 0;font-size:13.5px;line-height:1.55">'+
+      '<div style="font-weight:700;font-size:15px">&ldquo;Understanding the Effects of Psilocybin Use in Adults&rdquo;</div>'+
+      '<div style="color:#555;margin:2px 0 6px">PI <b>Kent Hutchison, PhD</b> &middot; CU Anschutz &middot; Protocol <b>25-0291</b> &middot; category: Healthy Volunteer</div>'+
+      '<div>Observational, bring-your-own design: examines the short- and long-term effects of psilocybin use and whether they differ by sex. Participants obtain their own psilocybin (the study team does not provide it), give saliva samples before and 24&ndash;48 h after dosing, and complete weekly surveys for 4 weeks (~5 weeks total: 1 in-person + 4 remote visits; up to $200).</div>'+
+      '<div style="color:#555;margin-top:6px"><b>Eligible:</b> adults 21&ndash;75 in the Denver metro who have used psilocybin &ge;2&times; in the past year and plan to use again within 60 days.</div>'+
+      '<div style="margin-top:6px"><a href="https://researchstudies.cuanschutz.edu/Study/25-0291" target="_blank" rel="noopener">View the study ↗</a></div>'+
+    '</div>'+
+    '<div class="note">Independent CU Anschutz research &mdash; not affiliated with Parakeet or the Natural Medicine Division. Shown as a real-world proof point that the IRB-gated pathway above is active today. It is a <b>naturalistic</b> study of people who already use psilocybin &mdash; distinct from the regulated healing-center access model.</div></div>';
   return h;
 }
 function renderDashboard(){
