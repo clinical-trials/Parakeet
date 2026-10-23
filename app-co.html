@@ -68,6 +68,7 @@
     <nav class="app" id="nav">
       <button data-view="dashboard" onclick="go('dashboard')">Dashboard</button>
       <button data-view="review" onclick="go('review')">Review</button>
+      <button data-view="research" onclick="go('research')">🔬 Research</button>
       <button data-view="licensing" onclick="go('licensing')">Licensing &amp; renewals</button>
       <button data-view="requirements" onclick="go('requirements')">Requirements</button>
       <button data-view="inventory" onclick="go('inventory')">Inventory &amp; custody</button>
@@ -102,7 +103,7 @@ function fmtDate(iso){ try{ var d=new Date(iso); return d.toLocaleDateString('en
 function mchip(v,k){ return '<span class="mchip"><b>'+v+'</b><span>'+k+'</span></span>'; }
 
 var CO_ROLES={
-  regulator:{name:'Colorado Natural Medicine Division', ico:'🏛️', views:['dashboard','review','licensing','requirements','inventory'], goal:'License and oversee healing centers, cultivation facilities, products manufacturers and testing facilities (Colorado Department of Revenue, Natural Medicine Division), and promulgate requirements to licensees. Facilitators are licensed by the Colorado Department of Regulatory Agencies.'},
+  regulator:{name:'Colorado Natural Medicine Division', ico:'🏛️', views:['dashboard','review','licensing','requirements','inventory','research'], goal:'License and oversee healing centers, cultivation facilities, products manufacturers and testing facilities (Colorado Department of Revenue, Natural Medicine Division), and promulgate requirements to licensees. Facilitators are licensed by the Colorado Department of Regulatory Agencies.'},
   healing:{name:'Healing Center', ico:'🏡', views:['dashboard','licensing','requirements','inventory','access'], goal:'Provide supervised administration sessions (prep · administration · integration) to adults 21+, no diagnosis required.'},
   facilitator:{name:'Facilitator', ico:'🧭', views:['dashboard','licensing','requirements','access'], goal:'Deliver preparation, administration and integration; licensed through the Colorado Department of Regulatory Agencies (4 CCR 755-1).'},
   cultivator:{name:'Cultivation Facility', ico:'🍄', views:['dashboard','licensing','cultapply','requirements','inventory'], goal:'Cultivate natural medicine; track harvest batches and transfers through the regulated chain.'},
@@ -199,6 +200,32 @@ function coDirectoryCard(){
     '<div class="appmeta" style="margin-bottom:4px"><b>Verified healing centers (examples — the official lookup has the complete, current list):</b></div>'+
     CENTERS.map(function(x){return '<div class="approw"><div><b>'+esc(x.n)+'</b> <span class="pill">'+esc(x.c)+'</span><div class="appmeta">'+x.note+'</div></div><span class="status s-approved">Licensed</span></div>';}).join('')+
     '<div class="note">By early 2026 Colorado had roughly <b>34 licensed healing centers</b> (about 9 standard + 25 micro) with more pending — figure from third-party reporting (Feb 2026); the <b>authoritative, current</b> list is the state lookup above, and facilitators (hundreds) are in the Colorado Department of Regulatory Agencies search. Sources: CPR, Boulder Reporting Lab, Axios; dnm.colorado.gov.</div></div>';
+  return h;
+}
+function loadCoIRB(){ try{ return JSON.parse(localStorage.getItem('parakeet_co_irb_v1')||'{}'); }catch(e){ return {}; } }
+function recordCoIRB(){ var el=document.getElementById('co_irb'); if(!el||!el.value.trim())return; try{ localStorage.setItem('parakeet_co_irb_v1', JSON.stringify({no:el.value.trim(), at:new Date().toISOString()})); }catch(e){} render(); }
+function clearCoIRB(){ try{ localStorage.removeItem('parakeet_co_irb_v1'); }catch(e){} render(); }
+function renderCoResearch(){
+  var irb=loadCoIRB();
+  var h='<h1>🔬 Research arm</h1><div class="sub">Turn Colorado&rsquo;s live program into evidence &mdash; with human-subjects protections. IRB approval routed to <b>CU Anschutz (COMIRB)</b> and public-health collaboration with <b>CDPHE</b>. Prototype; local data.</div>';
+  h+='<div class="card"><h3 class="dh">What Colorado could study today</h3>'+
+    '<div class="kv">Colorado&rsquo;s program has been <b>live since 2025</b> &mdash; a naturalistic, real-world cohort. The state dataset is <b>inventory-only</b>, so outcomes are collected with validated instruments by healing centers / academic partners (not the regulated data). The psilocybin evidence base is mostly RCTs; <b>real-world effectiveness &amp; safety at scale</b> is the gap Colorado can fill:</div>'+
+    '<ul style="margin:4px 0 2px;padding-left:18px;font-size:13.5px">'+
+      ['<b>Real-world safety &amp; tolerability</b> in open-access adults 21+ &mdash; adverse-event, challenging-experience &amp; emergency-contact rates at scale.',
+       '<b>Naturalistic effectiveness</b> on depression, anxiety &amp; wellbeing &mdash; paired pre/post validated measures (PHQ-9, GAD-7, WHO-5).',
+       '<b>Who accesses services &amp; equity of uptake</b> &mdash; demographics, geography, cost barriers (open-access programs skew affluent).',
+       '<b>Durability</b> at short-to-medium windows; and <b>implementation / health-services research</b> (facilitator workforce, micro vs. standard healing centers, delivery models).'].map(function(x){return '<li style="margin:2px 0">'+x+'</li>';}).join('')+
+    '</ul>'+
+    '<div class="note">Not answerable from Colorado data: <b>by-diagnosis effectiveness</b> and <b>dose&ndash;response</b> (no qualifying diagnosis; labeled by Total Psilocin) &mdash; that is New Mexico&rsquo;s medical niche.</div></div>';
+  h+='<div class="card" style="border-left:4px solid #5a2d2a;background:#fbf1ef;border-color:#e6c3ba"><h3 class="dh" style="color:#5a2d2a">IRB approval — CU Anschutz (COMIRB) &amp; CDPHE</h3>'+
+    '<div class="kv"><b>CU Anschutz researchers:</b> human-subjects research is reviewed by the <b>Colorado Multiple Institutional Review Board (COMIRB)</b> &mdash; the IRB for CU Anschutz / CU Denver and affiliates (Children&rsquo;s Hospital Colorado, Denver Health, UCHealth, VA Eastern Colorado), per 45 CFR 46 and 21 CFR 50 &amp; 56; AAHRPP-accredited. Outside investigators (e.g., healing-center partners) can join via an IRB <b>reliance agreement</b>. <a href="https://research.cuanschutz.edu/comirb" target="_blank" rel="noopener">COMIRB ↗</a></div>'+
+    '<div style="background:#fff;border:1px solid #e6c3ba;border-radius:8px;padding:9px 11px;margin:4px 0 6px;font-size:13px;line-height:1.5"><b>Colorado Multiple Institutional Review Board</b><br>Phone: <a href="tel:+13037241055">303-724-1055</a> &middot; Email: <a href="mailto:comirb@ucdenver.edu">comirb@ucdenver.edu</a><br>University of Colorado Anschutz &middot; Fitzsimons Building (500), Mail Stop F490<br>13001 East 17th Place, Aurora, CO 80045<br><span style="color:#5a2d2a">Email <a href="mailto:COMIRB@ucdenver.edu">COMIRB@ucdenver.edu</a> to set up a Zoom meeting or phone call. Virtual Office Hours every <b>Monday 12&ndash;1 p.m.</b></span></div>'+
+    '<div class="kv"><b>CU Anschutz is already a major research hub</b> &mdash; <b>358 active research studies</b> are currently recruiting across the campus. A Natural Medicine study would join that pipeline through the same IRB. <a href="https://researchstudies.cuanschutz.edu/FindAResearchStudy" target="_blank" rel="noopener">Find a research study ↗</a></div>'+
+    '<div class="kv"><b>CDPHE researchers / policymakers:</b> the <b>Colorado Department of Public Health &amp; Environment</b> partners on population-health, surveillance &amp; equity analyses; CDPHE research follows its own human-research review or relies on an accredited IRB such as COMIRB &mdash; confirm the pathway. <a href="https://cdphe.colorado.gov/" target="_blank" rel="noopener">CDPHE ↗</a>.</div>'+
+    '<div class="kv"><b>Participant protections:</b> only <b>de-identified aggregates</b> leave the healing center; <b>opt-in</b> consent; research use is <b>IRB-gated</b> and separate from the regulated-access service.</div>';
+  if(irb && irb.no) h+='<div style="background:var(--greenbg);border:1px solid #bfe3cc;color:#1c5a3a;border-radius:8px;padding:8px 10px;margin-top:6px"><b>✓ IRB on file:</b> COMIRB protocol '+esc(irb.no)+' &mdash; research use unlocked. <a href="#" onclick="clearCoIRB();return false;">clear</a></div>';
+  else h+='<div class="actions" style="margin-top:6px"><input id="co_irb" placeholder="COMIRB protocol # (e.g. 24-1234)" style="flex:1;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:8px"><button class="btn primary" onclick="recordCoIRB()">Record IRB approval</button></div>';
+  h+='<div class="note" style="margin-top:6px">Prototype &mdash; records the protocol locally. Submit through the official COMIRB / CDPHE process. Human-subjects research per 45 CFR 46.</div></div>';
   return h;
 }
 function renderDashboard(){
@@ -433,6 +460,7 @@ function render(){
   else if(VIEW==='cultapply') r.innerHTML=b+cultWizard();
   else if(VIEW==='review') r.innerHTML=b+coReviewView();
   else if(VIEW==='access') r.innerHTML=b+accessView();
+  else if(VIEW==='research') r.innerHTML=b+renderCoResearch();
 }
 render();
 </script>
