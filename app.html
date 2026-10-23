@@ -483,6 +483,49 @@ function renderMessages(){
   return h;
 }
 
+/* ---------- study protocol builder (UNM IRB Protocol template) ---------- */
+var PROTO_FIELDS=[
+ {id:'title', label:'Study title', t:'input', seed:''},
+ {id:'pi', label:'Principal Investigator / Faculty Supervisor', t:'input', seed:''},
+ {id:'funding', label:'Funding / Sponsor', t:'input', seed:'NM Medical Psilocybin Research Fund (SB219 §11(B))'},
+ {id:'background', label:'Background & scientific rationale (≤ 1 paragraph)', t:'textarea', seed:'New Mexico runs a medical psilocybin program that enrolls by qualifying diagnosis and doses flat mg of psilocybin + psilocin from the Certificate of Analysis. Unlike open-access, undiagnosed programs, this design can test a dose–response relationship and durability by diagnosis. This study uses the §9 registry’s opt-in cohort to estimate response and remission at 1 / 3 / 6 / 12 months.'},
+ {id:'aims', label:'Specific aims / hypotheses', t:'textarea', seed:'H1: Validated condition-specific instruments show clinically meaningful response (≥50% reduction) and remission at 1 / 3 / 6 / 12 months. H2: A flat 25 mg anchor is effective across qualifying conditions (saturable 5-HT2A). H3: Serious adverse-event rates meet or beat Oregon’s real-world benchmark.'},
+ {id:'enddate', label:'Anticipated end date (final de-identification of data)', t:'input', seed:''},
+ {id:'inclusion', label:'Inclusion / exclusion criteria (note vulnerable populations)', t:'textarea', seed:'Include: adults enrolled in the NM Medical Psilocybin Program with a certified qualifying condition who opted in to research. Exclude (safety): history of psychosis or bipolar I; pregnancy / breastfeeding; uncontrolled cardiac / QTc; unmanaged serotonergic interactions; active lithium use.'},
+ {id:'enrollment', label:'Estimated maximum enrollment', t:'input', seed:''},
+ {id:'recruitment', label:'Recruitment & screening', t:'textarea', seed:'Participants are identified from §9 sessions where the patient opted in to de-identified research use, invited through their treating clinician, and de-identified to the researcher. No direct recruitment of patients by the research team.'},
+ {id:'procedures', label:'Procedures', t:'textarea', seed:'Dose = mg psilocybin + psilocin from the COA (flat anchor, not mg/kg), delivered in supervised preparation → administration → integration sessions. Validated outcome battery at baseline and 1 / 3 / 6 / 12-month follow-ups (paired). Adverse events monitored with the PATAE framework incl. a Sociocultural Domain.'},
+ {id:'risks', label:'Risks', t:'textarea', seed:'Challenging psychological experiences, prolonged distress, transient anxiety / panic, prolonged perceptual effects (HPPD), cardiac / QTc considerations, and suicidality — screened and monitored (C-SSRS). Possible loss of privacy mitigated by de-identification.'},
+ {id:'benefits', label:'Benefits', t:'textarea', seed:'No guaranteed direct benefit. Potential symptom improvement; societal benefit from by-diagnosis, dose-anchored evidence that informs safe, equitable access.'},
+ {id:'data', label:'Confidentiality & data security', t:'textarea', seed:'De-identified aggregates only (year of birth, diagnosed disability yes/no, ZIP). Stored per the UNM Human Research Data Security Standards; access limited and audit-logged; the UNM IRB / sponsor / FDA may access records as permitted. Future use only with consent per the UNM standard.'},
+ {id:'consent', label:'Consent process', t:'textarea', seed:'Participants sign the UNM IRB-approved “Consent to Participate in Research” before any research procedure; participation is voluntary with the right to withdraw.'}
+];
+function loadProto(){ try{ var r=localStorage.getItem('parakeet_protocol_v1'); return r?JSON.parse(r):{}; }catch(e){ return {}; } }
+function saveProto(o){ try{ localStorage.setItem('parakeet_protocol_v1', JSON.stringify(o)); }catch(e){} }
+function protoVal(id){ var o=loadProto(); if(o[id]!=null) return o[id]; var f=PROTO_FIELDS.filter(function(x){return x.id===id;})[0]; return f?f.seed:''; }
+function protoSet(id,v){ var o=loadProto(); o[id]=v; saveProto(o); }
+function protoReset(){ try{ localStorage.removeItem('parakeet_protocol_v1'); }catch(e){} render(); }
+var PROTO_PREVIEW=false;
+function protoPreview(on){ PROTO_PREVIEW=on; render(); window.scrollTo(0,0); }
+function renderProtocol(){
+  if(PROTO_PREVIEW){
+    var h='<h1>📄 Study protocol — draft</h1><div class="sub">Compiled from your entries, aligned to the UNM IRB Protocol template. Review, print, and submit the official version.</div>'+
+      '<div class="card" style="background:#fffdf9"><div style="font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px">UNM IRB Protocol (draft via Parakeet) · '+new Date().toLocaleDateString()+'</div>'+
+      '<h2 style="font-size:18px;margin:0 0 2px">'+esc(protoVal('title')||'[Study title]')+'</h2>'+
+      '<div class="appmeta" style="margin-bottom:8px">PI: '+esc(protoVal('pi')||'—')+' · Funding: '+esc(protoVal('funding'))+' · End date: '+esc(protoVal('enddate')||'—')+' · Max enrollment: '+esc(protoVal('enrollment')||'—')+'</div>'+
+      [['Background & rationale','background'],['Specific aims / hypotheses','aims'],['Inclusion / exclusion','inclusion'],['Recruitment & screening','recruitment'],['Procedures','procedures'],['Risks','risks'],['Benefits','benefits'],['Confidentiality & data security','data'],['Consent process','consent']].map(function(sx){return '<div style="margin:0 0 8px"><div style="font-weight:800;color:var(--pine2);font-size:13px">'+sx[0]+'</div><div style="font-size:13.5px;white-space:pre-wrap">'+esc(protoVal(sx[1])||'—')+'</div></div>';}).join('')+
+      '<div class="note">IRB of record: UNM Health Sciences HRPO. Submit using the official <a href="forms/UNM-IRB-Protocol-Template.pdf" download>UNM Protocol template ↓</a>.</div></div>'+
+      '<div class="actions"><button class="btn" onclick="protoPreview(false)">← Edit</button><button class="btn primary" onclick="window.print()">Print / save as PDF</button></div>';
+    return h;
+  }
+  var h='<h1>📄 Study protocol builder</h1><div class="sub">Draft a research protocol aligned to the <b>UNM IRB Protocol template</b>, pre-filled for the New Mexico medical-psilocybin §9 cohort. Edit anything; your draft saves on this device. For the §11(B) Research Fund.</div>';
+  h+='<div class="card">'+PROTO_FIELDS.map(function(f){ var v=protoVal(f.id); if(f.t==='textarea') return '<div class="field"><label>'+f.label+'</label><textarea oninput="protoSet(\''+f.id+'\',this.value)" style="min-height:72px">'+esc(v)+'</textarea></div>'; return '<div class="field"><label>'+f.label+'</label><input value="'+esc(v)+'" oninput="protoSet(\''+f.id+'\',this.value)"></div>'; }).join('')+
+    '<div class="draftnote">✓ Draft saved on this device — close and finish later</div>'+
+    '<div class="actions"><a href="#" onclick="go(\'research\');return false;" class="slink">← Research</a><div style="display:flex;gap:8px"><button class="btn" onclick="protoReset()">Reset to template</button><button class="btn primary" onclick="protoPreview(true)">Preview protocol →</button></div></div></div>';
+  h+='<div class="note">Template &amp; IRB: <a href="forms/UNM-IRB-Protocol-Template.pdf" download>UNM Protocol template ↓</a> · <a href="https://hsc.unm.edu/research/compliance/hrpo/investigators.html" target="_blank" rel="noopener">UNM HSC HRPO ↗</a>. A working draft — submit via the official UNM IRB process.</div>';
+  return h;
+}
+
 /* ---------- render ---------- */
 function render(){
   var allowed=roleViews();
@@ -493,6 +536,7 @@ function render(){
   try{ document.documentElement.lang=LANG; }catch(e){}
   var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert();
   if(VIEW==='calendar'){ r.innerHTML=b+renderCalendar(); return; }
+  if(VIEW==='protocol'){ r.innerHTML=b+((ROLE==='clinician'||ROLE==='doh')?renderProtocol():lockView()); return; }
   if(VIEW==='inspect'){ r.innerHTML=b+(ROLE==='doh'?renderInspection():lockView()); return; }
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
   if(VIEW==='dashboard') r.innerHTML=b+renderDashboard();
@@ -1740,6 +1784,7 @@ function renderResearch(){
        ['UNM-IRB-Event-Report-Template.pdf','📄 Event Report template','reportable events within 7 days — categories, PI determinations, corrective action'],
        ['UNM-IRB-Recruitment-Flyer-Template.pdf','📄 Recruitment Flyer template','purpose, eligibility, what participants do, time, incentive']
       ].map(function(x){return '<div class="approw"><div><b>'+x[1]+'</b><div class="appmeta">'+x[2]+'</div></div><a class="btn sm" href="forms/'+x[0]+'" download target="_blank" rel="noopener">Download ↓</a></div>';}).join('')+
+     '<div class="approw" style="background:var(--greenbg);border-radius:10px;padding:10px 12px;margin-top:8px"><div><b>📄 Study protocol builder</b><div class="appmeta">Draft a protocol pre-filled for the §9 cohort, aligned to the UNM template</div></div><button class="btn primary sm" onclick="go(\'protocol\')">Open builder →</button></div>'+
      '<div class="note" style="margin-top:8px"><b>Policies &amp; guidance (UNM IRB):</b> informed consent (501.8), review level — exempt / expedited / full board (301–304), <b>reporting events involving risk</b> (401.3) &amp; protocol deviations (405.2), vulnerable populations (502.6), HIPAA in research (505.2) &amp; the Human Research Data Security Standards, advertisement &amp; recruitment (510.2), continuing review (305.8) &amp; project closure (410.4), and <b>Research with American Indian Communities</b>. Full set: <a href="https://irb.unm.edu/policies-guidance/index.html" target="_blank" rel="noopener">irb.unm.edu/policies-guidance ↗</a>. For New Mexico medical-psilocybin research the <b>American Indian / Tribal research</b> guidance pairs with this program&rsquo;s sovereignty-first + CARE/OCAP commitments.</div></div>';
   var SS=loadSessions(), optIn=SS.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}), byCO={};
   optIn.forEach(function(s){ var c=s.condition||'Unspecified'; byCO[c]=(byCO[c]||0)+1; });
