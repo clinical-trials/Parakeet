@@ -1688,6 +1688,20 @@ function renderResearch(){
   if(irb && irb.no) h+='<div style="background:#e8f5ec;border:1px solid #bfe3cc;color:#1c5a3a;border-radius:6px;padding:7px 10px;margin-top:6px;font-size:12.5px"><b>✓ IRB on file:</b> protocol '+esc(irb.no)+' — research use unlocked. <a href="#" onclick="clearIRB();return false;">clear</a></div>';
   else h+='<div class="actions" style="margin-top:6px"><input id="irb_no" placeholder="IRB protocol # (e.g. 2026-123)" style="flex:1;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn primary sm" onclick="saveIRB()">Record IRB approval</button></div>';
   h+='<div class="note"><b>Equity in who is studied:</b> monitor the sample for rural / tribal / income representation so the evidence base is not skewed toward those who can afford access.</div></div>';
+  h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">Research consent — UNM standard template</h3>'+
+     '<div class="kv" style="color:var(--ink)">Generalizable research uses the <b>UNM IRB &ldquo;Consent to Participate in Research&rdquo;</b> template (plain-language, voluntary). Required elements:</div>'+
+     '<ul style="margin:6px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink)">'+
+       ['<b>Purpose</b> of the research &amp; why you&rsquo;re invited (inclusion / exclusion)',
+        '<b>Key information</b> summary — description, main requirements, key risks/benefits, alternatives, time commitment',
+        '<b>What you will do</b> — plain-language procedures, where, and which are experimental',
+        '<b>Risks</b> — physical, psychological, social, economic, legal; possible loss of privacy',
+        '<b>Benefits</b> — direct to you vs. societal (may state there is no direct benefit)',
+        '<b>Confidentiality</b> — storage, access, de-identification; the UNM IRB / sponsor / FDA may access records',
+        '<b>Future use</b> of identifiable information or biospecimens (will / will not be shared)',
+        '<b>Payment</b>, if any',
+        '<b>Voluntary participation</b> &amp; right to withdraw; questions &amp; the IRB contact'].map(function(x){return '<li style="margin:2px 0">'+x+'</li>';}).join('')+
+     '</ul>'+
+     '<div class="note">Participants sign the <b>IRB-approved</b> consent before any research procedure. Template &amp; all IRB forms: <a href="https://irb.unm.edu/library/index.html" target="_blank" rel="noopener">UNM IRB forms library ↗</a> &middot; <a href="https://hsc.unm.edu/research/compliance/hrpo/investigators.html" target="_blank" rel="noopener">UNM HSC HRPO — for investigators ↗</a>. Mirrors the UNM standard consent elements — always use the current official template.</div></div>';
   var SS=loadSessions(), optIn=SS.filter(function(s){return (s.consent||'').indexOf('Opt in')===0;}), byCO={};
   optIn.forEach(function(s){ var c=s.condition||'Unspecified'; byCO[c]=(byCO[c]||0)+1; });
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Study recruitment &amp; pre/post capture — the research engine</h3>';
