@@ -97,6 +97,16 @@
   .cdot{color:var(--green);font-weight:800}
   .cmini{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#41525a;background:var(--slate);border:1px solid var(--line);border-radius:5px;padding:1px 6px;white-space:nowrap}
   .ctip{font-size:13px;padding:5px 0;color:#6d4e12}
+  .topbar{background:#fffdf9;border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+  .topbar input{width:100%;font:inherit;font-size:15px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .aebtn{display:inline-flex;align-items:center;gap:6px;background:#9a2a1c;color:#fff;font-weight:800;font-size:13.5px;padding:11px 15px;border-radius:10px;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(154,42,28,.22)}
+  .aebtn:hover{background:#86271a}
+  .helpwrap{position:relative;flex:1 1 260px;min-width:200px}
+  .helpresults{display:none;position:absolute;left:0;right:0;top:48px;z-index:40;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(23,66,63,.16);overflow:hidden}
+  .helpres{padding:11px 14px;cursor:pointer;font-size:14px;border-top:1px solid #f0f0ec}
+  .helpres:first-child{border-top:0}.helpres:hover{background:var(--slate)}
+  @media(max-width:600px){.aebtn{width:100%;justify-content:center}}
 </style>
 </head>
 <body>
@@ -133,6 +143,13 @@
     </div>
   </div>
 </header>
+<div class="topbar"><div class="wrap">
+  <a href="#" onclick="go('safety');return false;" class="aebtn" title="Report an adverse event">⚠ Report an adverse event</a>
+  <div class="helpwrap">
+    <input id="helpq" type="search" placeholder="🔎 Search — try “apply”, “report an adverse event”, “find a lab”, “renew”" oninput="helpSearch(this.value)" autocomplete="off" aria-label="Search this site">
+    <div id="helpresults" class="helpresults"></div>
+  </div>
+</div></div>
 <div class="wrap" id="root"></div>
 <script>
 /* ---------- storage (per-viewer; graceful) ---------- */
@@ -255,11 +272,11 @@ var DESIGNATED = [
 /* ---------- role-based access (least-privilege) ---------- */
 var ROLES={
   doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
-  patient:{name:'Patient', views:['dashboard','chooser','myapps']},
+  patient:{name:'Patient', views:['dashboard','chooser','myapps','safety']},
   clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','research','safety']},
   facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety']},
-  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab']},
-  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody']}
+  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','safety']},
+  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','safety']}
 };
 var ROLE=(function(){ try{ return localStorage.getItem('parakeet_role_v1')||'doh'; }catch(e){ return 'doh'; } })();
 function roleViews(){ return (ROLES[ROLE]||ROLES.doh).views; }
@@ -406,6 +423,37 @@ function reflowView(){
   }catch(e){}
 }
 
+/* ---------- searchable help bar ---------- */
+var HELP_INDEX=[
+ {t:'⚠ Report an adverse event', k:'adverse event safety report side effect harm emergency reaction', go:function(){go('safety');}},
+ {t:'Apply — start an application (producer, lab, clinician, patient)', k:'apply application start permit enroll certify producer laboratory clinician', go:function(){go('chooser');}},
+ {t:'Patient enrollment — qualify &amp; apply', k:'patient enroll qualify condition diagnosis join eligibility', go:function(){setRole('patient');go('chooser');}},
+ {t:'My applications &amp; status (resume a draft)', k:'my applications status track submitted resume draft in progress', go:function(){go('myapps');}},
+ {t:'Find a testing laboratory', k:'lab testing laboratory coa potency contaminant certificate', go:function(){go('lab');}},
+ {t:'Chain of custody &amp; COA (spore-to-session)', k:'custody tracking batch lot package coa transfer spore session product', go:function(){go('custody');}},
+ {t:'§9 reporting — record a session', k:'section 9 nine reporting session outcomes measures record dose', go:function(){go('reporting');}},
+ {t:'Research, outcomes &amp; research funding (IRB / UNM)', k:'research outcomes funding grant irb university unm study section 11', go:function(){go('research');}},
+ {t:'Licensure renewals &amp; alerts', k:'renew renewal license expire due window', go:function(){go('dashboard');}},
+ {t:'Equity &amp; access / Treatment Equity Fund', k:'equity access fund low income rural tribal subsidy cost gross receipts tax', go:function(){go('equity');}},
+ {t:'Upcoming meetings &amp; calendar', k:'calendar meetings events committee hearing zoom register dates times', go:function(){go('calendar');}},
+ {t:'Billing &amp; payments (providers)', k:'billing payment pay cost fee gross receipts tax grt ach card', go:function(){go('clinician');}},
+ {t:'Department of Health — review queue &amp; inspections', k:'doh department health review decide applications inspection recall regulator approve', go:function(){goAs('doh','review');}},
+ {t:'Compare New Mexico, Colorado &amp; Oregon (Policy Console)', k:'compare states colorado oregon console policy cross-state', go:function(){location.href='index.html';}},
+ {t:'Switch role / signed-in identity', k:'role identity switch doh patient clinician producer lab facilitator view', go:function(){var e=document.getElementById('roleSel'); if(e){ e.focus(); }}}
+];
+function helpSearch(q){
+  q=(q||'').toLowerCase().trim();
+  var box=document.getElementById('helpresults'); if(!box) return;
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  var words=q.split(/\s+/);
+  var res=[]; HELP_INDEX.forEach(function(it,i){ var hay=(it.t+' '+it.k).toLowerCase(); if(words.every(function(w){return hay.indexOf(w)>-1;})) res.push(i); });
+  box.style.display='block';
+  if(!res.length){ box.innerHTML='<div class="helpres" style="color:var(--muted)">No matches — try “apply”, “adverse event”, “renew”, “lab”, or “equity”.</div>'; return; }
+  box.innerHTML=res.slice(0,8).map(function(i){ return '<div class="helpres" onclick="helpGo('+i+')">'+HELP_INDEX[i].t+'</div>'; }).join('');
+}
+function helpGo(i){ var it=HELP_INDEX[i]; clearHelp(); if(it&&it.go) it.go(); }
+function clearHelp(){ var inp=document.getElementById('helpq'); if(inp) inp.value=''; var box=document.getElementById('helpresults'); if(box){ box.style.display='none'; box.innerHTML=''; } }
+
 /* ---------- render ---------- */
 function render(){
   var allowed=roleViews();
@@ -413,7 +461,7 @@ function render(){
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
   var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   try{ document.documentElement.lang=LANG; }catch(e){}
-  var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert()+aeBar();
+  var r=document.getElementById('root'), b=langBanner()+eventBanner()+renewalAlert();
   if(VIEW==='calendar'){ r.innerHTML=b+renderCalendar(); return; }
   if(VIEW==='inspect'){ r.innerHTML=b+(ROLE==='doh'?renderInspection():lockView()); return; }
   if(allowed.indexOf(VIEW)<0){ r.innerHTML=b+lockView(); return; }
@@ -801,7 +849,7 @@ function renderCustody(){
   var c=loadCustody();
   var tested=0, awaiting=0, admin=0;
   c.lots.forEach(function(l){ if(l.status==='awaiting-coa')awaiting++; else tested++; l.pkgs.forEach(function(p){ if(p.status==='administered')admin++; }); });
-  var h='<h1>Chain-of-custody &amp; COA</h1><div class="sub">Unique IDs at <b>batch → lot → package</b>, tied to COA potency (mg) — no RFID. The chain ends at <b>administration to an enrolled patient</b> (mg dosed → §9), not a retail sale. Seeded with the first NM-permitted producer. Prototype; local data.</div>';
+  var h='<h1>Product tracking — <b>spore-to-session</b></h1><div class="sub">Chain of custody with unique IDs at <b>spore/batch → lot → package</b>, tied to COA potency (mg) — no RFID. The chain ends at <b>administration to an enrolled patient</b> (mg dosed → §9), not a retail sale. Seeded with the first NM-permitted producer. Prototype; local data.</div>';
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px">'+mchip(c.lots.length,'Lots')+mchip(awaiting,'Awaiting COA')+mchip(tested,'Tested &amp; packaged')+mchip(admin,'Administered → §9')+'</div>';
   h+='<div class="card" style="border-color:#e8d3a0;background:#faf3e3"><b>🍄 Sacred Alto Spores</b> — first NM-permitted producer. <b>4 strains in the system, ready to be lab tested.</b><div class="appmeta" style="margin-top:4px">⚠ No NM testing laboratory is permitted yet — lab-permit applications open <b>10/05/2026</b> (DOH) — so every COA is <b>Pending</b>. &ldquo;Record COA (lab)&rdquo; simulates the lab step for the demo. · <a href="#" onclick="resetCustody();return false;">Reset demo data</a></div></div>';
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 8px;color:#2b5f86;font-size:14px">Producer licensing — Oregon&rsquo;s model as a reference for NM</h3>'+
@@ -829,7 +877,7 @@ function renderCustody(){
       h+='</div>';
     } else {
       var sc=l.pass==='Pass'?'s-approved':(l.pass==='Fail'?'s-denied':'s-submitted');
-      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><div style="display:flex;gap:6px;align-items:center">'+(l.recalled?'<span class="status s-denied">RECALLED</span>':'<span class="status '+sc+'">COA '+esc(l.pass)+'</span><button class="btn sm no" onclick="recallLot(\''+l.id+'\')">Recall</button>')+'</div></div>';
+      h+='<div class="rev"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="apptitle">'+esc(l.strain)+' <span class="pill">'+l.id+'</span></div><div style="display:flex;gap:6px;align-items:center">'+(l.recalled?'<span class="status s-denied">RECALLED</span>':'<span class="status '+sc+'">COA '+esc(l.pass)+'</span><button class="btn no" onclick="recallLot(\''+l.id+'\')">⛔ Recall</button>')+'</div></div>';
       h+='<div class="appmeta">'+esc(l.producer)+' · harvested '+esc(l.date||'—')+' · '+esc(l.wt)+' g wet · <b>'+esc(l.psi)+' mg/'+esc(l.unit)+'</b></div>';
       var si=STRAIN_INFO[l.strain]; if(si) h+='<div class="appmeta" style="margin-top:2px"><i>'+si.sp+'</i> — '+si.note+' Typical '+si.pot+'; <b>the COA set the actual mg</b>.</div>';
       h+='<div class="kv" style="margin-top:6px"><b>Packages &amp; custody chain:</b></div>';
@@ -901,7 +949,7 @@ function labRecallCard(){
   if(tested.length){
     h+=tested.map(function(l){
       if(l.recalled){ var ds=l.dohStatus==='reviewed'?'<span class="status s-approved">DOH reviewed</span>':'<span class="status s-submitted">DOH notified</span>'; return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">recalled · '+esc(l.recallReason)+' · batch pulled from supply chain</div></div><div style="display:flex;gap:6px;align-items:center"><span class="status s-denied">Recalled</span>'+ds+'</div></div>'; }
-      return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">'+esc(l.psi||'—')+' mg/'+esc(l.unit)+' · COA '+esc(l.pass)+'</div></div><div style="display:flex;gap:6px;align-items:center"><select id="rc_'+l.id+'" style="font:inherit;font-size:11.5px;padding:4px 6px;border:1px solid var(--line);border-radius:6px">'+RECALL_THRESHOLDS.map(function(t){return '<option>'+t.k+'</option>';}).join('')+'</select><button class="btn sm no" onclick="startRecall(\''+l.id+'\')">Recall batch</button></div></div>';
+      return '<div class="approw"><div><b>'+esc(l.strain)+'</b> <span class="pill">'+l.id+'</span><div class="appmeta">'+esc(l.psi||'—')+' mg/'+esc(l.unit)+' · COA '+esc(l.pass)+'</div></div><div style="display:flex;gap:6px;align-items:center"><select id="rc_'+l.id+'" style="font:inherit;font-size:11.5px;padding:4px 6px;border:1px solid var(--line);border-radius:6px">'+RECALL_THRESHOLDS.map(function(t){return '<option>'+t.k+'</option>';}).join('')+'</select><button class="btn no" style="font-weight:800" onclick="startRecall(\''+l.id+'\')">⛔ Recall batch</button></div></div>';
     }).join('');
   } else { h+='<div class="note">No tested lots yet — record a COA in <a href="#" onclick="go(\'custody\');return false;">Chain-of-custody</a> first.</div>'; }
   h+='<div class="note" style="margin-top:8px">Recalls flow to the regulator. <a href="#" onclick="goAs(\'doh\',\'safety\');return false;"><b>Open the DOH recall queue &rarr;</b></a></div></div>';
@@ -1635,7 +1683,8 @@ function renderResearch(){
   var irb=loadIRB();
   h+='<div class="card" style="border-color:#bcd4e6;background:#eef3f6"><h3 style="margin:0 0 6px;color:#2b5f86;font-size:14px">Research-ethics gate — QI vs. human-subjects research (IRB)</h3>'+
     '<div class="kv" style="color:var(--ink)"><b>No IRB:</b> mandatory §9 / QI aggregate reporting and internal quality improvement.</div>'+
-    '<div class="kv" style="color:var(--ink)"><b>IRB REQUIRED (built-in step):</b> generalizable research — hypothesis-testing, publication, secondary use of <b>opt-in</b> data, or identifiable data. As with Luma Chart, approval is recorded before research use is unlocked.</div>';
+    '<div class="kv" style="color:var(--ink)"><b>IRB REQUIRED (built-in step):</b> generalizable research — hypothesis-testing, publication, secondary use of <b>opt-in</b> data, or identifiable data. As with Luma Chart, approval is recorded before research use is unlocked.</div>'+
+    '<div class="kv" style="color:var(--ink)"><b>IRB of record — University of New Mexico Health Sciences:</b> health-sciences human research is reviewed by the <b>UNM Health Sciences Human Research Protections Office (HRPO)</b>. Because the §11(B) Research Fund is open to <b>New Mexico state research universities</b>, UNM Health Sciences is the natural grantee and IRB home — outside investigators join via an IRB <b>reliance agreement</b>. <a href="https://hsc.unm.edu/research/compliance/hrpo/investigators.html" target="_blank" rel="noopener">UNM HSC HRPO — for investigators ↗</a> &middot; <a href="https://irb.unm.edu/library/index.html" target="_blank" rel="noopener">IRB forms library ↗</a> &middot; hsc-hrpo@salud.unm.edu &middot; 505-272-1129 &middot; HRPP Director Brad Dolin, JD.</div>';
   if(irb && irb.no) h+='<div style="background:#e8f5ec;border:1px solid #bfe3cc;color:#1c5a3a;border-radius:6px;padding:7px 10px;margin-top:6px;font-size:12.5px"><b>✓ IRB on file:</b> protocol '+esc(irb.no)+' — research use unlocked. <a href="#" onclick="clearIRB();return false;">clear</a></div>';
   else h+='<div class="actions" style="margin-top:6px"><input id="irb_no" placeholder="IRB protocol # (e.g. 2026-123)" style="flex:1;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn primary sm" onclick="saveIRB()">Record IRB approval</button></div>';
   h+='<div class="note"><b>Equity in who is studied:</b> monitor the sample for rural / tribal / income representation so the evidence base is not skewed toward those who can afford access.</div></div>';
