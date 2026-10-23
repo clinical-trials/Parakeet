@@ -122,6 +122,7 @@
       <button data-view="lab" onclick="go('lab')">Testing labs</button>
       <button data-view="reporting" onclick="go('reporting')">§9 Reporting</button>
       <button data-view="research" onclick="go('research')">Research</button>
+      <button data-view="messages" onclick="go('messages')">✉ Messages</button>
       <button data-view="safety" onclick="go('safety')">Safety</button>
       <button data-view="equity" onclick="go('equity')">Equity</button>
       <button data-view="review" onclick="go('review')">DOH review</button>
@@ -271,12 +272,12 @@ var DESIGNATED = [
 
 /* ---------- role-based access (least-privilege) ---------- */
 var ROLES={
-  doh:{name:'DOH reviewer', views:['dashboard','review','research','safety','equity','lab','custody']},
-  patient:{name:'Patient', views:['dashboard','chooser','myapps','safety']},
-  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','research','safety']},
-  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','safety']},
-  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','safety']},
-  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','safety']}
+  doh:{name:'DOH reviewer', views:['dashboard','review','messages','research','safety','equity','lab','custody']},
+  patient:{name:'Patient', views:['dashboard','chooser','myapps','messages','safety']},
+  clinician:{name:'Certifying clinician', views:['dashboard','clinician','chooser','myapps','reporting','messages','research','safety']},
+  facilitator:{name:'Facilitator / healing center', views:['dashboard','custody','reporting','messages','safety']},
+  producer:{name:'Producer', views:['dashboard','chooser','myapps','custody','lab','messages','safety']},
+  lab:{name:'Testing lab', views:['dashboard','chooser','myapps','lab','custody','messages','safety']}
 };
 var ROLE=(function(){ try{ return localStorage.getItem('parakeet_role_v1')||'doh'; }catch(e){ return 'doh'; } })();
 function roleViews(){ return (ROLES[ROLE]||ROLES.doh).views; }
@@ -454,10 +455,39 @@ function helpSearch(q){
 function helpGo(i){ var it=HELP_INDEX[i]; clearHelp(); if(it&&it.go) it.go(); }
 function clearHelp(){ var inp=document.getElementById('helpq'); if(inp) inp.value=''; var box=document.getElementById('helpresults'); if(box){ box.style.display='none'; box.innerHTML=''; } }
 
+/* ---------- secure messaging: Department of Health → licensees ---------- */
+function loadMsgs(){ try{ return JSON.parse(localStorage.getItem('parakeet_messages_v1')||'[]'); }catch(e){ return []; } }
+function saveMsgs(a){ try{ localStorage.setItem('parakeet_messages_v1', JSON.stringify(a)); }catch(e){} }
+function msgAudForRole(){ var m={producer:['all','producer'],lab:['all','lab'],clinician:['all','clinician'],facilitator:['all','facilitator'],patient:['all','patient']}; return m[ROLE]||null; }
+function msgsForRole(){ var want=msgAudForRole(); var all=loadMsgs(); return want? all.filter(function(x){return want.indexOf(x.aud)>=0;}) : all; }
+function msgUnread(){ if(ROLE==='doh') return 0; return msgsForRole().filter(function(x){return !(x.acks&&x.acks[ROLE]);}).length; }
+function sendMsg(){ var g=function(id){var e=document.getElementById(id);return e?e.value:'';}; var subj=g('m_subj'); if(!subj.trim())return; var a=loadMsgs(); a.unshift({id:'MSG-'+Math.random().toString(36).slice(2,6).toUpperCase(), aud:g('m_aud')||'all', subject:esc(subj), body:esc(g('m_body')), at:new Date().toISOString(), acks:{}, replies:[]}); saveMsgs(a); render(); }
+function ackMsg(id){ var a=loadMsgs(); a.forEach(function(x){ if(x.id===id){ x.acks=x.acks||{}; x.acks[ROLE]=new Date().toISOString(); } }); saveMsgs(a); render(); }
+function replyMsg(id){ var el=document.getElementById('mr_'+id); if(!el||!el.value.trim())return; var a=loadMsgs(); a.forEach(function(x){ if(x.id===id){ x.replies=x.replies||[]; x.replies.push({role:ROLE, text:esc(el.value), at:new Date().toISOString()}); x.acks=x.acks||{}; x.acks[ROLE]=new Date().toISOString(); } }); saveMsgs(a); render(); }
+function resetMsgs(){ try{ localStorage.removeItem('parakeet_messages_v1'); }catch(e){} render(); }
+function renderMessages(){
+  var AUD={all:'All licensees',producer:'Producers',lab:'Laboratories',clinician:'Clinicians',facilitator:'Facilitators',patient:'Patients'};
+  var h='<h1>✉ Secure messages</h1><div class="sub">A quick, auditable channel for the Department of Health to reach licensees &mdash; a more secure alternative to email, with read-receipts. Prototype; local data.</div>';
+  if(ROLE==='doh'){
+    h+='<div class="card" style="border-left:4px solid #17423f;background:#eef3f6;border-color:#bcd4e6"><h3 class="dh" style="color:#17423f">📣 Compose — message licensees</h3>'+
+      '<div class="appmeta" style="margin-bottom:6px">Reach every licensee (or one category) in one send &mdash; faster than email for the Department, with read-receipts and replies.</div>'+
+      '<div class="grid"><div class="field"><label>Audience</label><select id="m_aud"><option value="all">All licensees</option><option value="producer">Producers</option><option value="lab">Laboratories</option><option value="clinician">Clinicians</option><option value="facilitator">Facilitators</option><option value="patient">Patients</option></select></div><div class="field"><label>Subject</label><input id="m_subj" placeholder="e.g. Laboratory certification update"></div></div>'+
+      '<div class="field"><label>Message</label><textarea id="m_body" placeholder="Short, direct message"></textarea></div>'+
+      '<div class="actions"><span class="note">Prototype: shared on this device with read-receipts. In production: encrypted, authenticated &amp; audit-logged.</span><button class="btn primary" onclick="sendMsg()">Send message</button></div></div>';
+    var all=loadMsgs();
+    h+='<div class="card"><h3 class="dh">Sent messages</h3>'+(all.length?all.map(function(x){var nack=Object.keys(x.acks||{}).length,nr=(x.replies||[]).length; return '<div class="approw" style="align-items:flex-start"><div style="flex:1"><b>'+x.subject+'</b> <span class="pill">'+AUD[x.aud]+'</span><div class="appmeta">'+x.body+'</div><div class="appmeta" style="color:#8a949a">sent '+fmtDate(x.at)+' · '+nack+' read'+(nr?' · '+nr+' repl'+(nr===1?'y':'ies'):'')+'</div>'+(x.replies||[]).map(function(r){return '<div class="appmeta" style="margin:3px 0 0 10px;border-left:2px solid var(--line);padding-left:8px"><b>'+esc(r.role)+':</b> '+r.text+'</div>';}).join('')+'</div></div>';}).join(''):'<div class="appmeta">No messages sent yet.</div>')+'<div class="appmeta" style="margin-top:6px"><a href="#" onclick="resetMsgs();return false;">reset</a></div></div>';
+    return h;
+  }
+  var list=msgsForRole();
+  h+='<div class="card">'+(list.length?list.map(function(x){ var read=x.acks&&x.acks[ROLE]; return '<div class="approw" style="align-items:flex-start"><div style="flex:1"><b>'+x.subject+'</b> '+(read?'':'<span class="status s-submitted">new</span>')+'<div class="appmeta">'+x.body+'</div><div class="appmeta" style="color:#8a949a">from the Department of Health · '+fmtDate(x.at)+'</div>'+(read?'':'<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><input id="mr_'+x.id+'" placeholder="Quick reply (optional)" style="flex:1 1 160px;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn sm" onclick="replyMsg(\''+x.id+'\')">Reply</button><button class="btn sm" onclick="ackMsg(\''+x.id+'\')">Mark read</button></div>')+(x.replies||[]).map(function(r){return '<div class="appmeta" style="margin:3px 0 0 10px;border-left:2px solid var(--line);padding-left:8px"><b>'+esc(r.role)+':</b> '+r.text+'</div>';}).join('')+'</div>'+(read?'<span class="status s-approved">read</span>':'')+'</div>';}).join(''):'<div class="empty">No messages from the Department yet.</div>')+'</div>';
+  return h;
+}
+
 /* ---------- render ---------- */
 function render(){
   var allowed=roleViews();
   document.querySelectorAll('#nav button').forEach(function(b){ var v=b.dataset.view; b.style.display=allowed.indexOf(v)>=0?'':'none'; b.setAttribute('aria-current', v===VIEW?'true':'false'); });
+  var _mb=document.querySelector('#nav button[data-view="messages"]'); if(_mb){ var _u=msgUnread(); _mb.innerHTML='✉ Messages'+(_u?' <span style="background:#9a2a1c;color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:800">'+_u+'</span>':''); }
   var rs=document.getElementById('roleSel'); if(rs) rs.value=ROLE;
   var ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   try{ document.documentElement.lang=LANG; }catch(e){}
@@ -475,6 +505,7 @@ function render(){
   else if(VIEW==='lab') r.innerHTML=b+renderLab();
   else if(VIEW==='reporting'){ r.innerHTML=b+renderReporting(); s9cond(); pickMeasure(); }
   else if(VIEW==='safety') r.innerHTML=b+renderSafety();
+  else if(VIEW==='messages') r.innerHTML=b+renderMessages();
   else if(VIEW==='equity'){ r.innerHTML=b+renderEquity(); fscalc(); }
   else if(VIEW==='research') r.innerHTML=b+renderResearch();
   reflowView();
