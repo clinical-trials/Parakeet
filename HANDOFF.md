@@ -42,6 +42,7 @@ The site previously said "SB219 §14 appropriates $1,000,000 to each fund + $2,0
 - **§11(B) Research Fund: no appropriation identified** as of 2026-11-02.
 - **NMDOH RACI minutes 2026-04-10** (nmhealth.org publication 9727, p. 3): "Funding for program- $630,000 Equity Fund and $300,000 Research" — consistent with HB2 2026.
 - Full working note: side-session notes folder, `fund-appropriation-verification.md`.
+- 2026-11-03: added a **State research funding** row to the NM research tab's cross-state table (app.html `XSTATE`) and a matching paragraph on the CO page. Verified: Oregon has no research fund (ORS 475A.492 is a regulatory account; 475A.230/.235 only review research); Colorado has no psilocybin research fund (C.R.S. 12-170-106 advisory duty; cash funds 12-170-111 / 44-50-601 are fee accounts; HB26-1325, signed 2026-06-04, is a donation-funded **ibogaine** pilot in the BHA).
 
 ## Guardrails to carry forward
 
